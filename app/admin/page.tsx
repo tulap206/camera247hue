@@ -81,6 +81,71 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
   )
 }
 
+// Helper to convert HTML back to plain text for simple editing
+function htmlToText(html: string): string {
+  if (!html) return ''
+  // If it doesn't look like HTML (no tags), just return as is
+  if (!html.includes('<') && !html.includes('>')) return html
+
+  return html
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<li>/gi, '- ')
+    .replace(/<p>/gi, '')
+    .replace(/<ul>/gi, '')
+    .replace(/<\/ul>/gi, '')
+    .replace(/<h[1-6]>/gi, '')
+    .replace(/<\/h[1-6]>/gi, '\n')
+    .replace(/<[^>]+>/g, '') // strip remaining tags
+    .replace(/\n\s*\n/g, '\n\n') // normalize newlines
+    .trim()
+}
+
+// Helper to convert plain text with newlines to HTML for saving
+function textToHtml(text: string): string {
+  if (!text) return ''
+  
+  let inList = false
+  const lines = text.split('\n')
+  const htmlLines = lines.map(line => {
+    const trimmed = line.trim()
+    if (!trimmed) {
+      if (inList) {
+        inList = false
+        return '</ul><br/>'
+      }
+      return '<br/>'
+    }
+
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      let prefix = ''
+      if (!inList) {
+        inList = true
+        prefix = '<ul>'
+      }
+      return `${prefix}<li>${trimmed.substring(2)}</li>`
+    } else {
+      let prefix = ''
+      if (inList) {
+        inList = false
+        prefix = '</ul>'
+      }
+      // If it looks like a heading
+      if (trimmed.startsWith('# ')) {
+        return `${prefix}<h2>${trimmed.substring(2)}</h2>`
+      }
+      return `${prefix}<p>${trimmed}</p>`
+    }
+  })
+
+  let result = htmlLines.join('')
+  if (inList) {
+    result += '</ul>'
+  }
+  return result
+}
+
 // ========== Post Form ==========
 function PostForm({
   post,
@@ -98,7 +163,7 @@ function PostForm({
   const [form, setForm] = useState({
     title: post?.title || '',
     slug: post?.slug || '',
-    content: post?.content || '',
+    content: htmlToText(post?.content || ''),
     excerpt: post?.excerpt || '',
     cover_image: post?.cover_image || '',
     category_id: post?.category_id || '',
@@ -240,7 +305,11 @@ function PostForm({
     const res = await fetch('/api/posts', {
       method: post ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, id: post?.id }),
+      body: JSON.stringify({
+        ...form,
+        content: textToHtml(form.content),
+        id: post?.id
+      }),
     })
 
     if (res.ok) {
@@ -438,15 +507,17 @@ function PostForm({
             </div>
 
             <div>
-              <label className="block text-gray-400 text-xs mb-1.5">Nội Dung (HTML)</label>
+              <label className="block text-gray-400 text-xs mb-1.5">Nội Dung Bài Viết</label>
               <textarea
-                rows={8}
+                rows={10}
                 value={form.content}
                 onChange={e => setForm(p => ({...p, content: e.target.value}))}
-                className="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm font-mono focus:outline-none focus:border-[#F5C518] resize-y"
-                placeholder="<h2>Mô tả công trình</h2><p>Nội dung...</p>"
+                className="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F5C518] resize-y"
+                placeholder="Nhập nội dung bài viết ở đây. Xuống dòng bình thường để tạo đoạn văn mới.
+Bắt đầu bằng '- ' để tạo danh sách (ví dụ: - Camera Hikvision 2MP).
+Bắt đầu bằng '# ' để tạo tiêu đề."
               />
-              <p className="text-gray-600 text-xs mt-1">Hỗ trợ HTML: h2, h3, p, ul, li, strong</p>
+              <p className="text-gray-600 text-xs mt-1">Xuống dòng để tạo đoạn mới. Sử dụng "- " để viết danh sách. Sử dụng "# " để viết tiêu đề.</p>
             </div>
 
             <div className="flex gap-4">
