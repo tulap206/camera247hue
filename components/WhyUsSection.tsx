@@ -25,7 +25,7 @@ const reasons = [
   },
   {
     icon: Users,
-    title: 'Hơn 500 Khách Hàng',
+    title: 'Hơn 1200 Khách Hàng',
     desc: 'Tin tưởng bởi hàng trăm hộ gia đình, quán cafe, khách sạn, trường học và doanh nghiệp tại Huế.'
   },
   {
@@ -59,7 +59,7 @@ export default function WhyUsSection() {
               TẠI HUẾ
             </h2>
             <p className="text-gray-400 mb-8 leading-relaxed">
-              Với hơn 10 năm kinh nghiệm trong lĩnh vực an ninh công nghệ, 
+              Với hơn 12 năm kinh nghiệm trong lĩnh vực an ninh công nghệ, 
               Camera 247 Huế đã và đang là đơn vị hàng đầu được tin tưởng 
               bởi hàng trăm khách hàng cá nhân và doanh nghiệp tại Cố Đô Huế.
             </p>

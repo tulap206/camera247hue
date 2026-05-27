@@ -90,9 +90,9 @@ export default function HeroSection() {
             {/* Quick stats */}
             <div className="flex flex-wrap gap-6">
               {[
-                { icon: Shield, value: '500+', label: 'Công trình' },
+                { icon: Shield, value: '1200+', label: 'Công trình' },
                 { icon: Eye, value: '24/7', label: 'Hỗ trợ' },
-                { icon: Lock, value: '10+', label: 'Năm kinh nghiệm' },
+                { icon: Lock, value: '12+', label: 'Năm kinh nghiệm' },
               ].map((stat) => (
                 <div key={stat.label} className="flex items-center gap-2">
                   <stat.icon className="w-5 h-5 text-[#F5C518]" />

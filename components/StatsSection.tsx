@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 
 const stats = [
-  { value: 500, suffix: '+', label: 'Công Trình Hoàn Thành', desc: 'Trên toàn Tp. Huế và vùng lân cận' },
-  { value: 10, suffix: '+', label: 'Năm Kinh Nghiệm', desc: 'Chuyên sâu trong lĩnh vực an ninh' },
+  { value: 1200, suffix: '+', label: 'Công Trình Hoàn Thành', desc: 'Trên toàn Tp. Huế và vùng lân cận' },
+  { value: 12, suffix: '+', label: 'Năm Kinh Nghiệm', desc: 'Chuyên sâu trong lĩnh vực an ninh' },
   { value: 24, suffix: '/7', label: 'Hỗ Trợ Kỹ Thuật', desc: 'Liên tục không gián đoạn' },
   { value: 98, suffix: '%', label: 'Khách Hàng Hài Lòng', desc: 'Tỷ lệ phản hồi tích cực' },
 ]

@@ -125,7 +125,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-12 pt-6 border-t border-gray-900 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-gray-600">
           <p>© {new Date().getFullYear()} Camera 247 Huế. Bảo lưu mọi quyền.</p>
-          <p>Thiết kế bởi Camera 247 Huế | <a href="tel:0967611112" className="text-[#F5C518] hover:underline">0967 611 112</a></p>
+          <p>Thiết kế bởi Phan Lê Tự Lập - Camera 247 Huế | <a href="tel:0967611112" className="text-[#F5C518] hover:underline">0967 611 112</a></p>
         </div>
       </div>
     </footer>
