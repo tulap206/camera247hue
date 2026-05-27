@@ -6,6 +6,9 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { id, ...data } = body
     
+    if (data.category_id === '') data.category_id = null
+    if (data.completed_at === '') data.completed_at = null
+    
     const db = supabaseAdmin()
     const { data: post, error } = await db
       .from('posts')
@@ -26,6 +29,9 @@ export async function PUT(request: Request) {
     const { id, category, ...data } = body
     
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 })
+    
+    if (data.category_id === '') data.category_id = null
+    if (data.completed_at === '') data.completed_at = null
     
     const db = supabaseAdmin()
     const { data: post, error } = await db
