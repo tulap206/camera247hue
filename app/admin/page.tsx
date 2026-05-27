@@ -499,18 +499,26 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   async function fetchAll() {
     setLoading(true)
-    const [{ data: postsData, count: postCount }, { data: catsData }, { data: contactsData, count: contactCount }] = await Promise.all([
-      supabase.from('posts').select('*, category:categories(*)', { count: 'exact' }).order('created_at', { ascending: false }),
-      supabase.from('categories').select('*').order('name'),
-      supabase.from('contact_messages').select('*', { count: 'exact' }).order('created_at', { ascending: false }),
-    ])
-    setPosts(postsData || [])
-    setCategories(catsData || [])
-    setContacts(contactsData || [])
-    const published = (postsData || []).filter(p => p.published).length
-    const unread = (contactsData || []).filter(c => !c.read).length
-    setStats({ posts: postCount || 0, published, contacts: contactCount || 0, unread })
-    setLoading(false)
+    try {
+      const res = await fetch('/api/admin/data')
+      if (res.ok) {
+        const { posts: postsData, categories: catsData, contacts: contactsData } = await res.json()
+        setPosts(postsData || [])
+        setCategories(catsData || [])
+        setContacts(contactsData || [])
+        const postCount = postsData?.length || 0
+        const contactCount = contactsData?.length || 0
+        const published = (postsData || []).filter(p => p.published).length
+        const unread = (contactsData || []).filter(c => !c.read).length
+        setStats({ posts: postCount, published, contacts: contactCount, unread })
+      } else {
+        console.error('Failed to fetch admin data')
+      }
+    } catch (err) {
+      console.error('Error fetching admin data:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleDelete = async (id: string) => {
@@ -529,7 +537,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   }
 
   const handleMarkRead = async (id: string) => {
-    await supabase.from('contact_messages').update({ read: true }).eq('id', id)
+    await fetch('/api/contacts', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, read: true }),
+    })
     fetchAll()
   }
 
