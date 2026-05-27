@@ -16,7 +16,7 @@ async function getFeaturedPosts() {
     .from('posts')
     .select('*, category:categories(*)')
     .eq('published', true)
-    .eq('featured', true)
+    .order('featured', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(6)
   return data || []
