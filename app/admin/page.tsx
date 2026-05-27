@@ -87,11 +87,13 @@ function PostForm({
   categories,
   onSave,
   onCancel,
+  onAddCategory,
 }: {
   post?: Post | null
   categories: Category[]
   onSave: () => void
   onCancel: () => void
+  onAddCategory: () => void
 }) {
   const [form, setForm] = useState({
     title: post?.title || '',
@@ -105,9 +107,19 @@ function PostForm({
     completed_at: post?.completed_at || '',
     featured: post?.featured || false,
     published: post?.published ?? true,
+    images: post?.images || [],
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Category creation state
+  const [newCatName, setNewCatName] = useState('')
+  const [showAddCat, setShowAddCat] = useState(false)
+  const [addingCat, setAddingCat] = useState(false)
+
+  // Upload state
+  const [uploadingCover, setUploadingCover] = useState(false)
+  const [uploadingGallery, setUploadingGallery] = useState(false)
 
   const generateSlug = (title: string) => {
     return title.toLowerCase()
@@ -129,6 +141,90 @@ function PostForm({
       ...p,
       title,
       slug: !post ? generateSlug(title) : p.slug
+    }))
+  }
+
+  const handleAddCategory = async () => {
+    if (!newCatName.trim()) return
+    setAddingCat(true)
+    try {
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newCatName }),
+      })
+      if (res.ok) {
+        const newCat = await res.json()
+        onAddCategory()
+        setForm(p => ({ ...p, category_id: newCat.id }))
+        setNewCatName('')
+        setShowAddCat(false)
+      } else {
+        const errData = await res.json()
+        alert(errData.error || 'Lỗi khi tạo danh mục')
+      }
+    } catch (err: any) {
+      alert(err.message)
+    } finally {
+      setAddingCat(false)
+    }
+  }
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingCover(true)
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setForm(p => ({ ...p, cover_image: data.url }))
+      } else {
+        const errData = await res.json()
+        alert(errData.error || 'Lỗi khi tải ảnh')
+      }
+    } catch (err: any) {
+      alert(err.message)
+    } finally {
+      setUploadingCover(false)
+    }
+  }
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    setUploadingGallery(true)
+    try {
+      const uploadedUrls: string[] = []
+      for (let i = 0; i < files.length; i++) {
+        const formData = new FormData()
+        formData.append('file', files[i])
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        if (res.ok) {
+          const data = await res.json()
+          uploadedUrls.push(data.url)
+        }
+      }
+      setForm(p => ({ ...p, images: [...p.images, ...uploadedUrls] }))
+    } catch (err: any) {
+      alert(err.message)
+    } finally {
+      setUploadingGallery(false)
+    }
+  }
+
+  const removeGalleryImage = (index: number) => {
+    setForm(p => ({
+      ...p,
+      images: p.images.filter((_, i) => i !== index)
     }))
   }
 
@@ -192,14 +288,42 @@ function PostForm({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-400 text-xs mb-1.5">Danh Mục</label>
-                <select
-                  value={form.category_id}
-                  onChange={e => setForm(p => ({...p, category_id: e.target.value}))}
-                  className="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F5C518]"
-                >
-                  <option value="">-- Chọn danh mục --</option>
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    value={form.category_id}
+                    onChange={e => setForm(p => ({...p, category_id: e.target.value}))}
+                    className="flex-1 bg-[#111] border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F5C518]"
+                  >
+                    <option value="">-- Chọn danh mục --</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCat(!showAddCat)}
+                    className="bg-gray-800 text-[#F5C518] px-3.5 rounded-xl border border-gray-700 hover:bg-gray-700 font-bold transition-all"
+                  >
+                    +
+                  </button>
+                </div>
+                {showAddCat && (
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      type="text"
+                      value={newCatName}
+                      onChange={e => setNewCatName(e.target.value)}
+                      placeholder="Tên nhóm công trình mới..."
+                      className="flex-1 bg-[#111] border border-gray-700 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-[#F5C518]"
+                    />
+                    <button
+                      type="button"
+                      disabled={addingCat}
+                      onClick={handleAddCategory}
+                      className="bg-[#F5C518] text-black text-xs font-bold px-3 py-1.5 rounded-xl hover:bg-yellow-400 disabled:opacity-50"
+                    >
+                      {addingCat ? 'Lưu...' : 'Lưu'}
+                    </button>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-gray-400 text-xs mb-1.5">Ngày Hoàn Thành</label>
@@ -234,14 +358,72 @@ function PostForm({
             </div>
 
             <div>
-              <label className="block text-gray-400 text-xs mb-1.5">Ảnh Bìa (URL)</label>
-              <input
-                value={form.cover_image}
-                onChange={e => setForm(p => ({...p, cover_image: e.target.value}))}
-                className="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm font-mono focus:outline-none focus:border-[#F5C518]"
-                placeholder="https://... hoặc URL Supabase Storage"
-              />
-              <p className="text-gray-600 text-xs mt-1">Tải ảnh lên Supabase Storage rồi dán URL vào đây</p>
+              <label className="block text-gray-400 text-xs mb-1.5">Ảnh Bìa</label>
+              <div className="flex gap-2">
+                <input
+                  value={form.cover_image}
+                  onChange={e => setForm(p => ({...p, cover_image: e.target.value}))}
+                  className="flex-1 bg-[#111] border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm font-mono focus:outline-none focus:border-[#F5C518]"
+                  placeholder="https://... hoặc đường dẫn ảnh"
+                />
+                <label className="bg-[#1A1A1A] text-gray-300 hover:text-white px-4 py-2.5 rounded-xl border border-gray-700 text-sm cursor-pointer hover:bg-gray-800 transition-all font-semibold flex items-center gap-1.5">
+                  <ImageIcon className="w-4 h-4" />
+                  {uploadingCover ? 'Đang tải...' : 'Tải ảnh'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverUpload}
+                    disabled={uploadingCover}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              {form.cover_image && (
+                <div className="mt-2 relative w-24 h-24 border border-gray-800 rounded-lg overflow-hidden bg-black">
+                  <img src={form.cover_image} alt="Cover preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setForm(p => ({ ...p, cover_image: '' }))}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-gray-400 text-xs mb-1.5">Album Ảnh Công Trình</label>
+              <div className="flex items-center gap-3">
+                <label className="bg-[#1A1A1A] text-[#F5C518] hover:text-yellow-400 px-4 py-2.5 rounded-xl border border-gray-700 text-sm cursor-pointer hover:bg-gray-800 transition-all font-semibold flex items-center gap-1.5">
+                  <Plus className="w-4 h-4" />
+                  {uploadingGallery ? 'Đang tải...' : 'Thêm ảnh công trình'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleGalleryUpload}
+                    disabled={uploadingGallery}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              {form.images && form.images.length > 0 && (
+                <div className="grid grid-cols-5 gap-3 mt-3">
+                  {form.images.map((img, index) => (
+                    <div key={index} className="relative aspect-square border border-gray-800 rounded-lg overflow-hidden bg-black group">
+                      <img src={img} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeGalleryImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>
@@ -551,6 +733,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           categories={categories}
           onSave={() => { setEditing(undefined); fetchAll() }}
           onCancel={() => setEditing(undefined)}
+          onAddCategory={fetchAll}
         />
       )}
     </div>
