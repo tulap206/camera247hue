@@ -136,7 +136,7 @@ export default function ContactSection() {
             {/* Map embed placeholder */}
             <div className="rounded-xl overflow-hidden border border-gray-800 h-48">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3819.556!2d107.597!3d16.463!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTbCsDI3JzQ2LjgiTiAxMDfCsDM1JzQ5LjIiRQ!5e0!3m2!1svi!2svn!4v1000000000000!5m2!1svi!2svn"
+                src="https://maps.google.com/maps?q=40%20T%C3%B9ng%20Thi%E1%BB%87n%20V%C6%B0%C6%A1ng%2C%20V%E1%BB%B9%20D%E1%BA%A1%2C%20Th%C3%A0nh%20ph%E1%BB%91%20Hu%E1%BA%BF&t=&z=16&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
