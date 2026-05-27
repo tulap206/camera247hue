@@ -29,20 +29,32 @@ export default function ContactSection() {
     setLoading(true)
     setError('')
     
-    const { error: err } = await supabase.from('contact_messages').insert([{
-      name: form.name,
-      phone: form.phone,
-      email: form.email,
-      service: form.service,
-      message: form.message,
-    }])
+    try {
+      const res = await fetch('/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          service: form.service,
+          message: form.message,
+        }),
+      })
 
-    setLoading(false)
-    if (err) {
+      setLoading(false)
+      if (res.ok) {
+        setSuccess(true)
+        setForm({ name: '', phone: '', email: '', service: '', message: '' })
+      } else {
+        const errData = await res.json()
+        console.error('Submit error:', errData.error)
+        setError('Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ trực tiếp qua điện thoại.')
+      }
+    } catch (err: any) {
+      setLoading(false)
+      console.error('Submit catch error:', err)
       setError('Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ trực tiếp qua điện thoại.')
-    } else {
-      setSuccess(true)
-      setForm({ name: '', phone: '', email: '', service: '', message: '' })
     }
   }
 
