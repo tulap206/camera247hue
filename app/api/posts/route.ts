@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: Request) {
@@ -17,6 +18,10 @@ export async function POST(request: Request) {
       .single()
     
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    
+    // Clear Vercel cache for all pages to reflect new post immediately
+    revalidatePath('/', 'layout')
+    
     return NextResponse.json(post)
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
@@ -42,6 +47,10 @@ export async function PUT(request: Request) {
       .single()
     
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    
+    // Clear Vercel cache for all pages to reflect updates immediately
+    revalidatePath('/', 'layout')
+    
     return NextResponse.json(post)
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
@@ -59,6 +68,10 @@ export async function DELETE(request: Request) {
     const { error } = await db.from('posts').delete().eq('id', id)
     
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    
+    // Clear Vercel cache for all pages to reflect deletion immediately
+    revalidatePath('/', 'layout')
+    
     return NextResponse.json({ ok: true })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
