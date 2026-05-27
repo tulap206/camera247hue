@@ -508,8 +508,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         setContacts(contactsData || [])
         const postCount = postsData?.length || 0
         const contactCount = contactsData?.length || 0
-        const published = (postsData || []).filter(p => p.published).length
-        const unread = (contactsData || []).filter(c => !c.read).length
+        const published = (postsData || []).filter((p: Post) => p.published).length
+        const unread = (contactsData || []).filter((c: ContactMessage) => !c.read).length
         setStats({ posts: postCount, published, contacts: contactCount, unread })
       } else {
         console.error('Failed to fetch admin data')
