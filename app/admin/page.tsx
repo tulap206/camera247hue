@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Shield, Eye, EyeOff, LogOut, Plus, Edit, Trash2, CheckCircle, XCircle, Star, StarOff, Image as ImageIcon, MessageSquare } from 'lucide-react'
+import { Shield, Eye, EyeOff, LogOut, Plus, Edit, Trash2, CheckCircle, XCircle, Star, StarOff, Image as ImageIcon, MessageSquare, Settings } from 'lucide-react'
 import { supabase, type Post, type Category, type ContactMessage } from '@/lib/supabase'
 
 const ADMIN_KEY = 'camera247hue_admin_auth'
@@ -177,9 +177,11 @@ function PostForm({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Category creation state
+  // Category manager state
+  const [showCatManager, setShowCatManager] = useState(false)
+  const [editingCatId, setEditingCatId] = useState<string | null>(null)
+  const [editingCatName, setEditingCatName] = useState('')
   const [newCatName, setNewCatName] = useState('')
-  const [showAddCat, setShowAddCat] = useState(false)
   const [addingCat, setAddingCat] = useState(false)
 
   // Upload state
@@ -223,7 +225,6 @@ function PostForm({
         onAddCategory()
         setForm(p => ({ ...p, category_id: newCat.id }))
         setNewCatName('')
-        setShowAddCat(false)
       } else {
         const errData = await res.json()
         alert(errData.error || 'Lỗi khi tạo danh mục')
@@ -232,6 +233,47 @@ function PostForm({
       alert(err.message)
     } finally {
       setAddingCat(false)
+    }
+  }
+
+  const handleUpdateCategory = async (id: string) => {
+    if (!editingCatName.trim()) return
+    try {
+      const res = await fetch('/api/categories', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name: editingCatName }),
+      })
+      if (res.ok) {
+        onAddCategory()
+        setEditingCatId(null)
+        setEditingCatName('')
+      } else {
+        const errData = await res.json()
+        alert(errData.error || 'Lỗi khi cập nhật danh mục')
+      }
+    } catch (err: any) {
+      alert(err.message)
+    }
+  }
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!confirm('Xóa danh mục này sẽ ảnh hưởng đến các bài viết thuộc danh mục này. Bạn có chắc chắn muốn xóa?')) return
+    try {
+      const res = await fetch(`/api/categories?id=${id}`, {
+        method: 'DELETE',
+      })
+      if (res.ok) {
+        onAddCategory()
+        if (form.category_id === id) {
+          setForm(p => ({ ...p, category_id: '' }))
+        }
+      } else {
+        const errData = await res.json()
+        alert(errData.error || 'Lỗi khi xóa danh mục')
+      }
+    } catch (err: any) {
+      alert(err.message)
     }
   }
 
@@ -368,31 +410,13 @@ function PostForm({
                   </select>
                   <button
                     type="button"
-                    onClick={() => setShowAddCat(!showAddCat)}
-                    className="bg-gray-800 text-[#F5C518] px-3.5 rounded-xl border border-gray-700 hover:bg-gray-700 font-bold transition-all"
+                    onClick={() => setShowCatManager(true)}
+                    className="bg-[#1A1A1A] hover:bg-gray-800 text-[#F5C518] px-3 rounded-xl border border-gray-700 hover:border-yellow-400/30 transition-all font-semibold flex items-center gap-1.5 text-xs"
+                    title="Quản lý danh mục"
                   >
-                    +
+                    <Settings className="w-3.5 h-3.5" /> Quản lý
                   </button>
                 </div>
-                {showAddCat && (
-                  <div className="mt-2 flex gap-2">
-                    <input
-                      type="text"
-                      value={newCatName}
-                      onChange={e => setNewCatName(e.target.value)}
-                      placeholder="Tên nhóm công trình mới..."
-                      className="flex-1 bg-[#111] border border-gray-700 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-[#F5C518]"
-                    />
-                    <button
-                      type="button"
-                      disabled={addingCat}
-                      onClick={handleAddCategory}
-                      className="bg-[#F5C518] text-black text-xs font-bold px-3 py-1.5 rounded-xl hover:bg-yellow-400 disabled:opacity-50"
-                    >
-                      {addingCat ? 'Lưu...' : 'Lưu'}
-                    </button>
-                  </div>
-                )}
               </div>
               <div>
                 <label className="block text-gray-400 text-xs mb-1.5">Ngày Hoàn Thành</label>
@@ -550,6 +574,89 @@ Bắt đầu bằng '# ' để tạo tiêu đề."
           </form>
         </div>
       </div>
+      {/* Category Manager Modal Overlay */}
+      {showCatManager && (
+        <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-[#1A1A1A] rounded-2xl border border-gray-700 overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-5 border-b border-gray-800">
+              <h3 style={{ fontFamily: 'Oswald, sans-serif' }}
+                className="text-lg font-bold text-white uppercase tracking-wider">
+                Quản Lý Danh Mục
+              </h3>
+              <button onClick={() => setShowCatManager(false)} className="text-gray-500 hover:text-white text-lg">✕</button>
+            </div>
+            
+            <div className="p-5 max-h-[300px] overflow-y-auto space-y-3">
+              {categories.map(c => (
+                <div key={c.id} className="flex items-center justify-between gap-2 p-2.5 bg-[#111] rounded-xl border border-gray-800">
+                  {editingCatId === c.id ? (
+                    <div className="flex-1 flex gap-2">
+                      <input
+                        type="text"
+                        value={editingCatName}
+                        onChange={e => setEditingCatName(e.target.value)}
+                        className="flex-1 bg-[#1A1A1A] border border-[#F5C518] rounded-lg px-2.5 py-1 text-white text-xs focus:outline-none"
+                      />
+                      <button
+                        onClick={() => handleUpdateCategory(c.id)}
+                        className="bg-green-600 text-white text-xs px-2.5 py-1 rounded-lg hover:bg-green-500 font-bold"
+                      >
+                        Lưu
+                      </button>
+                      <button
+                        onClick={() => { setEditingCatId(null); setEditingCatName('') }}
+                        className="bg-gray-800 text-gray-400 text-xs px-2.5 py-1 rounded-lg hover:text-white border border-gray-700"
+                      >
+                        Hủy
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-white text-sm font-medium">{c.name}</span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => { setEditingCatId(c.id); setEditingCatName(c.name) }}
+                          className="p-1.5 text-yellow-400 hover:bg-yellow-400/10 rounded-lg transition-colors"
+                          title="Sửa"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCategory(c.id)}
+                          className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                          title="Xóa"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="p-5 border-t border-gray-800 bg-[#151515]">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newCatName}
+                  onChange={e => setNewCatName(e.target.value)}
+                  placeholder="Tên nhóm mới..."
+                  className="flex-1 bg-[#111] border border-gray-700 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-[#F5C518]"
+                />
+                <button
+                  type="button"
+                  disabled={addingCat}
+                  onClick={handleAddCategory}
+                  className="bg-[#F5C518] text-black text-xs font-bold px-4 py-2 rounded-xl hover:bg-yellow-400 disabled:opacity-50 transition-colors"
+                >
+                  {addingCat ? 'Đang thêm...' : 'Thêm mới'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
