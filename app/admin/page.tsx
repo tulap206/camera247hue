@@ -670,10 +670,19 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<Post | null | undefined>(undefined) // undefined=closed, null=new
   const [stats, setStats] = useState({ posts: 0, published: 0, contacts: 0, unread: 0 })
+  const [currentPage, setCurrentPage] = useState(1)
+  const POSTS_PER_PAGE = 10
 
   useEffect(() => {
     fetchAll()
   }, [])
+
+  useEffect(() => {
+    const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
+    }
+  }, [posts, currentPage])
 
   async function fetchAll() {
     setLoading(true)
@@ -805,54 +814,89 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             {loading ? (
               <div className="flex justify-center py-12"><div className="spinner" /></div>
             ) : (
-              <div className="space-y-3">
-                {posts.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    Chưa có bài viết nào. Hãy tạo bài viết đầu tiên!
-                  </div>
-                ) : (
-                  posts.map(post => (
-                    <div key={post.id}
-                      className="bg-[#1A1A1A] rounded-xl p-4 border border-gray-800 flex flex-col sm:flex-row sm:items-center gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <span className="font-semibold text-white text-sm truncate">{post.title}</span>
-                          {post.featured && <Star className="w-3.5 h-3.5 text-[#F5C518] flex-shrink-0" />}
-                          {post.published ? (
-                            <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Đã đăng</span>
-                          ) : (
-                            <span className="text-xs bg-gray-500/20 text-gray-400 px-2 py-0.5 rounded-full">Ẩn</span>
-                          )}
-                        </div>
-                        <div className="text-gray-500 text-xs flex gap-3 flex-wrap">
-                          {post.category && <span>📁 {post.category.name}</span>}
-                          {post.location && <span>📍 {post.location}</span>}
-                          <span>🔗 /{post.slug}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <button onClick={() => handleTogglePublish(post)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            post.published
-                              ? 'text-green-400 hover:bg-green-400/10'
-                              : 'text-gray-600 hover:bg-gray-600/10'
-                          }`}
-                          title={post.published ? 'Ẩn bài' : 'Hiển thị'}>
-                          {post.published ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                        </button>
-                        <button onClick={() => setEditing(post)}
-                          className="p-2 rounded-lg text-[#F5C518] hover:bg-[#F5C518]/10 transition-colors"
-                          title="Chỉnh sửa">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleDelete(post.id)}
-                          className="p-2 rounded-lg text-red-400 hover:bg-red-400/10 transition-colors"
-                          title="Xóa">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+              <div>
+                <div className="space-y-3">
+                  {posts.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      Chưa có bài viết nào. Hãy tạo bài viết đầu tiên!
                     </div>
-                  ))
+                  ) : (
+                    posts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE).map(post => (
+                      <div key={post.id}
+                        className="bg-[#1A1A1A] rounded-xl p-4 border border-gray-800 flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span className="font-semibold text-white text-sm truncate">{post.title}</span>
+                            {post.featured && <Star className="w-3.5 h-3.5 text-[#F5C518] flex-shrink-0" />}
+                            {post.published ? (
+                              <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Đã đăng</span>
+                            ) : (
+                              <span className="text-xs bg-gray-500/20 text-gray-400 px-2 py-0.5 rounded-full">Ẩn</span>
+                            )}
+                          </div>
+                          <div className="text-gray-500 text-xs flex gap-3 flex-wrap">
+                            {post.category && <span>📁 {post.category.name}</span>}
+                            {post.location && <span>📍 {post.location}</span>}
+                            <span>🔗 /{post.slug}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button onClick={() => handleTogglePublish(post)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              post.published
+                                ? 'text-green-400 hover:bg-green-400/10'
+                                : 'text-gray-600 hover:bg-gray-600/10'
+                            }`}
+                            title={post.published ? 'Ẩn bài' : 'Hiển thị'}>
+                            {post.published ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                          </button>
+                          <button onClick={() => setEditing(post)}
+                            className="p-2 rounded-lg text-[#F5C518] hover:bg-[#F5C518]/10 transition-colors"
+                            title="Chỉnh sửa">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete(post.id)}
+                            className="p-2 rounded-lg text-red-400 hover:bg-red-400/10 transition-colors"
+                            title="Xóa">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Pagination Controls */}
+                {Math.ceil(posts.length / POSTS_PER_PAGE) > 1 && (
+                  <div className="flex justify-center items-center gap-2 mt-6">
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                      className="px-3 py-1.5 bg-[#1A1A1A] border border-gray-800 rounded-lg text-gray-400 hover:text-white disabled:opacity-40 text-xs font-semibold"
+                    >
+                      Trước
+                    </button>
+                    {Array.from({ length: Math.ceil(posts.length / POSTS_PER_PAGE) }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          currentPage === page
+                            ? 'bg-[#F5C518] text-black'
+                            : 'bg-[#1A1A1A] border border-gray-800 text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    <button
+                      disabled={currentPage === Math.ceil(posts.length / POSTS_PER_PAGE)}
+                      onClick={() => setCurrentPage(p => Math.min(p + 1, Math.ceil(posts.length / POSTS_PER_PAGE)))}
+                      className="px-3 py-1.5 bg-[#1A1A1A] border border-gray-800 rounded-lg text-gray-400 hover:text-white disabled:opacity-40 text-xs font-semibold"
+                    >
+                      Sau
+                    </button>
+                  </div>
                 )}
               </div>
             )}
