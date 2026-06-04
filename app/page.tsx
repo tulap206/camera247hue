@@ -18,7 +18,7 @@ async function getFeaturedPosts() {
     .eq('published', true)
     .order('featured', { ascending: false })
     .order('created_at', { ascending: false })
-    .limit(6)
+    .limit(9)
   return data || []
 }
 
