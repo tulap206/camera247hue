@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
+import { requireAdminSession, unauthorizedAdminResponse } from '@/lib/admin-session'
 import { supabaseAdmin } from '@/lib/supabase'
 
 function generateSlug(name: string): string {
@@ -18,6 +19,8 @@ function generateSlug(name: string): string {
 }
 
 export async function POST(request: Request) {
+  if (!requireAdminSession()) return unauthorizedAdminResponse()
+
   try {
     const body = await request.json()
     const { name, description, icon } = body
@@ -51,6 +54,8 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  if (!requireAdminSession()) return unauthorizedAdminResponse()
+
   try {
     const body = await request.json()
     const { id, name, description, icon } = body
@@ -85,6 +90,8 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  if (!requireAdminSession()) return unauthorizedAdminResponse()
+
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

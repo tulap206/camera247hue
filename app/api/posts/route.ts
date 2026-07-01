@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
+import { requireAdminSession, unauthorizedAdminResponse } from '@/lib/admin-session'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: Request) {
+  if (!requireAdminSession()) return unauthorizedAdminResponse()
+
   try {
     const body = await request.json()
     const { id, ...data } = body
@@ -29,6 +32,8 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  if (!requireAdminSession()) return unauthorizedAdminResponse()
+
   try {
     const body = await request.json()
     const { id, category, ...data } = body
@@ -58,6 +63,8 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  if (!requireAdminSession()) return unauthorizedAdminResponse()
+
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

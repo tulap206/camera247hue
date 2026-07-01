@@ -1004,12 +1004,48 @@ export default function AdminPage() {
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
-    const auth = localStorage.getItem(ADMIN_KEY)
-    setIsLoggedIn(auth === 'true')
-    setChecking(false)
+    let cancelled = false
+
+    async function verifySession() {
+      const auth = localStorage.getItem(ADMIN_KEY)
+      if (auth !== 'true') {
+        setChecking(false)
+        return
+      }
+
+      try {
+        const res = await fetch('/api/auth', { cache: 'no-store' })
+        if (cancelled) return
+
+        if (res.ok) {
+          setIsLoggedIn(true)
+        } else {
+          localStorage.removeItem(ADMIN_KEY)
+          setIsLoggedIn(false)
+        }
+      } catch {
+        if (!cancelled) {
+          localStorage.removeItem(ADMIN_KEY)
+          setIsLoggedIn(false)
+        }
+      } finally {
+        if (!cancelled) setChecking(false)
+      }
+    }
+
+    verifySession()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth', { method: 'DELETE' })
+    } catch {
+      // Local logout should still proceed if the network request fails.
+    }
     localStorage.removeItem(ADMIN_KEY)
     setIsLoggedIn(false)
   }

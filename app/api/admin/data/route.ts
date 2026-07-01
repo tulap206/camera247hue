@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
+import { requireAdminSession, unauthorizedAdminResponse } from '@/lib/admin-session'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  if (!requireAdminSession()) return unauthorizedAdminResponse()
+
   try {
     const db = supabaseAdmin()
     
