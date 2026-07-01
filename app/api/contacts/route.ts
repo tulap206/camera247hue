@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireAdminSession, unauthorizedAdminResponse } from '@/lib/admin-session'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: Request) {
@@ -34,6 +35,8 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  if (!requireAdminSession()) return unauthorizedAdminResponse()
+
   try {
     const body = await request.json()
     const { id, read } = body
