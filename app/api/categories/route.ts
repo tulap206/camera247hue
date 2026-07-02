@@ -60,15 +60,25 @@ export async function PUT(request: Request) {
     }
 
     const slug = generateSlug(name)
+    const updates: {
+      name: string
+      slug: string
+      description?: string
+      icon?: string
+    } = { name, slug }
+
+    if (description !== undefined) {
+      updates.description = description
+    }
+
+    if (icon !== undefined) {
+      updates.icon = icon
+    }
+
     const db = supabaseAdmin()
     const { data: category, error } = await db
       .from('categories')
-      .update({
-        name,
-        slug,
-        description: description || '',
-        icon: icon || 'building'
-      })
+      .update(updates)
       .eq('id', id)
       .select()
       .single()
