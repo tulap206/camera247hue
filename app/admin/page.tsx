@@ -6,6 +6,26 @@ import { supabase, type Post, type Category, type ContactMessage } from '@/lib/s
 
 const ADMIN_KEY = 'camera247hue_admin_auth'
 
+function Skeleton({ className = '' }: { className?: string }) {
+  return <div className={`skeleton rounded-lg ${className}`} aria-hidden />
+}
+
+function AdminSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="surface-card p-4 flex gap-4">
+          <Skeleton className="h-10 w-10 shrink-0" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ========== Login Component ==========
 function LoginForm({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState('')
@@ -34,19 +54,28 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-[100dvh] bg-[#0A0A0A] flex items-center justify-center px-4 relative overflow-hidden">
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          background:
+            'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,197,24,0.12) 0%, transparent 70%)',
+        }}
+        aria-hidden
+      />
+
+      <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-[#F5C518] rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-9 h-9 text-black" />
+          <div className="w-14 h-14 bg-[#F5C518] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#F5C518]/20">
+            <Shield className="w-8 h-8 text-black" />
           </div>
-          <h1 style={{ fontFamily: 'Oswald, sans-serif' }}
-            className="text-2xl font-bold text-white">ĐĂNG NHẬP ADMIN</h1>
+          <h1 style={{ fontFamily: 'Oswald, sans-serif' }} className="text-2xl font-bold text-white tracking-tight">
+            Đăng Nhập Admin
+          </h1>
           <p className="text-gray-500 text-sm mt-1">Camera 247 Huế</p>
         </div>
 
-        <form onSubmit={handleLogin}
-          className="bg-[#1A1A1A] rounded-2xl p-6 border border-gray-800">
+        <form onSubmit={handleLogin} className="glass-panel rounded-2xl p-6">
           <div className="mb-4">
             <label className="block text-gray-400 text-xs mb-1.5">Mật Khẩu</label>
             <div className="relative">
@@ -54,12 +83,16 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
                 type={showPw ? 'text' : 'password'}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-3 text-white pr-10 focus:outline-none focus:border-[#F5C518] transition-colors"
+                className="input-field pr-10"
                 placeholder="••••••••"
                 autoFocus
               />
-              <button type="button" onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
+              <button
+                type="button"
+                onClick={() => setShowPw(!showPw)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              >
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -67,8 +100,7 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
 
           {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 
-          <button type="submit" disabled={loading}
-            className="w-full bg-[#F5C518] text-black py-3 rounded-xl font-bold hover:bg-yellow-400 transition-all disabled:opacity-60">
+          <button type="submit" disabled={loading} className="btn-primary w-full py-3 rounded-xl disabled:opacity-60">
             {loading ? 'Đang kiểm tra...' : 'Đăng Nhập'}
           </button>
         </form>
@@ -757,42 +789,47 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
-      {/* Top bar */}
-      <div className="bg-[#1A1A1A] border-b border-gray-800 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#F5C518] rounded-lg flex items-center justify-center">
+    <div className="min-h-[100dvh] bg-[#0A0A0A]">
+      <div className="glass-panel border-b border-white/5 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 bg-[#F5C518] rounded-xl flex items-center justify-center shrink-0">
             <Shield className="w-5 h-5 text-black" />
           </div>
-          <div>
-            <div className="font-bold text-white text-sm" style={{ fontFamily: 'Oswald, sans-serif' }}>
-              CAMERA 247 HUẾ — ADMIN
+          <div className="min-w-0">
+            <div className="font-bold text-white text-sm truncate" style={{ fontFamily: 'Oswald, sans-serif' }}>
+              CAMERA 247 HUẾ - ADMIN
             </div>
             <div className="text-gray-500 text-xs">Quản trị nội dung</div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <a href="/" target="_blank" className="text-gray-500 hover:text-[#F5C518] text-xs transition-colors">
-            Xem trang web →
+        <div className="flex items-center gap-3 shrink-0">
+          <a href="/" target="_blank" className="text-gray-500 hover:text-[#F5C518] text-xs transition-colors hidden sm:inline">
+            Xem trang web
           </a>
-          <button onClick={onLogout}
-            className="flex items-center gap-2 text-gray-500 hover:text-red-400 transition-colors text-sm">
-            <LogOut className="w-4 h-4" /> Đăng xuất
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-2 text-gray-500 hover:text-red-400 transition-colors text-sm"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Đăng xuất</span>
           </button>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
           {[
             { label: 'Tổng bài viết', value: stats.posts, color: '#F5C518' },
             { label: 'Đã đăng', value: stats.published, color: '#22c55e' },
             { label: 'Liên hệ', value: stats.contacts, color: '#3b82f6' },
             { label: 'Chưa đọc', value: stats.unread, color: '#ef4444' },
           ].map(s => (
-            <div key={s.label} className="bg-[#1A1A1A] rounded-xl p-4 border border-gray-800">
-              <div className="text-3xl font-bold mb-1" style={{ color: s.color, fontFamily: 'Oswald, sans-serif' }}>
+            <div key={s.label} className="surface-card p-4 sm:p-5">
+              <div
+                className="text-2xl sm:text-3xl font-bold mb-1 font-tabular"
+                style={{ color: s.color, fontFamily: 'Oswald, sans-serif' }}
+              >
                 {s.value}
               </div>
               <div className="text-gray-500 text-xs">{s.label}</div>
@@ -800,22 +837,25 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           ))}
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6">
-          <button onClick={() => setTab('posts')}
-            className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-              tab === 'posts' ? 'bg-[#F5C518] text-black' : 'bg-[#1A1A1A] text-gray-400 border border-gray-700 hover:text-white'
-            }`}>
-            📝 Bài Viết ({stats.posts})
+        <div className="flex gap-2 mb-6 p-1 rounded-xl bg-[#141414] border border-white/5 w-fit">
+          <button
+            onClick={() => setTab('posts')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              tab === 'posts' ? 'bg-[#F5C518] text-black' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Bài viết ({stats.posts})
           </button>
-          <button onClick={() => setTab('contacts')}
-            className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
-              tab === 'contacts' ? 'bg-[#F5C518] text-black' : 'bg-[#1A1A1A] text-gray-400 border border-gray-700 hover:text-white'
-            }`}>
+          <button
+            onClick={() => setTab('contacts')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+              tab === 'contacts' ? 'bg-[#F5C518] text-black' : 'text-gray-400 hover:text-white'
+            }`}
+          >
             <MessageSquare className="w-4 h-4" />
-            Liên Hệ ({stats.contacts})
+            Liên hệ ({stats.contacts})
             {stats.unread > 0 && (
-              <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="bg-red-500 text-white text-[10px] rounded-md min-w-[18px] h-[18px] flex items-center justify-center px-1 font-tabular">
                 {stats.unread}
               </span>
             )}
@@ -830,13 +870,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 className="text-lg font-bold text-white">QUẢN LÝ BÀI VIẾT</h2>
               <button
                 onClick={() => setEditing(null)}
-                className="flex items-center gap-2 bg-[#F5C518] text-black px-4 py-2 rounded-xl font-bold text-sm hover:bg-yellow-400 transition-all">
-                <Plus className="w-4 h-4" /> Tạo Bài Mới
+                className="btn-primary px-4 py-2 rounded-xl text-sm"
+              >
+                <Plus className="w-4 h-4" /> Tạo bài mới
               </button>
             </div>
 
             {loading ? (
-              <div className="flex justify-center py-12"><div className="spinner" /></div>
+              <AdminSkeleton />
             ) : (
               <div>
                 <div className="space-y-3">
@@ -847,7 +888,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   ) : (
                     posts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE).map(post => (
                       <div key={post.id}
-                        className="bg-[#1A1A1A] rounded-xl p-4 border border-gray-800 flex flex-col sm:flex-row sm:items-center gap-3">
+                        className="surface-card p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1">
                             <span className="font-semibold text-white text-sm truncate">{post.title}</span>
@@ -859,9 +900,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                             )}
                           </div>
                           <div className="text-gray-500 text-xs flex gap-3 flex-wrap">
-                            {post.category && <span>📁 {post.category.name}</span>}
-                            {post.location && <span>📍 {post.location}</span>}
-                            <span>🔗 /{post.slug}</span>
+                            {post.category && <span>{post.category.name}</span>}
+                            {post.location && <span>{post.location}</span>}
+                            <span className="font-mono">/{post.slug}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
@@ -933,7 +974,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             <h2 style={{ fontFamily: 'Oswald, sans-serif' }}
               className="text-lg font-bold text-white mb-4">YÊU CẦU LIÊN HỆ</h2>
             {loading ? (
-              <div className="flex justify-center py-12"><div className="spinner" /></div>
+              <AdminSkeleton />
             ) : (
               <div className="space-y-3">
                 {contacts.length === 0 ? (
@@ -941,8 +982,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 ) : (
                   contacts.map(c => (
                     <div key={c.id}
-                      className={`bg-[#1A1A1A] rounded-xl p-4 border transition-colors ${
-                        c.read ? 'border-gray-800' : 'border-[#F5C518]/30'
+                      className={`surface-card p-4 transition-colors ${
+                        c.read ? '' : 'border-[#F5C518]/30'
                       }`}>
                       <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                         <div className="flex-1">
@@ -956,9 +997,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                             )}
                           </div>
                           <div className="text-gray-400 text-xs flex gap-4 mb-2 flex-wrap">
-                            <a href={`tel:${c.phone}`} className="hover:text-[#F5C518]">📞 {c.phone}</a>
-                            {c.email && <a href={`mailto:${c.email}`} className="hover:text-[#F5C518]">✉️ {c.email}</a>}
-                            <span>🕐 {new Date(c.created_at).toLocaleString('vi-VN')}</span>
+                            <a href={`tel:${c.phone}`} className="hover:text-[#F5C518]">{c.phone}</a>
+                            {c.email && <a href={`mailto:${c.email}`} className="hover:text-[#F5C518]">{c.email}</a>}
+                            <span className="font-tabular">{new Date(c.created_at).toLocaleString('vi-VN')}</span>
                           </div>
                           {c.message && <p className="text-gray-400 text-sm bg-[#111] p-3 rounded-lg">{c.message}</p>}
                         </div>
@@ -1016,8 +1057,12 @@ export default function AdminPage() {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="spinner" />
+      <div className="min-h-[100dvh] bg-[#0A0A0A] flex items-center justify-center">
+        <div className="space-y-4 w-full max-w-sm px-4">
+          <Skeleton className="h-14 w-14 rounded-2xl mx-auto" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-40 w-full rounded-2xl" />
+        </div>
       </div>
     )
   }
