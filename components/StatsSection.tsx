@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Reveal from '@/components/Reveal'
 
 const stats = [
   { value: 1200, suffix: '+', label: 'Công Trình Hoàn Thành', desc: 'Trên toàn Tp. Huế và vùng lân cận' },
@@ -27,16 +28,19 @@ function useCountUp(target: number, duration = 2000, started: boolean) {
   return count
 }
 
-function StatCard({ value, suffix, label, desc, started }: typeof stats[0] & { started: boolean }) {
+function StatCard({ value, suffix, label, desc, started }: (typeof stats)[0] & { started: boolean }) {
   const count = useCountUp(value, 1800, started)
   return (
-    <div className="text-center group">
-      <div className="text-4xl sm:text-5xl font-bold text-[#F5C518] mb-1 group-hover:scale-110 transition-transform inline-block"
-        style={{ fontFamily: 'Oswald, sans-serif', textShadow: '0 0 30px rgba(245,197,24,0.3)' }}>
-        {count}{suffix}
+    <div className="text-center lg:text-left surface-card p-6">
+      <div
+        className="text-4xl sm:text-5xl font-bold text-[#F5C518] mb-2 font-tabular"
+        style={{ fontFamily: 'Oswald, sans-serif' }}
+      >
+        {count}
+        {suffix}
       </div>
-      <div className="text-white font-semibold mb-1">{label}</div>
-      <div className="text-gray-500 text-sm">{desc}</div>
+      <div className="text-white font-semibold mb-1 text-sm">{label}</div>
+      <div className="text-gray-500 text-xs leading-relaxed">{desc}</div>
     </div>
   )
 }
@@ -46,26 +50,33 @@ export default function StatsSection() {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setStarted(true) },
-      { threshold: 0.3 }
-    )
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setStarted(true)
+    }, { threshold: 0.3 })
     if (ref.current) observer.observe(ref.current)
     return () => observer.disconnect()
   }, [])
 
   return (
-    <section className="py-16 relative overflow-hidden" ref={ref}>
-      {/* Dark bg with yellow gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#1A1000] via-[#0D0D0D] to-[#1A1000]" />
-      <div className="absolute inset-0 hazard-stripe opacity-5" />
+    <section className="py-14 sm:py-16 relative overflow-hidden" ref={ref}>
+      <div className="absolute inset-0 bg-[#0A0A0A]" />
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(245,197,24,0.08) 0%, transparent 70%)',
+        }}
+        aria-hidden
+      />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          {stats.map((s) => (
-            <StatCard key={s.label} {...s} started={started} />
-          ))}
-        </div>
+        <Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats.map((s) => (
+              <StatCard key={s.label} {...s} started={started} />
+            ))}
+          </div>
+        </Reveal>
       </div>
     </section>
   )

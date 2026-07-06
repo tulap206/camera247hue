@@ -17,8 +17,8 @@ const categories = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0A0A0A] border-t border-gray-900 relative">
-      <div className="hazard-stripe h-1 opacity-60" />
+    <footer className="bg-[#0A0A0A] border-t border-white/5 relative">
+      <div className="h-px bg-gradient-to-r from-transparent via-[#F5C518]/40 to-transparent" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -35,9 +35,9 @@ export default function Footer() {
                 <div className="text-gray-500 text-xs">Giải Pháp Công Nghệ An Ninh</div>
               </div>
             </div>
-            <p className="text-gray-500 text-sm leading-relaxed mb-4">
-              Công ty TNHH Giải Pháp Công Nghệ An Ninh Camera 247 Huế — 
-              đơn vị hàng đầu về lắp đặt camera và hệ thống an ninh tại Tp. Huế.
+            <p className="text-gray-500 text-sm leading-relaxed mb-4 max-w-xs">
+              Công ty TNHH Giải Pháp Công Nghệ An Ninh Camera 247 Huế. Đơn vị hàng đầu về lắp đặt
+              camera và hệ thống an ninh tại Tp. Huế.
             </p>
             <div className="space-y-2 text-sm text-gray-500">
               <a href="tel:0967611112" className="flex items-center gap-2 hover:text-[#F5C518] transition-colors">
