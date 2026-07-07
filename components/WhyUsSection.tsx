@@ -37,63 +37,64 @@ const reasons = [
 
 export default function WhyUsSection() {
   return (
-    <section id="tai-sao-chon-chung-toi" className="py-20 bg-[#111111] relative">
-      {/* Hazard stripe accent */}
-      <div className="absolute top-0 left-0 right-0 h-1 hazard-stripe opacity-40" />
+    <section id="tai-sao-chon-chung-toi" className="py-24 bg-brand-dark relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-1/4 left-0 w-[500px] h-[500px] rounded-full bg-yellow-500/5 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           
           {/* Left: Content */}
-          <div>
-            <div className="inline-flex items-center gap-2 text-[#F5C518] text-sm font-medium mb-4 tracking-widest uppercase">
-              <span className="w-8 h-px bg-[#F5C518]" />
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 text-[#F5C518] text-xs font-semibold tracking-widest uppercase">
+              <span className="w-8 h-0.5 bg-[#F5C518]" />
               Tại Sao Chọn Chúng Tôi
             </div>
+            
             <h2 style={{ fontFamily: 'Oswald, sans-serif' }}
-              className="text-3xl sm:text-4xl font-bold text-white mb-6 leading-tight">
+              className="text-3xl sm:text-5xl font-black text-white leading-none tracking-tight">
               ĐỐI TÁC AN NINH
               <br />
-              <span className="text-[#F5C518]">TIN CẬY SỐ 1</span>
-              <br />
-              TẠI HUẾ
+              <span className="bg-gradient-to-r from-[#F5C518] to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(245,197,24,0.2)]">TIN CẬY SỐ 1</span> TẠI HUẾ
             </h2>
-            <p className="text-gray-400 mb-8 leading-relaxed">
-              Với hơn 12 năm kinh nghiệm trong lĩnh vực an ninh công nghệ, 
-              Camera 247 Huế đã và đang là đơn vị hàng đầu được tin tưởng 
-              bởi hàng trăm khách hàng cá nhân và doanh nghiệp tại Cố Đô Huế.
+            
+            <p className="text-gray-400 text-base leading-relaxed">
+              Với hơn 12 năm kinh nghiệm thực chiến trong lĩnh vực hạ tầng mạng và tích hợp hệ thống an ninh công nghệ, 
+              Camera 247 Huế đã đồng hành cùng hàng nghìn hộ gia đình, biệt thự, cafe, nhà hàng, khách sạn và doanh nghiệp lớn tại Cố Đô.
             </p>
 
             {/* Company info box */}
-            <div className="bg-[#1A1A1A] rounded-2xl p-5 border border-[#F5C518]/20">
-              <div className="font-bold text-[#F5C518] mb-2" style={{ fontFamily: 'Oswald, sans-serif' }}>
+            <div className="glass-panel rounded-[24px] p-6 border border-white/5 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl" />
+              <div className="font-extrabold text-[#F5C518] mb-3 text-sm tracking-wider font-heading uppercase">
                 CÔNG TY TNHH GIẢI PHÁP CÔNG NGHỆ AN NINH CAMERA 247 HUẾ
               </div>
-              <div className="space-y-1 text-sm text-gray-400">
-                <p>📍 40 Tùng Thiện Vương, Phường Vỹ Dạ, Tp. Huế</p>
-                <p>📞 0967 611 112 — 0777 611 112</p>
-                <p>🌐 camera247hue.com</p>
-                <p>📘 Facebook.com/Camera247Hue</p>
+              <div className="space-y-2 text-xs sm:text-sm text-gray-400 font-medium">
+                <p className="flex items-center gap-2"><span>📍</span> 40 Tùng Thiện Vương, Phường Vỹ Dạ, Tp. Huế</p>
+                <p className="flex items-center gap-2"><span>📞</span> 0967 611 112 — 0777 611 112</p>
+                <p className="flex items-center gap-2"><span>🌐</span> camera247hue.com</p>
+                <p className="flex items-center gap-2"><span>📘</span> facebook.com/Camera247Hue</p>
               </div>
             </div>
           </div>
 
           {/* Right: Reasons grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {reasons.map((r, i) => (
+            {reasons.map((r) => (
               <div
                 key={r.title}
-                className="group p-5 bg-[#1A1A1A] rounded-xl border border-gray-800 hover:border-[#F5C518]/40 transition-all duration-300 hover:bg-[#1F1F1F]"
+                className="group p-5 glass-panel rounded-2xl border border-white/5 hover:border-yellow-500/30 transition-all duration-300 hover:bg-white/5 hover:-translate-y-1"
               >
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#F5C518]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#F5C518]/20 transition-colors">
-                    <r.icon className="w-4.5 h-4.5 text-[#F5C518] w-5 h-5" />
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#F5C518] group-hover:border-transparent transition-all duration-300">
+                    <r.icon className="w-5 h-5 text-[#F5C518] group-hover:text-black transition-colors" />
                   </div>
                   <div>
                     <h4 className="font-bold text-white text-sm mb-1 group-hover:text-[#F5C518] transition-colors">
                       {r.title}
                     </h4>
-                    <p className="text-gray-500 text-xs leading-relaxed">{r.desc}</p>
+                    <p className="text-gray-500 text-xs leading-relaxed font-medium">{r.desc}</p>
                   </div>
                 </div>
               </div>

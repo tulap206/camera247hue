@@ -47,33 +47,33 @@ export default function FloatingContact() {
       
       {/* Contact options */}
       {open && (
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end gap-3.5 mb-1">
           {contacts.map((c, i) => (
             <a
               key={c.id}
               href={c.href}
               target={c.id !== 'phone' ? '_blank' : undefined}
               rel="noopener noreferrer"
-              className="flex items-center gap-3 group"
+              className="flex items-center gap-3.5 group"
               style={{
-                animation: `slideInRight 0.3s ease ${i * 0.05}s both`,
+                animation: `slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.06}s both`,
               }}
             >
               {/* Label */}
-              <div className="bg-[#1A1A1A] border border-gray-700 rounded-xl px-3 py-2 text-right shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="text-white text-xs font-bold">{c.label}</div>
-                <div className="text-gray-400 text-xs">{c.sublabel}</div>
+              <div className="glass-panel border border-white/10 rounded-2xl px-4 py-2 text-right shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                <div className="text-white text-xs font-extrabold tracking-wide uppercase">{c.label}</div>
+                <div className="text-[#F5C518] text-[10px] font-mono mt-0.5">{c.sublabel}</div>
               </div>
 
               {/* Button */}
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer relative"
+                className="w-12 h-12 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 hover:-rotate-12 transition-all duration-300 cursor-pointer relative"
                 style={{ backgroundColor: c.color }}
               >
                 <c.icon className="w-5 h-5 text-white" />
                 {/* Pulse ring */}
                 <div
-                  className="absolute inset-0 rounded-full animate-ping opacity-30"
+                  className="absolute inset-0 rounded-full animate-ping opacity-25"
                   style={{ backgroundColor: c.color }}
                 />
               </div>
@@ -85,25 +85,22 @@ export default function FloatingContact() {
       {/* Main toggle button */}
       <button
         onClick={() => setOpen(!open)}
-        className="w-14 h-14 rounded-full bg-[#F5C518] flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all relative"
-        style={{ boxShadow: '0 0 0 0 rgba(245,197,24,0.4)' }}
+        className="w-14 h-14 rounded-full bg-gradient-to-r from-[#F5C518] to-amber-500 flex items-center justify-center shadow-2xl shadow-yellow-500/20 hover:scale-110 active:scale-95 transition-all duration-300 relative"
       >
         {/* Pulse rings */}
         {!open && (
-          <>
-            <span className="absolute inline-flex h-full w-full rounded-full bg-[#F5C518] opacity-30 animate-ping" />
-          </>
+          <span className="absolute inset-0 rounded-full bg-[#F5C518] opacity-35 animate-ping" />
         )}
         {open ? (
-          <X className="w-6 h-6 text-black" />
+          <X className="w-5 h-5 text-black" strokeWidth={2.5} />
         ) : (
-          <MessageCircle className="w-6 h-6 text-black" />
+          <MessageCircle className="w-5 h-5 text-black" strokeWidth={2.5} />
         )}
       </button>
 
       {/* Label */}
       {!open && (
-        <div className="text-center text-xs text-gray-400 mt-1">
+        <div className="text-center text-[10px] text-gray-500 font-extrabold tracking-widest uppercase mt-0.5">
           Liên hệ
         </div>
       )}

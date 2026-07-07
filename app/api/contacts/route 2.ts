@@ -16,19 +16,18 @@ export async function POST(request: Request) {
       .insert([{
         name,
         phone,
-        email: email || null,
-        service: service || null,
+        email: email || '',
+        service: service || '',
         message: message || '',
         read: false
       }])
       .select()
-      .single()
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    return NextResponse.json(data)
+    return NextResponse.json({ ok: true, data })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
@@ -40,13 +39,13 @@ export async function PUT(request: Request) {
     const { id, read } = body
 
     if (!id) {
-      return NextResponse.json({ error: 'ID là bắt buộc.' }, { status: 400 })
+      return NextResponse.json({ error: 'Yêu cầu ID.' }, { status: 400 })
     }
 
     const db = supabaseAdmin()
     const { data, error } = await db
       .from('contact_messages')
-      .update({ read: !!read })
+      .update({ read })
       .eq('id', id)
       .select()
       .single()

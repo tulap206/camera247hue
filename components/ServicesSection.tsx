@@ -104,59 +104,49 @@ export default function ServicesSection() {
 
         {/* Services grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => (
+          {services.map((service) => (
             <div
               key={service.title}
-              className="service-card group relative bg-[#1A1A1A] rounded-2xl p-6 border border-gray-800 hover:border-[#F5C518]/40 transition-all duration-300 cursor-pointer overflow-hidden"
+              className="service-card group relative glass-panel rounded-[24px] p-6 border border-white/5 hover:border-yellow-500/30 hover:-translate-y-1.5 hover:shadow-neon-gold transition-all duration-500 cursor-pointer overflow-hidden"
               style={{
                 opacity: 0,
-                transform: 'translateY(30px)',
-                transition: 'opacity 0.5s ease, transform 0.5s ease, border-color 0.3s, box-shadow 0.3s',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget
-                el.style.boxShadow = `0 20px 40px rgba(245,197,24,0.1), 0 0 0 1px rgba(245,197,24,0.2)`
-                el.style.transform = 'translateY(-4px)'
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget
-                el.style.boxShadow = 'none'
-                el.style.transform = 'translateY(0)'
+                transform: 'translateY(24px)',
+                transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s, box-shadow 0.4s',
               }}
             >
               {/* Tag */}
               {service.tag && (
-                <div className="absolute top-4 right-4 bg-[#F5C518] text-black text-xs font-bold px-2 py-0.5 rounded-full">
+                <div className="absolute top-4 right-4 bg-gradient-to-r from-[#F5C518] to-amber-500 text-black text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
                   {service.tag}
                 </div>
               )}
 
               {/* Icon */}
-              <div className="w-12 h-12 rounded-xl bg-[#F5C518]/10 flex items-center justify-center mb-4 group-hover:bg-[#F5C518]/20 transition-colors">
-                <service.icon className="w-6 h-6 text-[#F5C518]" />
+              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5 group-hover:bg-[#F5C518] group-hover:border-transparent transition-all duration-300 shadow-inner">
+                <service.icon className="w-5 h-5 text-[#F5C518] group-hover:text-black transition-colors" />
               </div>
 
               {/* Content */}
               <h3 style={{ fontFamily: 'Oswald, sans-serif' }}
-                className="text-xl font-bold text-white mb-2 group-hover:text-[#F5C518] transition-colors">
+                className="text-xl font-bold text-white mb-2.5 tracking-wide group-hover:text-[#F5C518] transition-colors uppercase">
                 {service.title}
               </h3>
-              <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+              <p className="text-gray-400 text-sm mb-5 leading-relaxed">
                 {service.description}
               </p>
 
               {/* Features */}
-              <ul className="space-y-1.5">
+              <ul className="space-y-2">
                 {service.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-gray-500">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#F5C518] flex-shrink-0" />
+                  <li key={f} className="flex items-center gap-2.5 text-xs text-gray-500 font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#F5C518] group-hover:scale-125 transition-transform flex-shrink-0" />
                     {f}
                   </li>
                 ))}
               </ul>
 
               {/* Bottom accent */}
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#F5C518] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#F5C518] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           ))}
         </div>

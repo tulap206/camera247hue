@@ -6,12 +6,13 @@
 
 :root {
   --brand-yellow: #F5C518;
-  --brand-yellow-dark: #D4A017;
-  --brand-dark: #111111;
-  --brand-gray: #1E1E1E;
-  --brand-gray-2: #2A2A2A;
-  --brand-light: #F8F8F8;
-  --brand-text: #E0E0E0;
+  --brand-yellow-light: #FCDD60;
+  --brand-yellow-dark: #C69B0B;
+  --brand-dark: #070708;
+  --brand-gray: #0F0F12;
+  --brand-gray-2: #16171B;
+  --brand-light: #F8F9FA;
+  --brand-text: #E3E4E8;
   --font-heading: 'Oswald', sans-serif;
   --font-body: 'Be Vietnam Pro', sans-serif;
 }
@@ -31,18 +32,24 @@ body {
   color: var(--brand-text);
   font-family: var(--font-body);
   overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
   background: var(--brand-dark);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--brand-yellow);
-  border-radius: 3px;
+  background: linear-gradient(to bottom, var(--brand-yellow), var(--brand-yellow-dark));
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-yellow-light);
 }
 
 /* Selection */
@@ -51,44 +58,75 @@ body {
   color: var(--brand-dark);
 }
 
+/* Glassmorphism panel */
+.glass-panel {
+  background: rgba(15, 15, 18, 0.65);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 /* Hazard stripe pattern */
 .hazard-stripe {
   background: repeating-linear-gradient(
     -45deg,
     #F5C518,
-    #F5C518 10px,
-    #111111 10px,
-    #111111 20px
+    #F5C518 8px,
+    #070708 8px,
+    #070708 16px
   );
 }
 
 /* Yellow glow effect */
 .yellow-glow {
-  box-shadow: 0 0 20px rgba(245, 197, 24, 0.3);
+  box-shadow: 0 0 25px rgba(245, 197, 24, 0.2);
 }
 
 .yellow-glow-text {
-  text-shadow: 0 0 30px rgba(245, 197, 24, 0.5);
+  text-shadow: 0 0 20px rgba(245, 197, 24, 0.6);
 }
 
 /* Card hover effect */
 .card-hover {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(245, 197, 24, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(245, 197, 24, 0.15);
+  border-color: rgba(245, 197, 24, 0.3) !important;
+}
+
+/* Border flow simulation */
+.border-beam {
+  position: relative;
+}
+.border-beam::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(to right, transparent, var(--brand-yellow), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.border-beam:hover::after {
+  opacity: 1;
 }
 
 /* Animate on scroll */
 .aos-animate {
-  animation: fadeUp 0.6s ease forwards;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -104,7 +142,7 @@ body {
 @keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateX(20px);
   }
   to {
     opacity: 1;
@@ -113,12 +151,14 @@ body {
 }
 
 @keyframes pulseRing {
-  0% { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2); opacity: 0; }
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1.15); opacity: 0.2; }
+  100% { transform: scale(0.95); opacity: 0.5; }
 }
 
 @keyframes scanLine {
   0% { top: 0; opacity: 1; }
+  50% { opacity: 0.8; }
   100% { top: 100%; opacity: 0; }
 }
 

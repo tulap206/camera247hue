@@ -39,48 +39,47 @@ export default function ProjectsPreview({ posts }: { posts: Post[] }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post) => (
               <Link key={post.id} href={`/cong-trinh/${post.slug}`}
-                className="group block bg-[#1A1A1A] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#F5C518]/40 transition-all duration-300 hover:-translate-y-1">
+                className="group block glass-panel rounded-[24px] overflow-hidden border border-white/5 hover:border-yellow-500/30 hover:-translate-y-1.5 hover:shadow-neon-gold transition-all duration-500">
                 
                 {/* Image */}
-                <div className="aspect-video bg-[#111] relative overflow-hidden">
+                <div className="aspect-video bg-black/60 relative overflow-hidden">
                   {post.cover_image ? (
                     <Image
                       src={post.cover_image}
                       alt={post.title}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-700">
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-white/5">
                       <span className="text-4xl">📷</span>
                     </div>
                   )}
                   {/* Category badge */}
                   {post.category && (
-                    <div className="absolute top-3 left-3 bg-[#F5C518] text-black text-xs font-bold px-2.5 py-1 rounded-full">
+                    <div className="absolute top-4 left-4 bg-gradient-to-r from-[#F5C518] to-amber-500 text-black text-[9px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
                       {post.category.name}
                     </div>
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="p-5">
-                  <h3 className="font-bold text-white mb-2 line-clamp-2 group-hover:text-[#F5C518] transition-colors"
-                    style={{ fontFamily: 'Oswald, sans-serif' }}>
+                <div className="p-6">
+                  <h3 className="font-extrabold text-white mb-2 text-lg line-clamp-2 group-hover:text-[#F5C518] transition-colors leading-tight font-heading uppercase tracking-wide">
                     {post.title}
                   </h3>
                   {post.excerpt && (
-                    <p className="text-gray-400 text-sm mb-3 line-clamp-2">{post.excerpt}</p>
+                    <p className="text-gray-400 text-xs mb-4 line-clamp-2 leading-relaxed font-medium">{post.excerpt}</p>
                   )}
-                  <div className="flex items-center gap-4 text-xs text-gray-600">
+                  <div className="flex items-center gap-4 text-[10px] text-gray-500 font-semibold border-t border-white/5 pt-4">
                     {post.location && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> {post.location}
+                      <span className="flex items-center gap-1.5 hover:text-[#F5C518] transition-colors">
+                        <MapPin className="w-3.5 h-3.5 text-[#F5C518]" /> {post.location}
                       </span>
                     )}
                     {post.completed_at && (
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-[#F5C518]" />
                         {new Date(post.completed_at).toLocaleDateString('vi-VN')}
                       </span>
                     )}
