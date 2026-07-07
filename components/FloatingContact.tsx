@@ -82,28 +82,30 @@ export default function FloatingContact() {
         </div>
       )}
 
-      {/* Main toggle button */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-14 h-14 rounded-full bg-gradient-to-r from-[#F5C518] to-amber-500 flex items-center justify-center shadow-2xl shadow-yellow-500/20 hover:scale-110 active:scale-95 transition-all duration-300 relative"
-      >
-        {/* Pulse rings */}
-        {!open && (
-          <span className="absolute inset-0 rounded-full bg-[#F5C518] opacity-35 animate-ping" />
-        )}
-        {open ? (
-          <X className="w-5 h-5 text-black" strokeWidth={2.5} />
-        ) : (
-          <MessageCircle className="w-5 h-5 text-black" strokeWidth={2.5} />
-        )}
-      </button>
+      {/* Main toggle button and label */}
+      <div className="flex flex-col items-center">
+        <button
+          onClick={() => setOpen(!open)}
+          className="w-14 h-14 rounded-full bg-gradient-to-r from-[#F5C518] to-amber-500 flex items-center justify-center shadow-2xl shadow-yellow-500/20 hover:scale-110 active:scale-95 transition-all duration-300 relative"
+        >
+          {/* Pulse rings */}
+          {!open && (
+            <span className="absolute inset-0 rounded-full bg-[#F5C518] opacity-35 animate-ping" />
+          )}
+          {open ? (
+            <X className="w-5 h-5 text-black" strokeWidth={2.5} />
+          ) : (
+            <MessageCircle className="w-5 h-5 text-black" strokeWidth={2.5} />
+          )}
+        </button>
 
-      {/* Label */}
-      {!open && (
-        <div className="text-center text-[10px] text-gray-500 font-extrabold tracking-widest uppercase mt-0.5">
-          Liên hệ
-        </div>
-      )}
+        {/* Label */}
+        {!open && (
+          <div className="text-center text-[10px] text-gray-500 font-extrabold tracking-widest uppercase mt-1.5">
+            Liên hệ
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -14,8 +14,7 @@ export default function ProjectsPreview({ posts }: { posts: Post[] }) {
               <span className="w-8 h-px bg-[#F5C518]" />
               Công Trình Tiêu Biểu
             </div>
-            <h2 style={{ fontFamily: 'Oswald, sans-serif' }}
-              className="text-3xl sm:text-4xl font-bold text-white">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white">
               DỰ ÁN ĐÃ THỰC HIỆN
             </h2>
           </div>
@@ -71,7 +70,7 @@ export default function ProjectsPreview({ posts }: { posts: Post[] }) {
                   {post.excerpt && (
                     <p className="text-gray-400 text-xs mb-4 line-clamp-2 leading-relaxed font-medium">{post.excerpt}</p>
                   )}
-                  <div className="flex items-center gap-4 text-[10px] text-gray-500 font-semibold border-t border-white/5 pt-4">
+                  <div className="flex flex-wrap items-center gap-4 text-[10px] text-gray-500 font-semibold border-t border-white/5 pt-4">
                     {post.location && (
                       <span className="flex items-center gap-1.5 hover:text-[#F5C518] transition-colors">
                         <MapPin className="w-3.5 h-3.5 text-[#F5C518]" /> {post.location}

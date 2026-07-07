@@ -50,7 +50,7 @@ export default function HeroSection() {
       {/* Hazard stripe bottom */}
       <div className="absolute bottom-0 left-0 right-0 h-2 hazard-stripe opacity-80" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 lg:pt-40 pb-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           
           {/* Left content */}
@@ -64,8 +64,7 @@ export default function HeroSection() {
               <span className="text-gray-300 text-xs tracking-wider font-semibold uppercase">Hệ thống an ninh chuyên nghiệp tại Huế</span>
             </div>
 
-            <h1 style={{ fontFamily: 'Oswald, sans-serif' }}
-              className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-none tracking-tight">
+            <h1 className="font-heading text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-none tracking-tight">
               GIẢI PHÁP{' '}
               <span className="bg-gradient-to-r from-[#F5C518] to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(245,197,24,0.3)]">
                 CÔNG NGHỆ

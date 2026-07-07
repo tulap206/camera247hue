@@ -30,8 +30,7 @@ export default function Footer() {
                 <Shield className="w-6 h-6 text-black" />
               </div>
               <div>
-                <div className="font-bold text-[#F5C518] text-lg leading-tight"
-                  style={{ fontFamily: 'Oswald, sans-serif' }}>CAMERA 247 HUẾ</div>
+                <div className="font-bold text-[#F5C518] text-lg leading-tight font-heading">CAMERA 247 HUẾ</div>
                 <div className="text-gray-500 text-xs">Giải Pháp Công Nghệ An Ninh</div>
               </div>
             </div>
@@ -57,8 +56,7 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider"
-              style={{ fontFamily: 'Oswald, sans-serif' }}>Dịch Vụ</h4>
+            <h4 className="font-heading text-white font-bold mb-4 text-sm uppercase tracking-wider">Dịch Vụ</h4>
             <ul className="space-y-2">
               {services.map(s => (
                 <li key={s}>
@@ -73,8 +71,7 @@ export default function Footer() {
 
           {/* Projects */}
           <div>
-            <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider"
-              style={{ fontFamily: 'Oswald, sans-serif' }}>Công Trình</h4>
+            <h4 className="font-heading text-white font-bold mb-4 text-sm uppercase tracking-wider">Công Trình</h4>
             <ul className="space-y-2">
               {categories.map(c => (
                 <li key={c.slug}>
@@ -89,8 +86,7 @@ export default function Footer() {
 
           {/* Quick links */}
           <div>
-            <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider"
-              style={{ fontFamily: 'Oswald, sans-serif' }}>Liên Kết</h4>
+            <h4 className="font-heading text-white font-bold mb-4 text-sm uppercase tracking-wider">Liên Kết</h4>
             <ul className="space-y-2">
               {[
                 { label: 'Trang Chủ', href: '/' },

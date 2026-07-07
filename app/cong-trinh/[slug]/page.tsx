@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingContact from '@/components/FloatingContact'
 import { supabase } from '@/lib/supabase'
-import { MapPin, Calendar, ChevronLeft, Building } from 'lucide-react'
+import { MapPin, Calendar, ChevronLeft, Building, Phone, MessageSquare } from 'lucide-react'
 
 export const revalidate = 60
 
@@ -57,8 +57,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 {post.category.name}
               </div>
             )}
-            <h1 style={{ fontFamily: 'Oswald, sans-serif' }}
-              className="text-2xl sm:text-4xl font-bold text-white max-w-3xl">
+            <h1 className="font-heading text-2xl sm:text-4xl font-bold text-white max-w-3xl">
               {post.title}
             </h1>
           </div>
@@ -105,8 +104,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
               {/* Image gallery */}
               {post.images && post.images.length > 0 && (
                 <div className="mt-8">
-                  <h3 style={{ fontFamily: 'Oswald, sans-serif' }}
-                    className="text-lg font-bold text-white mb-4">Hình Ảnh Công Trình</h3>
+                  <h3 className="font-heading text-lg font-bold text-white mb-4">Hình Ảnh Công Trình</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {post.images.map((img: string, i: number) => (
                       <div key={i} className="aspect-video relative rounded-xl overflow-hidden bg-[#1A1A1A] border border-gray-800">
@@ -122,26 +120,24 @@ export default async function PostPage({ params }: { params: { slug: string } })
             <div className="space-y-6">
               {/* CTA card */}
               <div className="bg-[#1A1A1A] rounded-2xl p-5 border border-[#F5C518]/20">
-                <h4 style={{ fontFamily: 'Oswald, sans-serif' }}
-                  className="text-white font-bold mb-3">CẦN TƯ VẤN?</h4>
+                <h4 className="font-heading text-white font-bold mb-3">CẦN TƯ VẤN?</h4>
                 <p className="text-gray-400 text-sm mb-4 leading-relaxed">
                   Liên hệ ngay để được tư vấn miễn phí về giải pháp an ninh phù hợp với nhu cầu của bạn.
                 </p>
                 <a href="tel:0967611112"
-                  className="block w-full bg-[#F5C518] text-black text-center py-3 rounded-xl font-bold hover:bg-yellow-400 transition-all text-sm">
-                  📞 0967 611 112
+                  className="flex items-center justify-center gap-2 w-full bg-[#F5C518] text-black text-center py-3 rounded-xl font-bold hover:bg-yellow-400 transition-all text-sm">
+                  <Phone className="w-4 h-4" /> 0967 611 112
                 </a>
                 <a href="https://zalo.me/0967611112" target="_blank" rel="noopener noreferrer"
-                  className="block w-full mt-2 bg-[#0068FF] text-white text-center py-3 rounded-xl font-bold hover:bg-blue-600 transition-all text-sm">
-                  💬 Zalo Chat
+                  className="flex items-center justify-center gap-2 w-full mt-2 bg-[#0068FF] text-white text-center py-3 rounded-xl font-bold hover:bg-blue-600 transition-all text-sm">
+                  <MessageSquare className="w-4 h-4" /> Zalo Chat
                 </a>
               </div>
 
               {/* Related */}
               {related && related.length > 0 && (
                 <div>
-                  <h4 style={{ fontFamily: 'Oswald, sans-serif' }}
-                    className="text-white font-bold mb-3 text-sm uppercase tracking-wider">Công Trình Liên Quan</h4>
+                  <h4 className="font-heading text-white font-bold mb-3 text-sm uppercase tracking-wider">Công Trình Liên Quan</h4>
                   <div className="space-y-3">
                     {related.map((r: any) => (
                       <Link key={r.id} href={`/cong-trinh/${r.slug}`}

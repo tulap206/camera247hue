@@ -40,8 +40,7 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
           <div className="w-16 h-16 bg-[#F5C518] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Shield className="w-9 h-9 text-black" />
           </div>
-          <h1 style={{ fontFamily: 'Oswald, sans-serif' }}
-            className="text-2xl font-bold text-white">ĐĂNG NHẬP ADMIN</h1>
+          <h1 className="font-heading text-2xl font-bold text-white">ĐĂNG NHẬP ADMIN</h1>
           <p className="text-gray-500 text-sm mt-1">Camera 247 Huế</p>
         </div>
 
@@ -368,8 +367,7 @@ function PostForm({
       <div className="min-h-screen flex items-start justify-center py-8 px-4">
         <div className="w-full max-w-2xl bg-[#1A1A1A] rounded-2xl border border-gray-700">
           <div className="flex items-center justify-between p-5 border-b border-gray-800">
-            <h2 style={{ fontFamily: 'Oswald, sans-serif' }}
-              className="text-lg font-bold text-white">
+            <h2 className="font-heading text-lg font-bold text-white">
               {post ? 'Chỉnh Sửa Bài Viết' : 'Tạo Bài Viết Mới'}
             </h2>
             <button onClick={onCancel} className="text-gray-500 hover:text-white">✕</button>
@@ -579,8 +577,7 @@ Bắt đầu bằng '# ' để tạo tiêu đề."
         <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-[#1A1A1A] rounded-2xl border border-gray-700 overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between p-5 border-b border-gray-800">
-              <h3 style={{ fontFamily: 'Oswald, sans-serif' }}
-                className="text-lg font-bold text-white uppercase tracking-wider">
+              <h3 className="font-heading text-lg font-bold text-white uppercase tracking-wider">
                 Quản Lý Danh Mục
               </h3>
               <button onClick={() => setShowCatManager(false)} className="text-gray-500 hover:text-white text-lg">✕</button>
@@ -765,7 +762,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             <Shield className="w-5 h-5 text-black" />
           </div>
           <div>
-            <div className="font-bold text-white text-sm" style={{ fontFamily: 'Oswald, sans-serif' }}>
+            <div className="font-heading font-bold text-white text-sm">
               CAMERA 247 HUẾ — ADMIN
             </div>
             <div className="text-gray-500 text-xs">Quản trị nội dung</div>
@@ -792,7 +789,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             { label: 'Chưa đọc', value: stats.unread, color: '#ef4444' },
           ].map(s => (
             <div key={s.label} className="bg-[#1A1A1A] rounded-xl p-4 border border-gray-800">
-              <div className="text-3xl font-bold mb-1" style={{ color: s.color, fontFamily: 'Oswald, sans-serif' }}>
+              <div className="font-heading text-3xl font-bold mb-1" style={{ color: s.color }}>
                 {s.value}
               </div>
               <div className="text-gray-500 text-xs">{s.label}</div>
@@ -826,8 +823,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         {tab === 'posts' && (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h2 style={{ fontFamily: 'Oswald, sans-serif' }}
-                className="text-lg font-bold text-white">QUẢN LÝ BÀI VIẾT</h2>
+              <h2 className="font-heading text-lg font-bold text-white">QUẢN LÝ BÀI VIẾT</h2>
               <button
                 onClick={() => setEditing(null)}
                 className="flex items-center gap-2 bg-[#F5C518] text-black px-4 py-2 rounded-xl font-bold text-sm hover:bg-yellow-400 transition-all">
@@ -930,8 +926,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         {/* Contacts tab */}
         {tab === 'contacts' && (
           <div>
-            <h2 style={{ fontFamily: 'Oswald, sans-serif' }}
-              className="text-lg font-bold text-white mb-4">YÊU CẦU LIÊN HỆ</h2>
+            <h2 className="font-heading text-lg font-bold text-white mb-4">YÊU CẦU LIÊN HỆ</h2>
             {loading ? (
               <div className="flex justify-center py-12"><div className="spinner" /></div>
             ) : (

@@ -1,6 +1,6 @@
 'use client'
 
-import { Award, Clock, Headphones, ThumbsUp, Users, Wrench } from 'lucide-react'
+import { Award, Clock, Headphones, ThumbsUp, Users, Wrench, MapPin, Phone, Globe, Facebook } from 'lucide-react'
 
 const reasons = [
   {
@@ -52,8 +52,7 @@ export default function WhyUsSection() {
               Tại Sao Chọn Chúng Tôi
             </div>
             
-            <h2 style={{ fontFamily: 'Oswald, sans-serif' }}
-              className="text-3xl sm:text-5xl font-black text-white leading-none tracking-tight">
+            <h2 className="font-heading text-3xl sm:text-5xl font-black text-white leading-none tracking-tight">
               ĐỐI TÁC AN NINH
               <br />
               <span className="bg-gradient-to-r from-[#F5C518] to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(245,197,24,0.2)]">TIN CẬY SỐ 1</span> TẠI HUẾ
@@ -70,11 +69,23 @@ export default function WhyUsSection() {
               <div className="font-extrabold text-[#F5C518] mb-3 text-sm tracking-wider font-heading uppercase">
                 CÔNG TY TNHH GIẢI PHÁP CÔNG NGHỆ AN NINH CAMERA 247 HUẾ
               </div>
-              <div className="space-y-2 text-xs sm:text-sm text-gray-400 font-medium">
-                <p className="flex items-center gap-2"><span>📍</span> 40 Tùng Thiện Vương, Phường Vỹ Dạ, Tp. Huế</p>
-                <p className="flex items-center gap-2"><span>📞</span> 0967 611 112 — 0777 611 112</p>
-                <p className="flex items-center gap-2"><span>🌐</span> camera247hue.com</p>
-                <p className="flex items-center gap-2"><span>📘</span> facebook.com/Camera247Hue</p>
+              <div className="space-y-2.5 text-xs sm:text-sm text-gray-400 font-medium">
+                <p className="flex items-start gap-2.5">
+                  <MapPin className="w-4 h-4 text-[#F5C518] flex-shrink-0 mt-0.5" />
+                  <span>40 Tùng Thiện Vương, Phường Vỹ Dạ, Tp. Huế</span>
+                </p>
+                <p className="flex items-start gap-2.5">
+                  <Phone className="w-4 h-4 text-[#F5C518] flex-shrink-0 mt-0.5" />
+                  <span>0967 611 112 — 0777 611 112</span>
+                </p>
+                <p className="flex items-start gap-2.5">
+                  <Globe className="w-4 h-4 text-[#F5C518] flex-shrink-0 mt-0.5" />
+                  <span>camera247hue.com</span>
+                </p>
+                <p className="flex items-start gap-2.5">
+                  <Facebook className="w-4 h-4 text-[#F5C518] flex-shrink-0 mt-0.5" />
+                  <span>facebook.com/Camera247Hue</span>
+                </p>
               </div>
             </div>
           </div>

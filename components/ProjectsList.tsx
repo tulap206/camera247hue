@@ -162,8 +162,7 @@ export default function ProjectsList({
 
                 {/* Content */}
                 <div className="p-5">
-                  <h3 className="font-bold text-white mb-2 line-clamp-2 group-hover:text-[#F5C518] transition-colors text-base"
-                    style={{ fontFamily: 'Oswald, sans-serif' }}>
+                  <h3 className="font-heading font-bold text-white mb-2 line-clamp-2 group-hover:text-[#F5C518] transition-colors text-base">
                     {post.title}
                   </h3>
                   {post.excerpt && (

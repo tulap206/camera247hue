@@ -8,8 +8,7 @@ export default function NotFound() {
         <div className="w-20 h-20 bg-[#F5C518]/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-[#F5C518]/20">
           <Shield className="w-10 h-10 text-[#F5C518]" />
         </div>
-        <h1 style={{ fontFamily: 'Oswald, sans-serif' }}
-          className="text-6xl font-bold text-[#F5C518] mb-2">404</h1>
+        <h1 className="font-heading text-6xl font-bold text-[#F5C518] mb-2">404</h1>
         <p className="text-white text-xl font-bold mb-2">Không tìm thấy trang</p>
         <p className="text-gray-400 mb-8">Trang bạn tìm kiếm không tồn tại.</p>
         <Link href="/"

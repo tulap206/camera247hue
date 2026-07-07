@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, Shield } from 'lucide-react'
+import { Menu, X, Shield, Phone, MapPin } from 'lucide-react'
 
 const navLinks = [
   { href: '#dich-vu', label: 'Dịch Vụ' },
@@ -25,23 +25,27 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'glass-panel bg-brand-dark/80 shadow-2xl border-b border-white/10'
+          ? 'glass-panel bg-[#070708]/90 shadow-2xl border-b border-white/10'
           : 'bg-transparent border-b border-transparent'
       }`}
     >
       {/* Top bar */}
-      <div className="bg-[#F5C518] text-black text-xs py-2 px-4 sm:px-6 lg:px-8 flex justify-between items-center font-medium tracking-wide">
+      <div
+        className={`bg-[#F5C518] text-black text-xs px-4 sm:px-6 lg:px-8 flex justify-between items-center font-medium tracking-wide transition-all duration-300 origin-top overflow-hidden ${
+          scrolled ? 'h-0 py-0 opacity-0 pointer-events-none' : 'py-2 h-auto opacity-100'
+        }`}
+      >
         <span className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-          Hotline: <a href="tel:0967611112" className="font-bold hover:underline">0967 611 112</a>
+          <Phone className="w-3.5 h-3.5" /> Hotline: <a href="tel:0967611112" className="font-bold hover:underline">0967 611 112</a>
         </span>
-        <span className="hidden sm:inline-flex items-center gap-1">
-          <span>📍 40 Tùng Thiện Vương, Vỹ Dạ, Tp. Huế</span>
+        <span className="hidden sm:inline-flex items-center gap-1.5">
+          <MapPin className="w-3.5 h-3.5" /> <span>40 Tùng Thiện Vương, Vỹ Dạ, Tp. Huế</span>
         </span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-16' : 'h-20'}`}>
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-11 h-11 bg-gradient-to-br from-[#F5C518] to-[#C69B0B] rounded-xl flex items-center justify-center group-hover:scale-105 transition-all duration-300 shadow-lg shadow-yellow-500/25">
@@ -87,7 +91,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="md:hidden glass-panel border-t border-white/10 px-4 py-6 shadow-2xl animate-fade-in">
+        <div className="md:hidden glass-panel border-t border-white/10 px-4 py-6 shadow-2xl animate-fade-in max-h-[calc(100vh-120px)] overflow-y-auto">
           <div className="flex flex-col gap-4">
             {navLinks.map((link) => (
               <Link
@@ -111,3 +115,4 @@ export default function Navbar() {
     </header>
   )
 }
+

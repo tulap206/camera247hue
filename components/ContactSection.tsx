@@ -71,8 +71,7 @@ export default function ContactSection() {
             Liên Hệ
             <span className="w-8 h-0.5 bg-[#F5C518]" />
           </div>
-          <h2 style={{ fontFamily: 'Oswald, sans-serif' }}
-            className="text-3xl sm:text-5xl font-black text-white leading-none tracking-tight">
+          <h2 className="font-heading text-3xl sm:text-5xl font-black text-white leading-none tracking-tight">
             LIÊN HỆ TƯ VẤN
             <span className="bg-gradient-to-r from-[#F5C518] to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(245,197,24,0.2)]"> MIỄN PHÍ</span>
           </h2>
@@ -113,8 +112,8 @@ export default function ContactSection() {
                 },
               ].map((item) => (
                 <div key={item.title}
-                  className="flex items-center gap-4 p-4 glass-panel rounded-2xl border border-white/5 hover:border-yellow-500/25 hover:bg-white/5 transition-all duration-300 group">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#F5C518] group-hover:border-transparent transition-all duration-300">
+                  className="flex items-start gap-4 p-4 glass-panel rounded-2xl border border-white/5 hover:border-yellow-500/25 hover:bg-white/5 transition-all duration-300 group">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#F5C518] group-hover:border-transparent transition-all duration-300 mt-0.5">
                     <item.icon className="w-5 h-5 text-[#F5C518] group-hover:text-black transition-colors" />
                   </div>
                   <div>
@@ -151,8 +150,7 @@ export default function ContactSection() {
 
           {/* Contact form */}
           <div className="glass-panel rounded-[28px] p-6 sm:p-8 border border-white/5 shadow-2xl relative">
-            <h3 style={{ fontFamily: 'Oswald, sans-serif' }}
-              className="text-xl font-bold text-white mb-6 uppercase tracking-wider">
+            <h3 className="font-heading text-xl font-bold text-white mb-6 uppercase tracking-wider">
               GỬI YÊU CẦU TƯ VẤN
             </h3>
 

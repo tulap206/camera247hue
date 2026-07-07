@@ -91,8 +91,7 @@ export default function ServicesSection() {
             Dịch Vụ Của Chúng Tôi
             <span className="w-8 h-px bg-[#F5C518]" />
           </div>
-          <h2 style={{ fontFamily: 'Oswald, sans-serif' }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+          <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
             GIẢI PHÁP AN NINH
             <span className="text-[#F5C518]"> TOÀN DIỆN</span>
           </h2>
@@ -127,8 +126,7 @@ export default function ServicesSection() {
               </div>
 
               {/* Content */}
-              <h3 style={{ fontFamily: 'Oswald, sans-serif' }}
-                className="text-xl font-bold text-white mb-2.5 tracking-wide group-hover:text-[#F5C518] transition-colors uppercase">
+              <h3 className="font-heading text-xl font-bold text-white mb-2.5 tracking-wide group-hover:text-[#F5C518] transition-colors uppercase">
                 {service.title}
               </h3>
               <p className="text-gray-400 text-sm mb-5 leading-relaxed">
@@ -138,8 +136,8 @@ export default function ServicesSection() {
               {/* Features */}
               <ul className="space-y-2">
                 {service.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-xs text-gray-500 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#F5C518] group-hover:scale-125 transition-transform flex-shrink-0" />
+                  <li key={f} className="flex items-start gap-2.5 text-xs text-gray-500 font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#F5C518] group-hover:scale-125 transition-transform flex-shrink-0 mt-1.5" />
                     {f}
                   </li>
                 ))}

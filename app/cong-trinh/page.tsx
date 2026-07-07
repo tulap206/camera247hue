@@ -45,8 +45,7 @@ export default async function ProjectsPage({
               Portfolio
               <span className="w-8 h-px bg-[#F5C518]" />
             </div>
-            <h1 style={{ fontFamily: 'Oswald, sans-serif' }}
-              className="text-4xl sm:text-5xl font-bold text-white mb-3">
+            <h1 className="font-heading text-4xl sm:text-5xl font-bold text-white mb-3">
               CÔNG TRÌNH ĐÃ THI CÔNG
             </h1>
             <p className="text-gray-400 max-w-xl mx-auto">
