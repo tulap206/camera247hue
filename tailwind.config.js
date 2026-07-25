@@ -32,6 +32,11 @@ module.exports = {
         'fade-in': 'fadeIn 0.5s ease forwards',
         'pulse-ring': 'pulseRing 2s ease infinite',
         'scan': 'scanLine 8s linear infinite',
+        'marquee': 'marquee var(--duration) linear infinite',
+        'marquee-vertical': 'marqueeVertical var(--duration) linear infinite',
+        'gradient': 'gradient 8s linear infinite',
+        'shimmer-slide': 'shimmerSlide var(--speed) ease-in-out infinite alternate',
+        'spin-around': 'spinAround calc(var(--speed) * 2) linear infinite',
       },
       keyframes: {
         fadeUp: {
@@ -50,6 +55,26 @@ module.exports = {
         scanLine: {
           '0%': { transform: 'translateY(-100%)' },
           '100%': { transform: 'translateY(100%)' },
+        },
+        marquee: {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(calc(-100% - var(--gap)))' },
+        },
+        marqueeVertical: {
+          from: { transform: 'translateY(0)' },
+          to: { transform: 'translateY(calc(-100% - var(--gap)))' },
+        },
+        gradient: {
+          to: { backgroundPosition: 'var(--bg-size, 300%) 0' },
+        },
+        shimmerSlide: {
+          to: { transform: 'translate(calc(100cqw - 100%), 0)' },
+        },
+        spinAround: {
+          '0%': { transform: 'translateZ(0) rotate(0)' },
+          '15%, 35%': { transform: 'translateZ(0) rotate(90deg)' },
+          '65%, 85%': { transform: 'translateZ(0) rotate(270deg)' },
+          '100%': { transform: 'translateZ(0) rotate(360deg)' },
         },
       },
     },

@@ -1,14 +1,15 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { Menu, X, Shield, Phone, MapPin } from 'lucide-react'
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { Menu, X, Shield, Phone, MapPin } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const navLinks = [
-  { href: '#dich-vu', label: 'Dịch Vụ' },
-  { href: '#tai-sao-chon-chung-toi', label: 'Về Chúng Tôi' },
-  { href: '/cong-trinh', label: 'Công Trình' },
-  { href: '#lien-he', label: 'Liên Hệ' },
+  { href: "#dich-vu", label: "Dịch vụ" },
+  { href: "#tai-sao-chon-chung-toi", label: "Về chúng tôi" },
+  { href: "/cong-trinh", label: "Công trình" },
+  { href: "#lien-he", label: "Liên hệ" },
 ]
 
 export default function Navbar() {
@@ -16,88 +17,89 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const handleScroll = () => setScrolled(window.scrollY > 40)
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         scrolled
-          ? 'glass-panel bg-[#070708]/90 shadow-2xl border-b border-white/10'
-          : 'bg-transparent border-b border-transparent'
-      }`}
+          ? "border-b border-white/10 bg-[#070708]/90 shadow-2xl backdrop-blur-xl"
+          : "border-b border-transparent bg-transparent"
+      )}
     >
-      {/* Top bar */}
       <div
-        className={`bg-[#F5C518] text-black text-xs px-4 sm:px-6 lg:px-8 flex justify-between items-center font-medium tracking-wide transition-all duration-300 origin-top overflow-hidden ${
-          scrolled ? 'h-0 py-0 opacity-0 pointer-events-none' : 'py-2 h-auto opacity-100'
-        }`}
+        className={cn(
+          "overflow-hidden bg-[#F5C518] text-xs font-medium text-black transition-all duration-300",
+          scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100"
+        )}
       >
-        <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-          <Phone className="w-3.5 h-3.5" /> Hotline: <a href="tel:0967611112" className="font-bold hover:underline">0967 611 112</a>
-        </span>
-        <span className="hidden sm:inline-flex items-center gap-1.5">
-          <MapPin className="w-3.5 h-3.5" /> <span>40 Tùng Thiện Vương, Vỹ Dạ, Tp. Huế</span>
-        </span>
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
+          <a href="tel:0967611112" className="inline-flex items-center gap-1.5 hover:underline">
+            <Phone className="size-3.5" />
+            Hotline: <strong>0967 611 112</strong>
+          </a>
+          <span className="hidden items-center gap-1.5 sm:inline-flex">
+            <MapPin className="size-3.5" />
+            40 Tùng Thiện Vương, Vỹ Dạ, Tp. Huế
+          </span>
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-16' : 'h-20'}`}>
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 bg-gradient-to-br from-[#F5C518] to-[#C69B0B] rounded-xl flex items-center justify-center group-hover:scale-105 transition-all duration-300 shadow-lg shadow-yellow-500/25">
-              <Shield className="w-6 h-6 text-black" strokeWidth={2.5} />
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className={cn("flex w-full items-center justify-between transition-all", scrolled ? "h-16" : "h-18 py-3")}>
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[#F5C518] shadow-lg shadow-yellow-500/20 sm:size-11">
+              <Shield className="size-5 text-black sm:size-6" strokeWidth={2.5} />
             </div>
-            <div>
-              <div className="font-extrabold text-[#F5C518] text-xl tracking-wider leading-tight font-heading">
-                CAMERA 247
-              </div>
-              <div className="text-gray-400 text-[10px] tracking-widest uppercase font-medium">Huế Security Solutions</div>
+            <div className="leading-tight">
+              <p className="font-heading text-lg font-bold tracking-wide text-[#F5C518]">CAMERA 247</p>
+              <p className="text-[10px] font-medium tracking-widest text-zinc-400 uppercase">
+                Huế Security
+              </p>
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden items-center gap-7 md:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-gray-300 hover:text-[#F5C518] transition-all text-xs font-semibold tracking-widest uppercase relative py-2 group/link"
+                className="text-sm font-medium text-zinc-300 transition-colors hover:text-[#F5C518]"
               >
                 {link.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#F5C518] transition-all duration-300 group-hover/link:w-full" />
               </Link>
             ))}
             <a
               href="tel:0967611112"
-              className="bg-gradient-to-r from-[#F5C518] to-[#C69B0B] text-black px-6 py-2.5 rounded-full font-bold text-xs uppercase tracking-wider hover:shadow-lg hover:shadow-yellow-500/30 hover:scale-105 active:scale-95 transition-all duration-300"
+              className="rounded-xl bg-[#F5C518] px-5 py-2.5 text-xs font-bold tracking-wide text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              Liên Hệ Ngay
+              Liên hệ ngay
             </a>
           </nav>
 
-          {/* Mobile toggle */}
           <button
-            className="md:hidden text-white p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+            type="button"
+            className="inline-flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white md:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Đóng menu" : "Mở menu"}
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="md:hidden glass-panel border-t border-white/10 px-4 py-6 shadow-2xl animate-fade-in max-h-[calc(100vh-120px)] overflow-y-auto">
-          <div className="flex flex-col gap-4">
+        <div className="border-t border-white/10 bg-[#070708]/95 px-4 py-4 backdrop-blur-xl md:hidden">
+          <nav className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="block py-2.5 px-4 text-gray-300 hover:text-[#F5C518] hover:bg-white/5 rounded-xl text-sm font-medium tracking-wide transition-all"
+                className="rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 hover:bg-white/5 hover:text-[#F5C518]"
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}
@@ -105,14 +107,13 @@ export default function Navbar() {
             ))}
             <a
               href="tel:0967611112"
-              className="mt-2 block bg-gradient-to-r from-[#F5C518] to-[#C69B0B] text-black py-3 rounded-xl font-bold text-center text-sm shadow-lg shadow-yellow-500/20"
+              className="mt-2 rounded-xl bg-[#F5C518] py-3 text-center text-sm font-bold text-black"
             >
-              📞 Gọi: 0967 611 112
+              Gọi: 0967 611 112
             </a>
-          </div>
+          </nav>
         </div>
       )}
     </header>
   )
 }
-
