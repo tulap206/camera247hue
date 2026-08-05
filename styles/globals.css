@@ -11,8 +11,8 @@
   --brand-gray-2: #16171B;
   --brand-light: #F8F9FA;
   --brand-text: #E3E4E8;
-  --font-heading: var(--font-heading), 'Oswald', system-ui, sans-serif;
-  --font-body: var(--font-body), 'Be Vietnam Pro', system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Be Vietnam Pro', sans-serif;
 }
 
 * {

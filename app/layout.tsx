@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Be_Vietnam_Pro, Oswald } from "next/font/google"
+import { Be_Vietnam_Pro, Plus_Jakarta_Sans } from "next/font/google"
 import "../styles/globals.css"
 
 const beVietnam = Be_Vietnam_Pro({
@@ -9,9 +9,9 @@ const beVietnam = Be_Vietnam_Pro({
   variable: "--font-body",
 })
 
-const oswald = Oswald({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
   variable: "--font-heading",
 })
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={`${beVietnam.variable} ${oswald.variable}`}>
+    <html lang="vi" className={`${beVietnam.variable} ${plusJakartaSans.variable}`}>
       <body className={`${beVietnam.className} antialiased`}>{children}</body>
     </html>
   )

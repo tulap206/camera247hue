@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import {
   Award,
@@ -11,40 +11,38 @@ import {
   Phone,
   Globe,
   Facebook,
-} from "lucide-react"
-import { BlurFade } from "@/components/magicui/blur-fade"
-import { BorderBeam } from "@/components/magicui/border-beam"
+} from 'lucide-react'
 
 const reasons = [
   {
     icon: Award,
     title: "Thương hiệu hàng đầu",
-    desc: "Hikvision, Dahua, Panasonic, Unifi — bảo hành đầy đủ từ nhà sản xuất.",
+    desc: "Hikvision, Dahua, Imou, Ezviz, Unifi — phân phối chính hãng 100%.",
   },
   {
     icon: Clock,
-    title: "Giám sát 24/7",
-    desc: "Hỗ trợ kỹ thuật liên tục. Xử lý sự cố nhanh trong vòng 2 giờ tại Huế.",
+    title: "Xử lý nhanh < 2 Giờ",
+    desc: "Đội ngũ kỹ thuật túc trực xử lý sự cố an ninh tận nơi siêu tốc tại Huế.",
   },
   {
     icon: Headphones,
-    title: "Tư vấn tận tình",
-    desc: "Giải pháp phù hợp ngân sách và nhu cầu thực tế của từng công trình.",
+    title: "Tư vấn thực tế",
+    desc: "Khảo sát tận nhà, đề xuất giải pháp tối ưu theo ngân sách thực tế.",
   },
   {
     icon: ThumbsUp,
-    title: "Thi công chuyên nghiệp",
-    desc: "Đi dây âm/nổi theo yêu cầu, thẩm mỹ cao, bàn giao đúng tiến độ.",
+    title: "Thi công chuẩn thẩm mỹ",
+    desc: "Đi dây gọn gàng, thẩm mỹ cao cho biệt thự, văn phòng, nhà hàng.",
   },
   {
     icon: Users,
-    title: "Hơn 1200 khách hàng",
-    desc: "Hộ gia đình, cafe, khách sạn, trường học và doanh nghiệp tại Huế.",
+    title: "1,200+ Công trình",
+    desc: "Hàng ngàn hộ gia đình, chuỗi cafe, khách sạn, cửa hàng đã tin tưởng.",
   },
   {
     icon: Wrench,
-    title: "Bảo hành trọn gói",
-    desc: "Thiết bị 12–24 tháng, bảo trì định kỳ miễn phí trong thời hạn hợp đồng.",
+    title: "Bảo hành tận tâm",
+    desc: "Bảo hành thiết bị lên đến 2 năm, bảo trì định kỳ suốt vòng đời hệ thống.",
   },
 ]
 
@@ -52,69 +50,78 @@ export default function WhyUsSection() {
   return (
     <section
       id="tai-sao-chon-chung-toi"
-      className="scroll-mt-24 bg-[#070708] py-20 sm:py-24 relative overflow-hidden"
+      className="scroll-mt-24 bg-[#050505] py-24 sm:py-32 relative overflow-hidden"
     >
-      <div className="absolute top-1/4 left-0 size-[420px] rounded-full bg-[#F5C518]/5 blur-[100px] pointer-events-none" />
+      {/* Glow background */}
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-[#F5C518]/5 blur-[120px] pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
-          <div className="space-y-6">
-            <BlurFade inView direction="up">
-              <p className="text-sm font-semibold tracking-wide text-[#F5C518]">Vì sao chọn chúng tôi</p>
-              <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight text-white text-balance sm:text-4xl">
-                Đối tác an ninh tin cậy tại Huế
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full">
+        <div className="grid items-start gap-16 lg:grid-cols-12">
+          
+          {/* Left Column (5 cols) */}
+          <div className="lg:col-span-5 space-y-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/10 rounded-full px-3 py-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F5C518]"></span>
+                <span className="text-zinc-400 text-[10px] tracking-[0.2em] font-extrabold uppercase">Uy Tín</span>
+              </div>
+              <h2 className="font-heading text-4xl sm:text-5xl font-black text-white leading-none tracking-tight">
+                ĐỐI TÁC AN NINH TIN CẬY TẠI HUẾ
               </h2>
-              <p className="mt-3 text-base leading-relaxed text-zinc-400">
-                Hơn 12 năm kinh nghiệm hạ tầng mạng và tích hợp hệ thống an ninh — đồng hành cùng hộ
-                gia đình, biệt thự, cafe, nhà hàng, khách sạn và doanh nghiệp tại cố đô.
+              <p className="text-zinc-400 text-sm leading-relaxed max-w-[45ch] font-medium">
+                Với hơn 12 năm kinh nghiệm tích hợp hệ thống, chúng tôi tự hào đồng hành bảo vệ bình yên 
+                cho các gia đình và tối ưu hóa hạ tầng vận hành của doanh nghiệp tại Cố đô.
               </p>
-            </BlurFade>
+            </div>
 
-            <BlurFade inView delay={0.1} direction="up">
-              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#111115] p-6">
-                <BorderBeam size={90} duration={9} colorFrom="#F5C518" colorTo="#C69B0B" />
-                <p className="font-heading text-sm font-bold tracking-wide text-[#F5C518]">
-                  Công ty TNHH Giải Pháp Công Nghệ An Ninh Camera 247 Huế
-                </p>
-                <div className="mt-4 space-y-2.5 text-sm text-zinc-400">
-                  <p className="flex items-start gap-2.5">
-                    <MapPin className="mt-0.5 size-4 shrink-0 text-[#F5C518]" />
-                    40 Tùng Thiện Vương, Phường Vỹ Dạ, Tp. Huế
+            {/* Business Card (Double-Bezel) */}
+            <div className="p-1 bg-white/[0.02] border border-white/10 rounded-3xl relative overflow-hidden shadow-xl max-w-sm">
+              <div className="bg-[#0D0E10] border border-white/5 rounded-[calc(1.5rem+0.25rem)] p-6 space-y-4">
+                <h4 className="font-heading text-xs font-black tracking-widest text-[#F5C518] uppercase">
+                  CAMERA 247 HUẾ
+                </h4>
+                <div className="space-y-3 text-xs text-zinc-400 font-medium">
+                  <p className="flex items-start gap-3">
+                    <MapPin className="mt-0.5 w-4 h-4 shrink-0 text-[#F5C518]" strokeWidth={1.5} />
+                    <span>40 Tùng Thiện Vương, Vỹ Dạ, Tp. Huế</span>
                   </p>
-                  <p className="flex items-start gap-2.5">
-                    <Phone className="mt-0.5 size-4 shrink-0 text-[#F5C518]" />
-                    0967 611 112 — 0777 611 112
+                  <p className="flex items-start gap-3">
+                    <Phone className="mt-0.5 w-4 h-4 shrink-0 text-[#F5C518]" strokeWidth={1.5} />
+                    <span>0967 611 112 — 0777 611 112</span>
                   </p>
-                  <p className="flex items-start gap-2.5">
-                    <Globe className="mt-0.5 size-4 shrink-0 text-[#F5C518]" />
-                    camera247hue.com
+                  <p className="flex items-start gap-3">
+                    <Globe className="mt-0.5 w-4 h-4 shrink-0 text-[#F5C518]" strokeWidth={1.5} />
+                    <span>camera247hue.com</span>
                   </p>
-                  <p className="flex items-start gap-2.5">
-                    <Facebook className="mt-0.5 size-4 shrink-0 text-[#F5C518]" />
-                    facebook.com/Camera247Hue
+                  <p className="flex items-start gap-3">
+                    <Facebook className="mt-0.5 w-4 h-4 shrink-0 text-[#F5C518]" strokeWidth={1.5} />
+                    <span>facebook.com/Camera247Hue</span>
                   </p>
                 </div>
               </div>
-            </BlurFade>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* Right Column (7 cols - reasons cards) */}
+          <div className="lg:col-span-7 grid gap-4 sm:grid-cols-2">
             {reasons.map((r, i) => (
-              <BlurFade key={r.title} inView delay={0.05 * i} direction="up">
-                <div className="h-full rounded-2xl border border-white/5 bg-[#111115] p-5 transition-colors hover:border-[#F5C518]/25">
-                  <div className="flex gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                      <r.icon className="size-5 text-[#F5C518]" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">{r.title}</h4>
-                      <p className="mt-1 text-xs leading-relaxed text-zinc-500">{r.desc}</p>
-                    </div>
+              <div
+                key={r.title}
+                className="p-1 bg-white/[0.01] border border-white/5 rounded-2xl transition-all duration-500 hover:border-[#F5C518]/20 hover:-translate-y-0.5 shadow-md flex flex-col justify-between"
+              >
+                <div className="bg-[#0D0E10]/40 rounded-[calc(1rem+0.125rem)] p-5 flex gap-4">
+                  <div className="flex w-9 h-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.03] border border-white/10">
+                    <r.icon className="w-4 h-4 text-[#F5C518]" strokeWidth={1.5} />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-extrabold text-white font-heading tracking-wide uppercase">{r.title}</h4>
+                    <p className="text-zinc-500 text-[11px] leading-relaxed font-medium">{r.desc}</p>
                   </div>
                 </div>
-              </BlurFade>
+              </div>
             ))}
           </div>
+
         </div>
       </div>
     </section>

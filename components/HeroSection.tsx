@@ -1,183 +1,191 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import { ChevronDown, Shield, Eye, Lock, Phone } from "lucide-react"
-import { BlurFade } from "@/components/magicui/blur-fade"
-import { ShimmerButton } from "@/components/magicui/shimmer-button"
-import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
-import { BorderBeam } from "@/components/magicui/border-beam"
-import { NumberTicker } from "@/components/magicui/number-ticker"
+import { useEffect, useRef } from 'react'
+import Link from 'next/link'
+import { ChevronDown, Shield, Eye, Lock, Phone, ArrowUpRight } from 'lucide-react'
 
 export default function HeroSection() {
+  const scanRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = scanRef.current
+    if (!el) return
+    let pos = 0
+    const interval = setInterval(() => {
+      pos = (pos + 0.4) % 100
+      el.style.top = `${pos}%`
+    }, 16)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
-    <section className="relative isolate flex min-h-[100dvh] items-center overflow-hidden">
-      <div className="absolute inset-0 bg-[linear-gradient(125deg,#070708_0%,#111111_45%,#1a1400_100%)]" />
+    <section className="relative min-h-[100dvh] flex items-center overflow-hidden bg-[#050505] pt-36 lg:pt-44 pb-24">
+      {/* Background radial highlight */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(245,197,24,0.06),transparent_60%)] pointer-events-none" />
+
+      {/* Grid overlay */}
       <div
-        className="absolute inset-0 opacity-[0.04]"
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
-          backgroundImage:
-            "linear-gradient(#F5C518 1px, transparent 1px), linear-gradient(90deg, #F5C518 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
+          backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+          backgroundSize: '80px 80px',
         }}
-        aria-hidden
       />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(245,197,24,0.12),transparent_55%)]" />
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#F5C518]/80" />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-12 px-4 pb-20 pt-28 sm:px-6 lg:grid-cols-12 lg:items-center lg:gap-14 lg:px-8 lg:pt-32">
-        <div className="space-y-7 lg:col-span-7">
-          <BlurFade delay={0.05} direction="up" offset={12}>
-            <p className="text-sm font-semibold tracking-[0.18em] text-[#F5C518]/90 uppercase">
-              Camera 247 Huế
-            </p>
-          </BlurFade>
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full">
+        <div className="grid lg:grid-cols-12 gap-16 items-center">
+          
+          {/* Left content (7 cols) */}
+          <div className="lg:col-span-7 space-y-8">
+            {/* Eyebrow capsule badge */}
+            <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/10 rounded-full px-4 py-1.5 shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F5C518]"></span>
+              </span>
+              <span className="text-zinc-300 text-[10px] tracking-[0.2em] font-extrabold uppercase">
+                Huế Security Solutions
+              </span>
+            </div>
 
-          <BlurFade delay={0.12} direction="up" offset={16}>
-            <h1 className="max-w-[16ch] font-heading text-4xl font-bold tracking-tight text-balance text-white sm:text-5xl lg:text-[3.5rem] lg:leading-[1.05]">
-              Giải pháp{" "}
-              <AnimatedGradientText
-                colorFrom="#F5C518"
-                colorTo="#FCDD60"
-                speed={0.85}
-                className="font-heading font-bold"
-              >
-                công nghệ an ninh
-              </AnimatedGradientText>{" "}
-              toàn diện
+            <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight">
+              GIẢI PHÁP{' '}
+              <span className="bg-gradient-to-r from-[#F5C518] to-[#DFB53B] bg-clip-text text-transparent filter drop-shadow-[0_0_20px_rgba(245,197,24,0.15)]">
+                CÔNG NGHỆ
+              </span>
+              <br />BẢO AN TOÀN DIỆN
             </h1>
-          </BlurFade>
 
-          <BlurFade delay={0.2} direction="up" offset={14}>
-            <p className="max-w-[46ch] text-base leading-relaxed text-zinc-400 sm:text-lg">
-              Tư vấn, thiết kế và thi công trọn gói camera giám sát, khóa cửa thông minh và hạ tầng
-              mạng cho hộ gia đình, cafe, khách sạn và doanh nghiệp tại Huế.
+            <p className="text-zinc-400 text-sm sm:text-base leading-relaxed max-w-lg font-medium">
+              Thiết kế, lắp đặt hệ thống giám sát camera thông minh, hạ tầng mạng doanh nghiệp 
+              và giải pháp khóa vân tay bảo mật cao chuyên nghiệp tại Tp. Huế.
             </p>
-          </BlurFade>
 
-          <BlurFade delay={0.28} direction="up" offset={12}>
-            <div className="flex flex-wrap items-center gap-3">
-              <ShimmerButton
-                type="button"
-                background="rgb(245 197 24)"
-                shimmerColor="#ffffff"
-                borderRadius="14px"
-                className="h-12 px-7 text-sm font-bold text-black shadow-lg shadow-yellow-500/20"
-                onClick={() => {
-                  document.getElementById("lien-he")?.scrollIntoView({ behavior: "smooth" })
-                }}
+            {/* CTA buttons */}
+            <div className="flex flex-wrap items-center gap-5 pt-2">
+              <a
+                href="#lien-he"
+                className="group flex items-center gap-3 bg-[#F5C518] text-black pl-6 pr-1.5 py-1.5 rounded-full font-bold text-[10px] tracking-widest uppercase hover:bg-white transition-all duration-300 active:scale-[0.98]"
               >
-                Tư vấn miễn phí
-              </ShimmerButton>
+                <span>Tư Vấn Miễn Phí</span>
+                <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                  <ArrowUpRight className="w-4 h-4 text-black" strokeWidth={2} />
+                </div>
+              </a>
               <Link
                 href="/cong-trinh"
-                className="inline-flex h-12 items-center rounded-[14px] border border-white/15 bg-white/5 px-6 text-sm font-semibold text-white transition-colors hover:border-[#F5C518]/40 hover:text-[#F5C518]"
+                className="text-zinc-400 hover:text-white px-7 py-3 rounded-full font-bold text-[10px] tracking-widest uppercase border border-white/10 hover:border-white/20 transition-all duration-300 active:scale-[0.98]"
               >
-                Xem công trình
+                Xem Công Trình
               </Link>
-              <a
-                href="tel:0967611112"
-                className="inline-flex h-12 items-center gap-2 rounded-[14px] border border-white/10 px-5 text-sm font-semibold text-zinc-300 transition-colors hover:text-white"
-              >
-                <Phone className="size-4 text-[#F5C518]" />
-                0967 611 112
-              </a>
-            </div>
-          </BlurFade>
-
-          <BlurFade delay={0.36} direction="up" offset={10}>
-            <div className="flex flex-wrap gap-x-8 gap-y-4 border-t border-white/10 pt-6">
-              <div>
-                <div className="flex items-baseline gap-0.5">
-                  <NumberTicker value={1200} className="font-heading text-2xl font-bold text-white" />
-                  <span className="text-sm text-zinc-400">+</span>
-                </div>
-                <p className="text-xs text-zinc-500">công trình</p>
-              </div>
-              <div>
-                <div className="flex items-baseline gap-0.5">
-                  <NumberTicker value={12} className="font-heading text-2xl font-bold text-white" />
-                  <span className="text-sm text-zinc-400">+</span>
-                </div>
-                <p className="text-xs text-zinc-500">năm kinh nghiệm</p>
-              </div>
-              <div>
-                <div className="flex items-baseline gap-0.5">
-                  <NumberTicker value={24} className="font-heading text-2xl font-bold text-white" />
-                  <span className="text-sm text-zinc-400">/7</span>
-                </div>
-                <p className="text-xs text-zinc-500">hỗ trợ kỹ thuật</p>
-              </div>
-            </div>
-          </BlurFade>
-
-          <BlurFade delay={0.4} direction="up" offset={8}>
-            <div className="flex flex-wrap gap-4 text-xs text-zinc-500">
-              <span className="inline-flex items-center gap-1.5">
-                <Shield className="size-3.5 text-[#F5C518]" />
-                Hikvision · Dahua · Panasonic
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Eye className="size-3.5 text-[#F5C518]" />
-                Camera 4K · xem từ xa
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Lock className="size-3.5 text-[#F5C518]" />
-                Khóa vân tay thông minh
-              </span>
-            </div>
-          </BlurFade>
-        </div>
-
-        <BlurFade delay={0.22} direction="up" offset={20} className="hidden lg:col-span-5 lg:block">
-          <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-[#0f0f12]/90 p-6 shadow-2xl">
-            <BorderBeam size={100} duration={8} borderWidth={1.5} colorFrom="#F5C518" colorTo="#FCDD60" />
-
-            <div className="mb-5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="relative flex size-2">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-                </span>
-                <span className="font-mono text-[10px] tracking-widest text-emerald-400 uppercase">
-                  Live monitoring
-                </span>
-              </div>
-              <span className="font-mono text-[10px] text-zinc-500">NODE_CAM_01</span>
             </div>
 
-            <div className="mb-5 grid grid-cols-2 gap-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="relative flex aspect-video items-center justify-center overflow-hidden rounded-xl border border-white/5 bg-black/80"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#F5C518]/20 via-transparent to-black/60" />
-                  <Eye className="relative size-5 text-[#F5C518]/70" />
-                  <span className="absolute right-1.5 bottom-1 rounded bg-black/50 px-1 font-mono text-[8px] text-zinc-500">
-                    CH-0{i}
-                  </span>
+            {/* Quick stats list */}
+            <div className="flex flex-wrap gap-x-12 gap-y-6 pt-8 border-t border-white/5">
+              {[
+                { icon: Shield, value: '1,200+', label: 'Hệ thống an ninh' },
+                { icon: Eye, value: '24/7/365', label: 'Giám sát vận hành' },
+                { icon: Lock, value: '12+ Năm', label: 'Tích hợp hệ thống' },
+              ].map((stat) => (
+                <div key={stat.label} className="flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center flex-shrink-0">
+                    <stat.icon className="w-4 h-4 text-[#F5C518]" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <div className="text-white font-extrabold text-sm leading-none font-heading uppercase tracking-wide">
+                      {stat.value}
+                    </div>
+                    <div className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider mt-1">
+                      {stat.label}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
+          </div>
 
-            <div className="border-t border-white/5 pt-4 text-center">
-              <p className="font-heading text-xs font-bold tracking-widest text-[#F5C518] uppercase">
-                Camera 247 System
-              </p>
-              <p className="mt-0.5 text-[10px] tracking-wide text-zinc-500 uppercase">
-                Huế · 4K · PoE · H.265+
-              </p>
+          {/* Right hardware mockup (5 cols) */}
+          <div className="lg:col-span-5 flex justify-center lg:justify-end items-center">
+            {/* Outer Bezel */}
+            <div className="w-full max-w-sm bg-white/[0.02] border border-white/10 p-3.5 rounded-[2.5rem] shadow-2xl relative">
+              
+              {/* Inner Bezel Core */}
+              <div className="bg-[#0A0B0D] border border-white/5 rounded-[calc(2.5rem-0.875rem)] p-5 relative overflow-hidden shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)]">
+                
+                {/* Scanner line */}
+                <div
+                  ref={scanRef}
+                  className="absolute left-0 right-0 h-[1.5px] pointer-events-none z-10"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(245,197,24,0.3), transparent)',
+                    boxShadow: '0 0 8px rgba(245,197,24,0.2)',
+                  }}
+                />
+
+                {/* Status indicator bar */}
+                <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-emerald-400 text-[9px] font-mono tracking-widest uppercase font-bold">
+                      SYSTEM SECURE
+                    </span>
+                  </div>
+                  <span className="text-zinc-600 text-[9px] font-mono font-bold">LIVE_FEED_SYS</span>
+                </div>
+
+                {/* Simulated CCTV Camera Grid */}
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  {[
+                    { label: 'CAM_01_VÝ_DẠ', active: true },
+                    { label: 'CAM_02_PHÚ_HỘI', active: false },
+                    { label: 'CAM_03_AN_CỰU', active: false },
+                    { label: 'CAM_04_HƯƠNG_THỦY', active: false },
+                  ].map((cam, i) => (
+                    <div
+                      key={i}
+                      className="aspect-video bg-black rounded-lg border border-white/5 flex items-center justify-center relative overflow-hidden group/screen cursor-pointer"
+                    >
+                      {/* Holographic overlay grid */}
+                      <div className="absolute inset-0 opacity-10 group-hover/screen:opacity-20 transition-opacity bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%),linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01),rgba(255,255,255,0.02))] bg-[size:100%_4px,6px_100%]" />
+                      <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-yellow-500/10 via-transparent to-black" />
+                      
+                      <Eye className="w-4 h-4 text-zinc-600 group-hover/screen:scale-110 group-hover/screen:text-[#F5C518] transition-all duration-500" strokeWidth={1.5} />
+                      <span className="absolute bottom-1.5 left-1.5 text-[7px] font-mono text-zinc-500 bg-black/60 px-1 rounded-sm tracking-wider uppercase font-semibold">
+                        {cam.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Grid footnote */}
+                <div className="flex justify-between items-center text-[8px] font-mono text-zinc-600 border-t border-white/5 pt-3">
+                  <span className="font-semibold uppercase tracking-wider">CAMERA 247 SYSTEM</span>
+                  <span className="font-semibold">NODE: HUE_CCTV_NET</span>
+                </div>
+              </div>
+
+              {/* Hardware floating accents */}
+              <div className="absolute -top-3.5 -right-3.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold px-3 py-1 rounded-full shadow-lg tracking-wider uppercase">
+                Active
+              </div>
+              <div className="absolute -bottom-3.5 -left-3.5 bg-[#0A0B0D] border border-white/10 text-zinc-400 text-[8px] font-mono px-3 py-1 rounded-full shadow-xl font-bold tracking-wider">
+                H.265+ | 4K HDR
+              </div>
             </div>
           </div>
-        </BlurFade>
+        </div>
       </div>
 
+      {/* Scroll indicator pill */}
       <a
         href="#dich-vu"
-        className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-zinc-500 transition-colors hover:text-[#F5C518]"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-zinc-500 hover:text-[#F5C518] transition-colors"
       >
-        <span className="text-xs tracking-widest uppercase">Khám phá</span>
-        <ChevronDown className="size-5 animate-bounce" />
+        <span className="text-[9px] tracking-[0.2em] font-extrabold uppercase">Cuộn xuống</span>
+        <ChevronDown className="w-4 h-4 animate-bounce" strokeWidth={1.5} />
       </a>
     </section>
   )
