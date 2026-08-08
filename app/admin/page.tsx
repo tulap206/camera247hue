@@ -343,12 +343,17 @@ function PostForm({
     setLoading(true)
     setError('')
 
+    const originalPlainContent = htmlToText(post?.content || '')
+    const contentToSave = post && form.content === originalPlainContent
+      ? post.content
+      : textToHtml(form.content)
+
     const res = await fetch('/api/posts', {
       method: post ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...form,
-        content: textToHtml(form.content),
+        content: contentToSave,
         id: post?.id
       }),
     })
