@@ -1,6 +1,8 @@
 import Navbar from '@/components/Navbar'
 import HeroSection from '@/components/HeroSection'
+import PartnersSection from '@/components/PartnersSection'
 import ServicesSection from '@/components/ServicesSection'
+import ProcessSection from '@/components/ProcessSection'
 import WhyUsSection from '@/components/WhyUsSection'
 import ProjectsPreview from '@/components/ProjectsPreview'
 import StatsSection from '@/components/StatsSection'
@@ -18,7 +20,7 @@ async function getFeaturedPosts() {
     .eq('published', true)
     .order('featured', { ascending: false })
     .order('created_at', { ascending: false })
-    .limit(9)
+    .limit(6)
   return data || []
 }
 
@@ -29,10 +31,12 @@ export default async function HomePage() {
     <main>
       <Navbar />
       <HeroSection />
+      <PartnersSection />
       <ServicesSection />
-      <WhyUsSection />
+      <ProcessSection />
       <StatsSection />
       <ProjectsPreview posts={featuredPosts} />
+      <WhyUsSection />
       <ContactSection />
       <Footer />
       <FloatingContact />

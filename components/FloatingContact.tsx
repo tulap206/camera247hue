@@ -14,10 +14,10 @@ function ZaloIcon() {
 const contacts = [
   {
     id: 'phone',
-    label: 'Gọi Điện',
+    label: 'Gọi điện',
     sublabel: '0967 611 112',
     href: 'tel:0967611112',
-    color: '#22c55e',
+    color: '#16A34A',
     icon: Phone,
   },
   {
@@ -54,13 +54,12 @@ export default function FloatingContact() {
               className="flex items-center gap-3 group"
               style={{ animation: `slideInRight 0.3s ease ${i * 0.05}s both` }}
             >
-              <div className="glass-panel rounded-xl px-3 py-2 text-right opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="text-white text-xs font-semibold">{c.label}</div>
-                <div className="text-gray-500 text-xs">{c.sublabel}</div>
+              <div className="rounded-xl bg-white border border-brand-border shadow-soft px-3 py-2 text-right opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="text-brand-navy text-xs font-semibold">{c.label}</div>
+                <div className="text-brand-muted text-xs">{c.sublabel}</div>
               </div>
-
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform"
+                className="w-11 h-11 rounded-full flex items-center justify-center shadow-soft hover:scale-105 active:scale-95 transition-transform"
                 style={{ backgroundColor: c.color }}
               >
                 <c.icon className="w-5 h-5 text-white" />
@@ -73,10 +72,10 @@ export default function FloatingContact() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-14 h-14 rounded-2xl bg-[#F5C518] flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all"
+        className="w-14 h-14 rounded-full bg-brand-yellow flex items-center justify-center shadow-lift hover:scale-105 active:scale-95 transition-all"
         aria-label={open ? 'Đóng liên hệ nhanh' : 'Mở liên hệ nhanh'}
       >
-        {open ? <X className="w-6 h-6 text-black" /> : <MessageCircle className="w-6 h-6 text-black" />}
+        {open ? <X className="w-6 h-6 text-brand-navy" /> : <MessageCircle className="w-6 h-6 text-brand-navy" />}
       </button>
     </div>
   )

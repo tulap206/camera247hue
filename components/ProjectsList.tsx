@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase, type Post, type Category } from '@/lib/supabase'
-import { MapPin, Calendar, ArrowRight, Search, Filter } from 'lucide-react'
+import { MapPin, Calendar, ArrowRight, Search, Camera } from 'lucide-react'
 
 const PAGE_SIZE = 9
 
@@ -38,7 +38,7 @@ export default function ProjectsList({
       .order('created_at', { ascending: false })
 
     if (activeCategory) {
-      const cat = categories.find(c => c.slug === activeCategory)
+      const cat = categories.find((c) => c.slug === activeCategory)
       if (cat) query = query.eq('category_id', cat.id)
     }
 
@@ -63,45 +63,40 @@ export default function ProjectsList({
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
-    <div className="bg-[#0D0D0D] min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-
-        {/* Filters */}
+    <div className="bg-brand-bg min-h-[50vh]">
+      <div className="container-page py-12">
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          {/* Search */}
           <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
             <input
               type="text"
               placeholder="Tìm kiếm công trình..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && fetchPosts()}
-              className="w-full bg-[#1A1A1A] border border-gray-700 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F5C518] transition-colors"
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && fetchPosts()}
+              className="input-field pl-10"
             />
           </div>
 
-          {/* Category filter */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Filter className="w-4 h-4 text-gray-500 flex-shrink-0" />
             <button
               onClick={() => handleCategoryChange(undefined)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 !activeCategory
-                  ? 'bg-[#F5C518] text-black'
-                  : 'bg-[#1A1A1A] text-gray-400 hover:text-white border border-gray-700'
+                  ? 'bg-brand-navy text-white'
+                  : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
               }`}
             >
               Tất cả
             </button>
-            {categories.map(cat => (
+            {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => handleCategoryChange(cat.slug)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeCategory === cat.slug
-                    ? 'bg-[#F5C518] text-black'
-                    : 'bg-[#1A1A1A] text-gray-400 hover:text-white border border-gray-700'
+                    ? 'bg-brand-navy text-white'
+                    : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
                 }`}
               >
                 {cat.name}
@@ -110,69 +105,61 @@ export default function ProjectsList({
           </div>
         </div>
 
-        {/* Results info */}
-        <div className="text-gray-500 text-sm mb-6">
-          {loading ? 'Đang tải...' : `${total} công trình${activeCategory ? ` trong mục này` : ''}`}
+        <div className="text-brand-muted text-sm mb-6">
+          {loading ? 'Đang tải...' : `${total} công trình${activeCategory ? ' trong mục này' : ''}`}
         </div>
 
-        {/* Grid */}
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="spinner" />
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4">📷</div>
-            <p className="text-gray-400 text-lg">Chưa có công trình nào trong mục này.</p>
+          <div className="text-center py-20 rounded-[24px] bg-white border border-brand-border">
+            <Camera className="w-10 h-10 text-brand-muted/40 mx-auto mb-4" />
+            <p className="text-brand-muted text-lg">Chưa có công trình nào trong mục này.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map(post => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {posts.map((post) => (
               <Link
                 key={post.id}
                 href={`/cong-trinh/${post.slug}`}
-                className="group block bg-[#1A1A1A] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#F5C518]/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-yellow-500/5"
+                className="group block bg-white rounded-[20px] overflow-hidden border border-brand-border hover:shadow-lift transition-all duration-300 ease-out"
               >
-                {/* Image */}
-                <div className="aspect-video bg-[#111] relative overflow-hidden">
+                <div className="aspect-[16/10] bg-brand-soft relative overflow-hidden">
                   {post.cover_image ? (
                     <Image
                       src={post.cover_image}
                       alt={post.title}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-700 gap-2">
-                      <span className="text-4xl">📷</span>
-                      <span className="text-xs">Camera 247 Huế</span>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Camera className="w-10 h-10 text-brand-muted/40" />
                     </div>
                   )}
                   {post.category && (
-                    <div className="absolute top-3 left-3 bg-[#F5C518] text-black text-xs font-bold px-2.5 py-1 rounded-full">
+                    <div className="absolute top-3 left-3 bg-white/95 text-brand-navy text-[11px] font-semibold px-2.5 py-1 rounded-md">
                       {post.category.name}
                     </div>
                   )}
                   {post.featured && (
-                    <div className="absolute top-3 right-3 bg-black/60 text-[#F5C518] text-xs font-bold px-2 py-0.5 rounded-full border border-[#F5C518]/50">
-                      ⭐ Nổi bật
+                    <div className="absolute top-3 right-3 bg-brand-yellow text-brand-navy text-[11px] font-semibold px-2.5 py-1 rounded-md">
+                      Nổi bật
                     </div>
                   )}
                 </div>
 
-                {/* Content */}
                 <div className="p-5">
-                  <h3 className="font-bold text-white mb-2 line-clamp-2 group-hover:text-[#F5C518] transition-colors text-base"
-                    style={{ fontFamily: 'Oswald, sans-serif' }}>
+                  <h3 className="font-heading font-bold text-brand-navy mb-2 line-clamp-2 group-hover:text-[#16324A] transition-colors">
                     {post.title}
                   </h3>
                   {post.excerpt && (
-                    <p className="text-gray-400 text-sm mb-3 line-clamp-2 leading-relaxed">
-                      {post.excerpt}
-                    </p>
+                    <p className="text-brand-muted text-sm mb-3 line-clamp-2 leading-relaxed">{post.excerpt}</p>
                   )}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-xs text-gray-600 flex-wrap">
+                    <div className="flex items-center gap-3 text-xs text-brand-muted flex-wrap">
                       {post.location && (
                         <span className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" /> {post.location}
@@ -185,7 +172,7 @@ export default function ProjectsList({
                         </span>
                       )}
                     </div>
-                    <ArrowRight className="w-4 h-4 text-[#F5C518] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ArrowRight className="w-4 h-4 text-brand-navy opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
               </Link>
@@ -193,10 +180,9 @@ export default function ProjectsList({
           </div>
         )}
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center gap-2 mt-10">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
                 onClick={() => {
@@ -204,10 +190,10 @@ export default function ProjectsList({
                   url.searchParams.set('page', String(page))
                   router.push(url.pathname + url.search)
                 }}
-                className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
+                className={`w-10 h-10 rounded-xl text-sm font-semibold transition-all ${
                   page === currentPage
-                    ? 'bg-[#F5C518] text-black'
-                    : 'bg-[#1A1A1A] text-gray-400 hover:text-white border border-gray-700'
+                    ? 'bg-brand-navy text-white'
+                    : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
                 }`}
               >
                 {page}

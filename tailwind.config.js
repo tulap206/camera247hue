@@ -10,33 +10,25 @@ module.exports = {
       colors: {
         brand: {
           yellow: '#F5C518',
-          dark: '#1A1A1A',
-          gray: '#2D2D2D',
-          light: '#F0F0F0',
-        }
+          navy: '#0B1F33',
+          ink: '#152536',
+          muted: '#5C6B7A',
+          border: '#E4E9F0',
+          bg: '#F5F7FA',
+          soft: '#EEF2F6',
+          surface: '#FFFFFF',
+        },
       },
       fontFamily: {
         heading: ['var(--font-heading)'],
         body: ['var(--font-body)'],
       },
-      animation: {
-        'fade-up': 'fadeUp 0.6s ease forwards',
-        'fade-in': 'fadeIn 0.5s ease forwards',
-        'pulse-ring': 'pulseRing 2s ease infinite',
+      boxShadow: {
+        soft: '0 12px 40px rgba(15, 35, 55, 0.08)',
+        lift: '0 18px 48px rgba(15, 35, 55, 0.12)',
       },
-      keyframes: {
-        fadeUp: {
-          from: { opacity: '0', transform: 'translateY(30px)' },
-          to: { opacity: '1', transform: 'translateY(0)' },
-        },
-        fadeIn: {
-          from: { opacity: '0' },
-          to: { opacity: '1' },
-        },
-        pulseRing: {
-          '0%': { transform: 'scale(1)', opacity: '1' },
-          '100%': { transform: 'scale(1.5)', opacity: '0' },
-        },
+      transitionTimingFunction: {
+        out: 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
     },
   },

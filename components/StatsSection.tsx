@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from 'react'
 import Reveal from '@/components/Reveal'
 
 const stats = [
-  { value: 1200, suffix: '+', label: 'Công Trình Hoàn Thành', desc: 'Trên toàn Tp. Huế và vùng lân cận' },
-  { value: 12, suffix: '+', label: 'Năm Kinh Nghiệm', desc: 'Chuyên sâu trong lĩnh vực an ninh' },
-  { value: 24, suffix: '/7', label: 'Hỗ Trợ Kỹ Thuật', desc: 'Liên tục không gián đoạn' },
-  { value: 98, suffix: '%', label: 'Khách Hàng Hài Lòng', desc: 'Tỷ lệ phản hồi tích cực' },
+  { value: 1200, suffix: '+', label: 'Công trình hoàn thành' },
+  { value: 12, suffix: '+', label: 'Năm kinh nghiệm' },
+  { value: 24, suffix: '/7', label: 'Hỗ trợ kỹ thuật' },
+  { value: 98, suffix: '%', label: 'Khách hàng hài lòng' },
 ]
 
-function useCountUp(target: number, duration = 2000, started: boolean) {
+function useCountUp(target: number, duration = 1800, started: boolean) {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
@@ -28,19 +28,15 @@ function useCountUp(target: number, duration = 2000, started: boolean) {
   return count
 }
 
-function StatCard({ value, suffix, label, desc, started }: (typeof stats)[0] & { started: boolean }) {
-  const count = useCountUp(value, 1800, started)
+function StatItem({ value, suffix, label, started }: (typeof stats)[0] & { started: boolean }) {
+  const count = useCountUp(value, 1600, started)
   return (
-    <div className="text-center lg:text-left surface-card p-6">
-      <div
-        className="text-4xl sm:text-5xl font-bold text-[#F5C518] mb-2 font-tabular"
-        style={{ fontFamily: 'Oswald, sans-serif' }}
-      >
+    <div className="text-center sm:text-left py-2">
+      <div className="font-heading text-4xl sm:text-5xl font-extrabold text-brand-navy tracking-tight font-tabular mb-2">
         {count}
-        {suffix}
+        <span className="text-brand-yellow">{suffix}</span>
       </div>
-      <div className="text-white font-semibold mb-1 text-sm">{label}</div>
-      <div className="text-gray-500 text-xs leading-relaxed">{desc}</div>
+      <div className="text-sm text-brand-muted">{label}</div>
     </div>
   )
 }
@@ -50,30 +46,23 @@ export default function StatsSection() {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setStarted(true)
-    }, { threshold: 0.3 })
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setStarted(true)
+      },
+      { threshold: 0.35 }
+    )
     if (ref.current) observer.observe(ref.current)
     return () => observer.disconnect()
   }, [])
 
   return (
-    <section className="py-14 sm:py-16 relative overflow-hidden" ref={ref}>
-      <div className="absolute inset-0 bg-[#0A0A0A]" />
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          background:
-            'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(245,197,24,0.08) 0%, transparent 70%)',
-        }}
-        aria-hidden
-      />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 bg-white border-y border-brand-border" ref={ref}>
+      <div className="container-page">
         <Reveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
             {stats.map((s) => (
-              <StatCard key={s.label} {...s} started={started} />
+              <StatItem key={s.label} {...s} started={started} />
             ))}
           </div>
         </Reveal>

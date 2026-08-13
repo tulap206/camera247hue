@@ -1,121 +1,83 @@
 'use client'
 
-import { Camera, Wifi, Lock, Bell, Monitor, Cpu } from 'lucide-react'
+import Image from 'next/image'
+import { Camera, Lock, Wifi, Bell, Monitor, Cpu, ArrowRight } from 'lucide-react'
 import Reveal from '@/components/Reveal'
 
 const services = [
   {
     icon: Camera,
-    title: 'Camera An Ninh',
-    description:
-      'Hệ thống giám sát HD/4K từ Hikvision, Dahua, Panasonic. Xem từ xa qua ứng dụng.',
-    features: ['Camera IP & Analog', 'Hồng ngoại ban đêm', 'Lưu trữ đám mây/NVR'],
-    tag: 'Phổ biến nhất',
-    span: 'lg:col-span-7 lg:row-span-2',
-    featured: true,
+    title: 'Camera an ninh',
+    description: 'Hệ thống giám sát HD/4K Hikvision, Dahua, Panasonic. Xem từ xa qua ứng dụng.',
   },
   {
     icon: Lock,
-    title: 'Khóa Cửa Thông Minh',
-    description: 'Mở vân tay, thẻ, mật mã. Điều khiển từ xa qua điện thoại.',
-    features: ['Nhật ký ra vào', 'Báo động đột nhập'],
-    span: 'lg:col-span-5',
+    title: 'Khóa cửa thông minh',
+    description: 'Mở bằng vân tay, thẻ, mật mã hoặc điện thoại. Nhật ký ra vào và báo động đột nhập.',
   },
   {
     icon: Wifi,
-    title: 'Hệ Thống Mạng',
-    description: 'Wifi phủ sóng toàn khu cho cafe, khách sạn, văn phòng.',
-    features: ['Switch/Router chuyên dụng', 'Cabling Cat6/6A'],
-    span: 'lg:col-span-4',
+    title: 'Hệ thống mạng',
+    description: 'Wifi phủ sóng ổn định cho cafe, khách sạn, văn phòng. Cabling chuẩn Cat6/6A.',
   },
   {
     icon: Bell,
-    title: 'Báo Trộm & Định Vị',
-    description: 'Cảm biến chuyển động, hàng rào điện tử, định vị GPS xe.',
-    features: ['Báo động qua điện thoại'],
-    span: 'lg:col-span-4',
+    title: 'Báo trộm và định vị',
+    description: 'Cảm biến chuyển động, hàng rào điện tử, định vị GPS xe máy và ô tô.',
   },
   {
     icon: Monitor,
-    title: 'Máy Chấm Công',
-    description: 'Chấm công vân tay, cổng từ an ninh cho siêu thị.',
-    features: ['Phần mềm quản lý', 'Báo cáo tự động'],
-    span: 'lg:col-span-4',
+    title: 'Máy chấm công',
+    description: 'Chấm công vân tay, thẻ từ, cổng từ an ninh kèm phần mềm quản lý.',
   },
   {
     icon: Cpu,
-    title: 'Máy Tính & Thiết Bị',
-    description: 'Sửa chữa, bảo trì máy tính, máy in, thiết bị mạng tận nơi.',
-    features: ['Bơm mực máy in', 'Bảo trì định kỳ'],
-    span: 'lg:col-span-12',
-    wide: true,
+    title: 'Máy tính và thiết bị',
+    description: 'Sửa chữa, bảo trì máy tính, máy in và thiết bị mạng tận nơi.',
   },
 ]
 
 export default function ServicesSection() {
   return (
-    <section id="dich-vu" className="py-20 sm:py-24 bg-[#0A0A0A] relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-16 bg-gradient-to-b from-[#F5C518]/60 to-transparent" />
+    <section id="dich-vu" className="py-24 sm:py-28 bg-white">
+      <div className="container-page">
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start mb-14">
+          <Reveal className="lg:col-span-5">
+            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-brand-navy mb-4">
+              Dịch vụ công nghệ an ninh toàn diện
+            </h2>
+            <p className="text-brand-muted leading-relaxed max-w-[42ch] mb-6">
+              Một địa chỉ cho lắp đặt, thi công và bảo trì. Phù hợp nhà ở, quán cafe, khách sạn và doanh nghiệp.
+            </p>
+            <a href="#lien-he" className="inline-flex items-center gap-2 text-brand-navy font-semibold text-sm hover:gap-3 transition-all duration-300 ease-out">
+              Nhận tư vấn khảo sát
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </Reveal>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Reveal className="max-w-2xl mb-12">
-          <h2
-            style={{ fontFamily: 'Oswald, sans-serif' }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 tracking-tight"
-          >
-            GIẢI PHÁP AN NINH
-            <span className="text-[#F5C518]"> TOÀN DIỆN</span>
-          </h2>
-          <p className="text-gray-400 leading-relaxed max-w-[52ch]">
-            Lắp đặt, thi công và bảo trì tại một địa chỉ. Từ nhà ở đến khách sạn, quán cafe và doanh nghiệp.
-          </p>
-        </Reveal>
+          <Reveal delay={0.08} className="lg:col-span-7">
+            <div className="relative aspect-[16/10] rounded-[24px] overflow-hidden bg-brand-soft">
+              <Image
+                src="https://picsum.photos/seed/camera247hue-service-room/1200/750"
+                alt="Thi công hệ thống camera và mạng tại công trình"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 60vw"
+              />
+            </div>
+          </Reveal>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 auto-rows-fr">
-          {services.map((service, index) => (
-            <Reveal
-              key={service.title}
-              delay={index * 0.06}
-              className={`group surface-card p-6 relative overflow-hidden ${service.span} ${
-                service.featured ? 'min-h-[280px]' : ''
-              } ${service.wide ? 'lg:flex lg:items-center lg:justify-between lg:gap-8' : ''}`}
-            >
-              {service.tag && (
-                <div className="absolute top-4 right-4 bg-[#F5C518] text-black text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide">
-                  {service.tag}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-px bg-brand-border rounded-[24px] overflow-hidden border border-brand-border">
+          {services.map((service, i) => (
+            <Reveal key={service.title} delay={i * 0.04} className="bg-white">
+              <div className="p-7 h-full hover:bg-brand-bg/80 transition-colors duration-300">
+                <div className="w-10 h-10 rounded-xl bg-brand-soft flex items-center justify-center mb-4">
+                  <service.icon className="w-5 h-5 text-brand-navy" strokeWidth={1.75} />
                 </div>
-              )}
-
-              <div className={service.wide ? 'lg:max-w-xl' : ''}>
-                <div className="w-11 h-11 rounded-xl bg-[#F5C518]/10 flex items-center justify-center mb-4 group-hover:bg-[#F5C518]/18 transition-colors">
-                  <service.icon className="w-5 h-5 text-[#F5C518]" />
-                </div>
-
-                <h3
-                  style={{ fontFamily: 'Oswald, sans-serif' }}
-                  className="text-xl font-bold text-white mb-2 group-hover:text-[#F5C518] transition-colors"
-                >
-                  {service.title}
-                </h3>
-                <p className="text-gray-400 text-sm mb-4 leading-relaxed max-w-prose">{service.description}</p>
-
-                <ul className={`space-y-1.5 ${service.wide ? 'sm:flex sm:flex-wrap sm:gap-x-6 sm:gap-y-1.5 sm:space-y-0' : ''}`}>
-                  {service.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-gray-500">
-                      <span className="w-1 h-1 rounded-full bg-[#F5C518] shrink-0" aria-hidden />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
+                <h3 className="font-heading font-bold text-lg text-brand-navy mb-2">{service.title}</h3>
+                <p className="text-sm text-brand-muted leading-relaxed max-w-[36ch]">{service.description}</p>
               </div>
-
-              {service.featured && (
-                <div
-                  className="absolute -bottom-8 -right-8 w-40 h-40 rounded-full opacity-20 pointer-events-none"
-                  style={{ background: 'radial-gradient(circle, #F5C518 0%, transparent 70%)' }}
-                  aria-hidden
-                />
-              )}
             </Reveal>
           ))}
         </div>

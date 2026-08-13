@@ -5,12 +5,12 @@ import { Phone, MapPin, Facebook, Clock, Send, CheckCircle } from 'lucide-react'
 import Reveal from '@/components/Reveal'
 
 const services = [
-  'Camera An Ninh',
-  'Khóa Cửa Thông Minh',
-  'Hệ Thống Mạng',
-  'Báo Trộm & Định Vị',
-  'Máy Chấm Công',
-  'Máy Tính & Thiết Bị',
+  'Camera an ninh',
+  'Khóa cửa thông minh',
+  'Hệ thống mạng',
+  'Báo trộm và định vị',
+  'Máy chấm công',
+  'Máy tính và thiết bị',
   'Khác',
 ]
 
@@ -41,13 +41,10 @@ export default function ContactSection() {
         setSuccess(true)
         setForm({ name: '', phone: '', email: '', service: '', message: '' })
       } else {
-        const errData = await res.json()
-        console.error('Submit error:', errData.error)
         setError('Có lỗi xảy ra. Vui lòng thử lại hoặc gọi trực tiếp.')
       }
-    } catch (err: unknown) {
+    } catch {
       setLoading(false)
-      console.error('Submit catch error:', err)
       setError('Có lỗi xảy ra. Vui lòng thử lại hoặc gọi trực tiếp.')
     }
   }
@@ -55,13 +52,13 @@ export default function ContactSection() {
   const contactItems = [
     {
       icon: Phone,
-      title: 'Điện Thoại / Zalo',
+      title: 'Điện thoại / Zalo',
       lines: ['0967 611 112', '0777 611 112'],
       action: 'tel:0967611112',
     },
     {
       icon: MapPin,
-      title: 'Địa Chỉ',
+      title: 'Địa chỉ',
       lines: ['40 Tùng Thiện Vương', 'Phường Vỹ Dạ, Tp. Huế'],
       action: 'https://maps.google.com/?q=40+Tùng+Thiện+Vương+Huế',
     },
@@ -73,43 +70,37 @@ export default function ContactSection() {
     },
     {
       icon: Clock,
-      title: 'Giờ Làm Việc',
+      title: 'Giờ làm việc',
       lines: ['Thứ 2 - Thứ 7: 7:30 - 18:00', 'Chủ Nhật: 8:00 - 12:00'],
       action: null,
     },
   ]
 
   return (
-    <section id="lien-he" className="py-20 sm:py-24 bg-[#0F0F0F] relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F5C518]/30 to-transparent" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Reveal className="mb-10 max-w-xl">
-          <h2
-            style={{ fontFamily: 'Oswald, sans-serif' }}
-            className="text-3xl sm:text-4xl font-bold text-white mb-3 tracking-tight"
-          >
-            LIÊN HỆ TƯ VẤN
-            <span className="text-[#F5C518]"> MIỄN PHÍ</span>
+    <section id="lien-he" className="py-24 sm:py-28 bg-white">
+      <div className="container-page">
+        <Reveal className="max-w-xl mb-12">
+          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-brand-navy mb-3">
+            Liên hệ tư vấn miễn phí
           </h2>
-          <p className="text-gray-400 leading-relaxed">
-            Đội ngũ kỹ thuật sẵn sàng tư vấn và báo giá cho mọi nhu cầu an ninh của bạn.
+          <p className="text-brand-muted leading-relaxed">
+            Để lại thông tin hoặc gọi trực tiếp. Chúng tôi sẽ khảo sát và báo giá phù hợp nhu cầu của bạn.
           </p>
         </Reveal>
 
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-12">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
           <Reveal>
             <div className="space-y-3 mb-6">
               {contactItems.map((item) => (
                 <div
                   key={item.title}
-                  className="flex items-start gap-4 p-4 surface-card hover:bg-[#1C1C1C] group"
+                  className="flex items-start gap-4 p-4 rounded-[16px] border border-brand-border bg-brand-bg/50"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-[#F5C518]/10 flex items-center justify-center shrink-0 group-hover:bg-[#F5C518]/18 transition-colors">
-                    <item.icon className="w-5 h-5 text-[#F5C518]" />
+                  <div className="w-10 h-10 rounded-xl bg-white border border-brand-border flex items-center justify-center shrink-0">
+                    <item.icon className="w-5 h-5 text-brand-navy" strokeWidth={1.75} />
                   </div>
                   <div>
-                    <div className="text-gray-500 text-xs mb-1">{item.title}</div>
+                    <div className="text-brand-muted text-xs mb-1">{item.title}</div>
                     {item.lines.map((line) =>
                       item.action ? (
                         <a
@@ -117,12 +108,12 @@ export default function ContactSection() {
                           href={item.action}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block text-white font-medium hover:text-[#F5C518] transition-colors text-sm"
+                          className="block text-brand-navy font-semibold hover:text-[#16324A] transition-colors text-sm"
                         >
                           {line}
                         </a>
                       ) : (
-                        <div key={line} className="text-white font-medium text-sm">
+                        <div key={line} className="text-brand-ink font-medium text-sm">
                           {line}
                         </div>
                       )
@@ -132,7 +123,7 @@ export default function ContactSection() {
               ))}
             </div>
 
-            <div className="rounded-xl overflow-hidden border border-white/10 h-48">
+            <div className="rounded-[16px] overflow-hidden border border-brand-border h-48">
               <iframe
                 src="https://maps.google.com/maps?q=40%20T%C3%B9ng%20Thi%E1%BB%87n%20V%C6%B0%C6%A1ng%2C%20V%E1%BB%B9%20D%E1%BA%A1%2C%20Th%C3%A0nh%20ph%E1%BB%91%20Hu%E1%BA%BF&t=&z=16&ie=UTF8&iwloc=&output=embed"
                 width="100%"
@@ -146,26 +137,21 @@ export default function ContactSection() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.1}>
-            <div className="surface-card p-6 sm:p-7">
-              <h3
-                style={{ fontFamily: 'Oswald, sans-serif' }}
-                className="text-xl font-bold text-white mb-6"
-              >
-                GỬI YÊU CẦU TƯ VẤN
-              </h3>
+          <Reveal delay={0.08}>
+            <div className="rounded-[24px] border border-brand-border bg-brand-bg/40 p-6 sm:p-8">
+              <h3 className="font-heading font-bold text-xl text-brand-navy mb-6">Gửi yêu cầu tư vấn</h3>
 
               {success ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <CheckCircle className="w-14 h-14 text-emerald-400 mb-4" />
-                  <h4 className="text-white font-bold text-lg mb-2">Gửi thành công</h4>
-                  <p className="text-gray-400 mb-6 text-sm max-w-xs">
+                  <CheckCircle className="w-12 h-12 text-emerald-500 mb-4" />
+                  <h4 className="font-heading font-bold text-lg text-brand-navy mb-2">Gửi thành công</h4>
+                  <p className="text-brand-muted mb-6 text-sm max-w-xs">
                     Cảm ơn bạn đã liên hệ. Chúng tôi sẽ gọi lại trong thời gian sớm nhất.
                   </p>
                   <button
                     type="button"
                     onClick={() => setSuccess(false)}
-                    className="text-[#F5C518] hover:underline text-sm"
+                    className="text-brand-navy font-semibold text-sm hover:underline"
                   >
                     Gửi yêu cầu khác
                   </button>
@@ -174,7 +160,7 @@ export default function ContactSection() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-gray-400 text-xs mb-1.5">Họ và Tên *</label>
+                      <label className="block text-brand-muted text-xs mb-1.5 font-medium">Họ và tên *</label>
                       <input
                         type="text"
                         value={form.name}
@@ -184,7 +170,7 @@ export default function ContactSection() {
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-400 text-xs mb-1.5">Số Điện Thoại *</label>
+                      <label className="block text-brand-muted text-xs mb-1.5 font-medium">Số điện thoại *</label>
                       <input
                         type="tel"
                         value={form.phone}
@@ -196,7 +182,7 @@ export default function ContactSection() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-400 text-xs mb-1.5">Email</label>
+                    <label className="block text-brand-muted text-xs mb-1.5 font-medium">Email</label>
                     <input
                       type="email"
                       value={form.email}
@@ -207,7 +193,7 @@ export default function ContactSection() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-400 text-xs mb-1.5">Dịch Vụ Cần Tư Vấn</label>
+                    <label className="block text-brand-muted text-xs mb-1.5 font-medium">Dịch vụ cần tư vấn</label>
                     <select
                       value={form.service}
                       onChange={(e) => setForm((p) => ({ ...p, service: e.target.value }))}
@@ -223,7 +209,7 @@ export default function ContactSection() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-400 text-xs mb-1.5">Nội Dung</label>
+                    <label className="block text-brand-muted text-xs mb-1.5 font-medium">Nội dung</label>
                     <textarea
                       rows={4}
                       value={form.message}
@@ -233,22 +219,22 @@ export default function ContactSection() {
                     />
                   </div>
 
-                  {error && <p className="text-red-400 text-sm">{error}</p>}
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="btn-primary w-full py-3 rounded-xl text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="btn-accent w-full disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <span className="flex items-center gap-2">
-                        <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-2 border-brand-navy/20 border-t-brand-navy rounded-full animate-spin" />
                         Đang gửi...
                       </span>
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        Gửi Yêu Cầu
+                        Gửi yêu cầu
                       </>
                     )}
                   </button>
