@@ -57,14 +57,22 @@ export default function ServicesSection() {
           </Reveal>
 
           <Reveal delay={0.08} className="lg:col-span-7">
-            <div className="relative aspect-[16/10] rounded-[24px] overflow-hidden bg-brand-soft">
-              <Image
-                src={SITE_IMAGES.services.src}
-                alt={SITE_IMAGES.services.alt}
-                fill
-                className="object-cover object-center"
-                sizes="(max-width: 1024px) 100vw, 60vw"
-              />
+            <div className="group relative rounded-[24px] overflow-hidden bg-brand-navy ring-1 ring-black/5 shadow-soft">
+              <div className="relative aspect-[16/10] overflow-hidden">
+                <Image
+                  src={SITE_IMAGES.services.src}
+                  alt={SITE_IMAGES.services.alt}
+                  fill
+                  className="object-cover object-[center_35%] storefront-zoom"
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#07131F]/80 via-[#07131F]/10 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 ring-1 ring-inset ring-white/15 rounded-[24px] pointer-events-none" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
+                <p className="text-white font-heading font-bold text-sm sm:text-base">Showroom Camera 247 Huế</p>
+                <p className="text-white/75 text-xs sm:text-sm mt-0.5">40 Tùng Thiện Vương, Tp. Huế</p>
+              </div>
             </div>
           </Reveal>
         </div>
