@@ -31,16 +31,17 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
 }
 
 body {
   background: var(--brand-bg);
   color: var(--brand-ink);
   font-family: var(--font-body);
-  overflow-x: hidden;
+  overflow-x: clip;
+  min-height: 100%;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
 }
 
 a, button {

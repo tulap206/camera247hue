@@ -28,7 +28,7 @@ export default async function HomePage() {
   const featuredPosts = await getFeaturedPosts()
 
   return (
-    <main>
+    <main className="relative overflow-x-clip">
       <Navbar />
       <HeroSection />
       <PartnersSection />

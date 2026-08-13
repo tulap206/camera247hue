@@ -30,9 +30,16 @@ export default function Navbar() {
   }, [isHome])
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? 'hidden' : ''
+    const { body, documentElement } = document
+    if (mobileOpen) {
+      body.style.overflow = 'hidden'
+    } else {
+      body.style.overflow = ''
+      documentElement.style.overflow = ''
+    }
     return () => {
-      document.body.style.overflow = ''
+      body.style.overflow = ''
+      documentElement.style.overflow = ''
     }
   }, [mobileOpen])
 

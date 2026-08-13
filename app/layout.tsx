@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="pb-[env(safe-area-inset-bottom)]">{children}</body>
+      <body>{children}</body>
     </html>
   )
 }
