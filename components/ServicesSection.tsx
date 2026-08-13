@@ -57,20 +57,19 @@ export default function ServicesSection() {
           </Reveal>
 
           <Reveal delay={0.08} className="lg:col-span-7">
-            <div className="group relative rounded-2xl sm:rounded-[24px] overflow-hidden bg-brand-navy ring-1 ring-black/5 shadow-soft">
-              <div className="relative aspect-[16/11] sm:aspect-[16/10] overflow-hidden">
+            <div className="group rounded-2xl sm:rounded-[24px] bg-white p-1.5 sm:p-2 ring-1 ring-brand-border shadow-soft hover:shadow-lift transition-shadow duration-500 ease-out">
+              <div className="relative">
                 <Image
                   src={SITE_IMAGES.services.src}
                   alt={SITE_IMAGES.services.alt}
-                  fill
-                  className="object-cover object-[center_30%] storefront-zoom"
+                  width={1536}
+                  height={1024}
+                  quality={100}
+                  className="w-full h-auto block"
                   sizes="(max-width: 1024px) 100vw, 60vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#07131F]/85 via-[#07131F]/15 to-transparent pointer-events-none" />
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                <p className="text-white font-heading font-bold text-sm sm:text-base">Showroom Camera 247 Huế</p>
-                <p className="text-white/75 text-xs sm:text-sm mt-0.5">40 Tùng Thiện Vương, Tp. Huế</p>
+                <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5" />
+                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-tr from-transparent via-transparent to-white/10" />
               </div>
             </div>
           </Reveal>
