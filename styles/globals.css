@@ -75,6 +75,26 @@ p {
   font-variant-numeric: tabular-nums;
 }
 
+@keyframes heroKenBurns {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+
+.hero-kenburns {
+  animation: heroKenBurns 22s ease-out forwards;
+  will-change: transform;
+}
+
+.hero-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-kenburns {
+    animation: none;
+  }
+}
+
 .container-page {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
