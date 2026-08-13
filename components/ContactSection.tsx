@@ -77,19 +77,19 @@ export default function ContactSection() {
   ]
 
   return (
-    <section id="lien-he" className="py-24 sm:py-28 bg-white">
+    <section id="lien-he" className="section-y bg-white">
       <div className="container-page">
-        <Reveal className="max-w-xl mb-12">
-          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-brand-navy mb-3">
+        <Reveal className="max-w-xl mb-8 sm:mb-12">
+          <h2 className="font-heading text-[1.65rem] sm:text-4xl font-extrabold tracking-tight text-brand-navy mb-3">
             Liên hệ tư vấn miễn phí
           </h2>
-          <p className="text-brand-muted leading-relaxed">
+          <p className="text-brand-muted leading-relaxed text-[15px] sm:text-base">
             Để lại thông tin hoặc gọi trực tiếp. Chúng tôi sẽ khảo sát và báo giá phù hợp nhu cầu của bạn.
           </p>
         </Reveal>
 
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
-          <Reveal>
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-14">
+          <Reveal className="order-2 lg:order-1">
             <div className="space-y-3 mb-6">
               {contactItems.map((item) => (
                 <div
@@ -106,8 +106,8 @@ export default function ContactSection() {
                         <a
                           key={line}
                           href={item.action}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          target={item.action.startsWith('http') ? '_blank' : undefined}
+                          rel={item.action.startsWith('http') ? 'noopener noreferrer' : undefined}
                           className="block text-brand-navy font-semibold hover:text-[#16324A] transition-colors text-sm"
                         >
                           {line}
@@ -123,7 +123,7 @@ export default function ContactSection() {
               ))}
             </div>
 
-            <div className="rounded-[16px] overflow-hidden border border-brand-border h-48">
+            <div className="rounded-[16px] overflow-hidden border border-brand-border h-44 sm:h-48">
               <iframe
                 src="https://maps.google.com/maps?q=40%20T%C3%B9ng%20Thi%E1%BB%87n%20V%C6%B0%C6%A1ng%2C%20V%E1%BB%B9%20D%E1%BA%A1%2C%20Th%C3%A0nh%20ph%E1%BB%91%20Hu%E1%BA%BF&t=&z=16&ie=UTF8&iwloc=&output=embed"
                 width="100%"
@@ -137,9 +137,9 @@ export default function ContactSection() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.08}>
-            <div className="rounded-[24px] border border-brand-border bg-brand-bg/40 p-6 sm:p-8">
-              <h3 className="font-heading font-bold text-xl text-brand-navy mb-6">Gửi yêu cầu tư vấn</h3>
+          <Reveal delay={0.08} className="order-1 lg:order-2">
+            <div className="rounded-2xl sm:rounded-[24px] border border-brand-border bg-brand-bg/40 p-5 sm:p-8">
+              <h3 className="font-heading font-bold text-lg sm:text-xl text-brand-navy mb-5 sm:mb-6">Gửi yêu cầu tư vấn</h3>
 
               {success ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">

@@ -39,8 +39,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
   return (
     <main>
       <Navbar />
-      <div className="pt-[68px]">
-        <div className="relative h-64 sm:h-96 bg-brand-navy overflow-hidden">
+      <div className="nav-offset">
+        <div className="relative h-52 sm:h-96 bg-brand-navy overflow-hidden">
           {post.cover_image ? (
             <Image src={post.cover_image} alt={post.title} fill className="object-cover" />
           ) : (
@@ -55,13 +55,13 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 {post.category.name}
               </div>
             )}
-            <h1 className="font-heading text-2xl sm:text-4xl font-extrabold text-white max-w-3xl tracking-tight">
+            <h1 className="font-heading text-xl sm:text-4xl font-extrabold text-white max-w-3xl tracking-tight leading-snug">
               {post.title}
             </h1>
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10">
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 py-8 sm:py-10 pb-24 sm:pb-10">
           <Link
             href="/cong-trinh"
             className="inline-flex items-center gap-2 text-brand-muted hover:text-brand-navy transition-colors text-sm mb-8"

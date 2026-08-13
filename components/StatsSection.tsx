@@ -31,8 +31,8 @@ function useCountUp(target: number, duration = 1800, started: boolean) {
 function StatItem({ value, suffix, label, started }: (typeof stats)[0] & { started: boolean }) {
   const count = useCountUp(value, 1600, started)
   return (
-    <div className="text-center sm:text-left py-2">
-      <div className="font-heading text-4xl sm:text-5xl font-extrabold text-brand-navy tracking-tight font-tabular mb-2">
+    <div className="text-center py-1 sm:text-left sm:py-2">
+      <div className="font-heading text-3xl sm:text-5xl font-extrabold text-brand-navy tracking-tight font-tabular mb-1 sm:mb-2">
         {count}
         <span className="text-brand-yellow">{suffix}</span>
       </div>
@@ -57,10 +57,10 @@ export default function StatsSection() {
   }, [])
 
   return (
-    <section className="py-20 bg-white border-y border-brand-border" ref={ref}>
+    <section className="py-12 sm:py-20 bg-white border-y border-brand-border" ref={ref}>
       <div className="container-page">
         <Reveal>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-4 sm:gap-8 lg:gap-10">
             {stats.map((s) => (
               <StatItem key={s.label} {...s} started={started} />
             ))}

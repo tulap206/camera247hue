@@ -17,7 +17,11 @@ export const metadata: Metadata = {
     description: 'Thi công camera an ninh, khóa cửa thông minh, hệ thống mạng chuyên nghiệp tại Tp. Huế',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },
-  viewport: 'width=device-width, initial-scale=1',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    viewportFit: 'cover',
+  },
   themeColor: '#0B1F33',
   icons: {
     icon: '/favicon.ico',
@@ -36,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body className="pb-[env(safe-area-inset-bottom)]">{children}</body>
     </html>
   )
 }

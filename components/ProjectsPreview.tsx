@@ -6,20 +6,20 @@ import Reveal from '@/components/Reveal'
 
 export default function ProjectsPreview({ posts }: { posts: Post[] }) {
   return (
-    <section className="py-24 sm:py-28 bg-brand-soft">
+    <section className="section-y bg-brand-soft">
       <div className="container-page">
-        <Reveal className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+        <Reveal className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-12">
           <div className="max-w-xl">
-            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-brand-navy mb-3">
+            <h2 className="font-heading text-[1.65rem] sm:text-4xl font-extrabold tracking-tight text-brand-navy mb-3">
               Công trình đã thực hiện
             </h2>
-            <p className="text-brand-muted leading-relaxed">
+            <p className="text-brand-muted leading-relaxed text-[15px] sm:text-base">
               Một số dự án tiêu biểu Camera 247 Huế đã triển khai tại thành phố và vùng lân cận.
             </p>
           </div>
           <Link
             href="/cong-trinh"
-            className="inline-flex items-center gap-2 text-brand-navy font-semibold text-sm hover:gap-3 transition-all duration-300 ease-out shrink-0"
+            className="inline-flex items-center gap-2 text-brand-navy font-semibold text-sm hover:gap-3 transition-all duration-300 ease-out shrink-0 min-h-[44px]"
           >
             Xem tất cả
             <ArrowRight className="w-4 h-4" />
@@ -35,7 +35,7 @@ export default function ProjectsPreview({ posts }: { posts: Post[] }) {
             </Link>
           </Reveal>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {posts.map((post, index) => (
               <Reveal key={post.id} delay={index * 0.05}>
                 <Link
@@ -62,7 +62,7 @@ export default function ProjectsPreview({ posts }: { posts: Post[] }) {
                     )}
                   </div>
 
-                  <div className="p-5">
+                  <div className="p-4 sm:p-5">
                     <h3 className="font-heading font-bold text-brand-navy mb-2 line-clamp-2 group-hover:text-[#16324A] transition-colors">
                       {post.title}
                     </h3>

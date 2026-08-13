@@ -42,24 +42,24 @@ export default function FloatingContact() {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
+    <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-3 sm:right-5 z-40 flex flex-col items-end gap-2.5">
       {open && (
-        <div className="flex flex-col items-end gap-2.5">
+        <div className="flex flex-col items-end gap-2">
           {contacts.map((c, i) => (
             <a
               key={c.id}
               href={c.href}
               target={c.id !== 'phone' ? '_blank' : undefined}
               rel="noopener noreferrer"
-              className="flex items-center gap-3 group"
+              className="flex items-center gap-2.5"
               style={{ animation: `slideInRight 0.3s ease ${i * 0.05}s both` }}
             >
-              <div className="rounded-xl bg-white border border-brand-border shadow-soft px-3 py-2 text-right opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <div className="rounded-xl bg-white border border-brand-border shadow-soft px-3 py-2 text-right max-w-[11rem]">
                 <div className="text-brand-navy text-xs font-semibold">{c.label}</div>
                 <div className="text-brand-muted text-xs">{c.sublabel}</div>
               </div>
               <div
-                className="w-11 h-11 rounded-full flex items-center justify-center shadow-soft hover:scale-105 active:scale-95 transition-transform"
+                className="w-11 h-11 rounded-full flex items-center justify-center shadow-soft active:scale-95 transition-transform"
                 style={{ backgroundColor: c.color }}
               >
                 <c.icon className="w-5 h-5 text-white" />
@@ -72,10 +72,10 @@ export default function FloatingContact() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-14 h-14 rounded-full bg-brand-yellow flex items-center justify-center shadow-lift hover:scale-105 active:scale-95 transition-all"
+        className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-brand-yellow flex items-center justify-center shadow-lift active:scale-95 transition-transform"
         aria-label={open ? 'Đóng liên hệ nhanh' : 'Mở liên hệ nhanh'}
       >
-        {open ? <X className="w-6 h-6 text-brand-navy" /> : <MessageCircle className="w-6 h-6 text-brand-navy" />}
+        {open ? <X className="w-5 h-5 sm:w-6 sm:h-6 text-brand-navy" /> : <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-brand-navy" />}
       </button>
     </div>
   )

@@ -31,6 +31,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -39,6 +40,11 @@ body {
   font-family: var(--font-body);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a, button {
+  touch-action: manipulation;
 }
 
 h1, h2, h3, h4 {
@@ -109,8 +115,47 @@ p {
   }
 }
 
+@media (max-width: 767px) {
+  .hero-kenburns {
+    animation: none;
+  }
+}
+
 .container-page {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  @apply max-w-7xl mx-auto px-5 sm:px-6 lg:px-8;
+}
+
+.section-y {
+  @apply py-14 sm:py-20 lg:py-28;
+}
+
+.nav-offset {
+  padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
+}
+
+@media (min-width: 640px) {
+  .nav-offset {
+    padding-top: calc(68px + env(safe-area-inset-top, 0px));
+  }
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-snap-x {
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.btn-primary,
+.btn-accent,
+.btn-ghost {
+  min-height: 44px;
 }
 
 .btn-primary {
@@ -179,11 +224,12 @@ p {
 }
 
 .input-field {
-  @apply w-full text-sm;
+  @apply w-full;
+  font-size: 16px;
   background: #fff;
   border: 1px solid var(--brand-border);
   border-radius: var(--radius-md);
-  padding: 0.75rem 1rem;
+  padding: 0.8rem 1rem;
   color: var(--brand-ink);
   transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
 }

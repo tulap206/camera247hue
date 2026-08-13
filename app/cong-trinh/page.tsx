@@ -29,10 +29,10 @@ export default async function ProjectsPage({
   return (
     <main>
       <Navbar />
-      <div className="pt-[68px]">
+      <div className="nav-offset">
         <div className="bg-white border-b border-brand-border">
-          <div className="container-page py-14 sm:py-16">
-            <h1 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-brand-navy mb-3">
+          <div className="container-page py-8 sm:py-16">
+            <h1 className="font-heading text-[1.65rem] sm:text-4xl font-extrabold tracking-tight text-brand-navy mb-2 sm:mb-3">
               Công trình đã thi công
             </h1>
             <p className="text-brand-muted max-w-xl leading-relaxed">

@@ -63,10 +63,10 @@ export default function ProjectsList({
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
-    <div className="bg-brand-bg min-h-[50vh]">
-      <div className="container-page py-12">
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="relative flex-1 max-w-sm">
+    <div className="bg-brand-bg min-h-[50vh] pb-20 sm:pb-12">
+      <div className="container-page py-8 sm:py-12">
+        <div className="flex flex-col gap-4 mb-6 sm:mb-8">
+          <div className="relative w-full sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
             <input
               type="text"
@@ -78,30 +78,32 @@ export default function ProjectsList({
             />
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => handleCategoryChange(undefined)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                !activeCategory
-                  ? 'bg-brand-navy text-white'
-                  : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
-              }`}
-            >
-              Tất cả
-            </button>
-            {categories.map((cat) => (
+          <div className="-mx-5 px-5 overflow-x-auto scrollbar-none scroll-snap-x sm:mx-0 sm:px-0 sm:overflow-visible">
+            <div className="flex items-center gap-2 w-max sm:w-auto sm:flex-wrap">
               <button
-                key={cat.id}
-                onClick={() => handleCategoryChange(cat.slug)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  activeCategory === cat.slug
+                onClick={() => handleCategoryChange(undefined)}
+                className={`px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all shrink-0 ${
+                  !activeCategory
                     ? 'bg-brand-navy text-white'
                     : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
                 }`}
               >
-                {cat.name}
+                Tất cả
               </button>
-            ))}
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryChange(cat.slug)}
+                  className={`px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all shrink-0 ${
+                    activeCategory === cat.slug
+                      ? 'bg-brand-navy text-white'
+                      : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -119,7 +121,7 @@ export default function ProjectsList({
             <p className="text-brand-muted text-lg">Chưa có công trình nào trong mục này.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {posts.map((post) => (
               <Link
                 key={post.id}
@@ -151,7 +153,7 @@ export default function ProjectsList({
                   )}
                 </div>
 
-                <div className="p-5">
+                <div className="p-4 sm:p-5">
                   <h3 className="font-heading font-bold text-brand-navy mb-2 line-clamp-2 group-hover:text-[#16324A] transition-colors">
                     {post.title}
                   </h3>
