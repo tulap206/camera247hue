@@ -2,112 +2,86 @@ import Link from 'next/link'
 import { Shield, Phone, MapPin, Facebook } from 'lucide-react'
 
 const services = [
-  'Camera An Ninh',
-  'Khóa Cửa Thông Minh',
-  'Hệ Thống Mạng',
-  'Báo Trộm & Định Vị',
-  'Máy Chấm Công',
-  'Máy Tính & Thiết Bị',
+  'Camera an ninh',
+  'Khóa cửa thông minh',
+  'Hệ thống mạng',
+  'Báo trộm và định vị',
+  'Máy chấm công',
+  'Máy tính và thiết bị',
 ]
 
-const categories = [
-  { name: 'Khách Sạn', slug: 'khach-san' },
-  { name: 'Quán Cà Phê', slug: 'quan-ca-phe' },
-  { name: 'Nhà Dân', slug: 'nha-dan' },
-  { name: 'Đường Phố', slug: 'duong-pho' },
-  { name: 'Doanh Nghiệp', slug: 'doanh-nghiep' },
-  { name: 'Trường Học', slug: 'truong-hoc' },
+const links = [
+  { label: 'Trang chủ', href: '/' },
+  { label: 'Dịch vụ', href: '/#dich-vu' },
+  { label: 'Công trình', href: '/cong-trinh' },
+  { label: 'Liên hệ', href: '/#lien-he' },
 ]
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-[#050505] relative">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-12">
-          
-          {/* Brand Col (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="flex w-9 h-9 items-center justify-center rounded-xl bg-[#F5C518]">
-                <Shield className="w-5 h-5 text-black" strokeWidth={1.5} />
+    <footer className="bg-brand-navy text-white">
+      <div className="container-page py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div className="lg:col-span-1">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-brand-yellow rounded-xl flex items-center justify-center">
+                <Shield className="w-5 h-5 text-brand-navy" />
               </div>
               <div>
-                <p className="font-heading text-lg font-black tracking-wider text-white">CAMERA 247 HUẾ</p>
-                <p className="text-[10px] tracking-widest uppercase font-bold text-zinc-500">Huế Security Solutions</p>
+                <div className="font-heading font-extrabold text-brand-yellow text-lg leading-tight">
+                  Camera 247 Huế
+                </div>
+                <div className="text-white/50 text-xs">Giải pháp công nghệ an ninh</div>
               </div>
             </div>
-            <p className="text-zinc-500 text-xs leading-relaxed max-w-sm font-medium">
-              Công ty TNHH Giải Pháp Công Nghệ An Ninh Camera 247 Huế — Đơn vị thi công lắp đặt chuyên nghiệp 
-              hệ thống camera giám sát, khóa cửa thông minh và hạ tầng mạng tại tỉnh Thừa Thiên Huế.
+            <p className="text-white/55 text-sm leading-relaxed mb-5 max-w-xs">
+              Đơn vị thi công camera an ninh, khóa thông minh và hệ thống mạng tại Tp. Huế.
             </p>
-            <div className="space-y-2 text-xs text-zinc-500 font-medium">
-              <a
-                href="tel:0967611112"
-                className="flex items-center gap-2.5 transition-colors hover:text-[#F5C518]"
-              >
-                <Phone className="w-4 h-4 shrink-0 text-[#F5C518]" strokeWidth={1.5} /> 
-                <span>0967 611 112</span>
+            <div className="space-y-2.5 text-sm text-white/55">
+              <a href="tel:0967611112" className="flex items-center gap-2 hover:text-brand-yellow transition-colors">
+                <Phone className="w-4 h-4 shrink-0" />
+                0967 611 112
               </a>
               <a
                 href="https://maps.google.com/?q=40+Tùng+Thiện+Vương+Huế"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-start gap-2.5 transition-colors hover:text-[#F5C518]"
+                className="flex items-start gap-2 hover:text-brand-yellow transition-colors"
               >
-                <MapPin className="w-4 h-4 shrink-0 text-[#F5C518]" strokeWidth={1.5} />
+                <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>40 Tùng Thiện Vương, Vỹ Dạ, Tp. Huế</span>
               </a>
               <a
                 href="https://facebook.com/Camera247Hue"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2.5 transition-colors hover:text-[#F5C518]"
+                className="flex items-center gap-2 hover:text-brand-yellow transition-colors"
               >
-                <Facebook className="w-4 h-4 text-[#F5C518]" strokeWidth={1.5} /> 
-                <span>facebook.com/Camera247Hue</span>
+                <Facebook className="w-4 h-4" />
+                Camera247Hue
               </a>
             </div>
           </div>
 
-          {/* Dịch vụ (2 cols) */}
-          <div className="lg:col-span-2 space-y-4">
-            <h4 className="font-heading text-xs font-black tracking-widest text-white uppercase">Dịch vụ</h4>
-            <ul className="space-y-2.5 text-xs text-zinc-500 font-medium">
+          <div>
+            <h4 className="font-heading font-bold text-sm mb-4">Dịch vụ</h4>
+            <ul className="space-y-2.5">
               {services.map((s) => (
                 <li key={s}>
-                  <a href="#dich-vu" className="hover:text-[#F5C518] transition-colors">{s}</a>
+                  <a href="/#dich-vu" className="text-white/55 hover:text-brand-yellow transition-colors text-sm">
+                    {s}
+                  </a>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Công trình (2 cols) */}
-          <div className="lg:col-span-2 space-y-4">
-            <h4 className="font-heading text-xs font-black tracking-widest text-white uppercase">Công trình</h4>
-            <ul className="space-y-2.5 text-xs text-zinc-500 font-medium">
-              {categories.map((c) => (
-                <li key={c.slug}>
-                  <Link href={`/cong-trinh?category=${c.slug}`} className="hover:text-[#F5C518] transition-colors">
-                    {c.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Liên kết (3 cols) */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="font-heading text-xs font-black tracking-widest text-white uppercase">Liên kết</h4>
-            <ul className="space-y-2.5 text-xs text-zinc-500 font-medium">
-              {[
-                { label: 'Trang chủ', href: '/' },
-                { label: 'Dịch vụ', href: '/#dich-vu' },
-                { label: 'Công trình', href: '/cong-trinh' },
-                { label: 'Liên hệ', href: '/#lien-he' },
-                { label: 'Đăng nhập Admin', href: '/admin' },
-              ].map((l) => (
+          <div>
+            <h4 className="font-heading font-bold text-sm mb-4">Liên kết</h4>
+            <ul className="space-y-2.5">
+              {links.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="hover:text-[#F5C518] transition-colors">
+                  <Link href={l.href} className="text-white/55 hover:text-brand-yellow transition-colors text-sm">
                     {l.label}
                   </Link>
                 </li>
@@ -115,16 +89,21 @@ export default function Footer() {
             </ul>
           </div>
 
+          <div>
+            <h4 className="font-heading font-bold text-sm mb-4">Hotline</h4>
+            <p className="text-white/55 text-sm mb-4 leading-relaxed">
+              Gọi ngay để được khảo sát và tư vấn miễn phí trong ngày.
+            </p>
+            <a href="tel:0967611112" className="btn-accent !text-sm inline-flex">
+              0967 611 112
+            </a>
+          </div>
         </div>
 
-        {/* Footer bottom */}
-        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-bold uppercase tracking-wider text-zinc-600">
-          <p>© {new Date().getFullYear()} CAMERA 247 HUẾ. BẢO LƯU MỌI QUYỀN.</p>
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between gap-3 text-sm text-white/40">
+          <p>© {new Date().getFullYear()} Camera 247 Huế. Bảo lưu mọi quyền.</p>
           <p>
-            Mã nguồn bảo mật bởi{' '}
-            <a href="tel:0967611112" className="text-[#F5C518] hover:underline">
-              Phan Lê Tự Lập
-            </a>
+            Thiết kế bởi Phan Lê Tự Lập
           </p>
         </div>
       </div>
