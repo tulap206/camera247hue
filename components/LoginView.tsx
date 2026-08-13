@@ -49,11 +49,11 @@ export default function LoginView() {
     <div className="min-h-[100svh] bg-brand-bg flex flex-col lg:flex-row">
       <aside className="relative hidden lg:flex lg:w-[46%] min-h-[100svh] bg-brand-navy overflow-hidden">
         <Image
-          src={SITE_IMAGES.services.src}
-          alt={SITE_IMAGES.services.alt}
+          src={SITE_IMAGES.hero.src}
+          alt={SITE_IMAGES.hero.alt}
           fill
           priority
-          className="object-cover"
+          className="object-cover object-[40%_center] lg:object-[28%_center]"
           sizes="46vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#07131F] via-[#0B1F33]/70 to-[#07131F]/35" />
