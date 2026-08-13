@@ -4,20 +4,21 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 import Reveal from '@/components/Reveal'
+import { SITE_IMAGES } from '@/lib/siteImages'
 
 export default function HeroSection() {
   return (
     <section className="relative min-h-[100dvh] flex items-end overflow-hidden">
       <Image
-        src="https://picsum.photos/seed/camera247hue-corporate-lobby/1920/1200"
-        alt="Hệ thống camera an ninh chuyên nghiệp tại Huế"
+        src={SITE_IMAGES.hero.src}
+        alt={SITE_IMAGES.hero.alt}
         fill
         priority
-        className="object-cover"
+        className="object-cover object-center"
         sizes="100vw"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#07131F]/92 via-[#0B1F33]/72 to-[#0B1F33]/35" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#07131F]/80 via-transparent to-[#07131F]/25" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#07131F]/92 via-[#0B1F33]/75 to-[#0B1F33]/40" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#07131F]/85 via-transparent to-[#07131F]/30" />
 
       <div className="relative z-10 container-page w-full pt-28 pb-16 sm:pb-20">
         <Reveal className="max-w-2xl">

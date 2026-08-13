@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { Camera, Lock, Wifi, Bell, Monitor, Cpu, ArrowRight } from 'lucide-react'
 import Reveal from '@/components/Reveal'
+import { SITE_IMAGES } from '@/lib/siteImages'
 
 const services = [
   {
@@ -58,10 +59,10 @@ export default function ServicesSection() {
           <Reveal delay={0.08} className="lg:col-span-7">
             <div className="relative aspect-[16/10] rounded-[24px] overflow-hidden bg-brand-soft">
               <Image
-                src="https://picsum.photos/seed/camera247hue-service-room/1200/750"
-                alt="Thi công hệ thống camera và mạng tại công trình"
+                src={SITE_IMAGES.services.src}
+                alt={SITE_IMAGES.services.alt}
                 fill
-                className="object-cover"
+                className="object-cover object-center"
                 sizes="(max-width: 1024px) 100vw, 60vw"
               />
             </div>
