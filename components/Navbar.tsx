@@ -86,6 +86,18 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              {pathname !== '/login' && pathname !== '/admin' && (
+                <Link
+                  href="/login"
+                  className={`text-sm font-semibold rounded-full px-4 py-2 border min-h-[40px] inline-flex items-center transition-colors ${
+                    solid
+                      ? 'border-brand-border text-brand-navy hover:bg-brand-soft'
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
+                >
+                  Đăng nhập
+                </Link>
+              )}
               <a
                 href="tel:0967611112"
                 className="btn-accent !py-2.5 !px-5 !text-sm inline-flex items-center gap-2"
@@ -131,6 +143,15 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {pathname !== '/login' && pathname !== '/admin' && (
+              <Link
+                href="/login"
+                className="block py-4 text-brand-ink font-medium border-b border-brand-border/70 text-base"
+                onClick={() => setMobileOpen(false)}
+              >
+                Đăng nhập
+              </Link>
+            )}
             <a
               href="tel:0967611112"
               className="mt-6 btn-accent w-full"

@@ -1,84 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Shield, Eye, EyeOff, LogOut, Plus, Edit, Trash2, CheckCircle, XCircle, Star, StarOff, Image as ImageIcon, MessageSquare, Settings } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Shield, LogOut, Plus, Edit, Trash2, CheckCircle, XCircle, Star, StarOff, Image as ImageIcon, MessageSquare, Settings } from 'lucide-react'
 import { supabase, type Post, type Category, type ContactMessage } from '@/lib/supabase'
-
-const ADMIN_KEY = 'camera247hue_admin_auth'
-
-// ========== Login Component ==========
-function LoginForm({ onLogin }: { onLogin: () => void }) {
-  const [password, setPassword] = useState('')
-  const [showPw, setShowPw] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    
-    const res = await fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    })
-    
-    if (res.ok) {
-      localStorage.setItem(ADMIN_KEY, 'true')
-      onLogin()
-    } else {
-      setError('Mật khẩu không đúng. Vui lòng thử lại.')
-    }
-    setLoading(false)
-  }
-
-  return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-[#F5C518] rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-9 h-9 text-black" />
-          </div>
-          <h1 className="font-heading text-2xl font-bold text-white">ĐĂNG NHẬP ADMIN</h1>
-          <p className="text-gray-500 text-sm mt-1">Camera 247 Huế</p>
-        </div>
-
-        <form onSubmit={handleLogin}
-          className="bg-[#1A1A1A] rounded-2xl p-6 border border-gray-800">
-          <div className="mb-4">
-            <label className="block text-gray-400 text-xs mb-1.5">Mật Khẩu</label>
-            <div className="relative">
-              <input
-                type={showPw ? 'text' : 'password'}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-3 text-white pr-10 focus:outline-none focus:border-[#F5C518] transition-colors"
-                placeholder="••••••••"
-                autoFocus
-              />
-              <button type="button" onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
-                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
-          {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
-
-          <button type="submit" disabled={loading}
-            className="w-full bg-[#F5C518] text-black py-3 rounded-xl font-bold hover:bg-yellow-400 transition-all disabled:opacity-60">
-            {loading ? 'Đang kiểm tra...' : 'Đăng Nhập'}
-          </button>
-        </form>
-
-        <p className="text-center text-gray-600 text-xs mt-4">
-          Camera 247 Huế © {new Date().getFullYear()}
-        </p>
-      </div>
-    </div>
-  )
-}
+import { ADMIN_KEY } from '@/lib/adminAuth'
 
 // Helper to convert HTML back to plain text for simple editing
 function htmlToText(html: string): string {
@@ -995,21 +921,27 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
 // ========== Main Admin Page ==========
 export default function AdminPage() {
+  const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
     const auth = localStorage.getItem(ADMIN_KEY)
-    setIsLoggedIn(auth === 'true')
-    setChecking(false)
-  }, [])
+    if (auth === 'true') {
+      setIsLoggedIn(true)
+      setChecking(false)
+      return
+    }
+    router.replace('/login')
+  }, [router])
 
   const handleLogout = () => {
     localStorage.removeItem(ADMIN_KEY)
     setIsLoggedIn(false)
+    router.replace('/login')
   }
 
-  if (checking) {
+  if (checking || !isLoggedIn) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <div className="spinner" />
@@ -1017,7 +949,5 @@ export default function AdminPage() {
     )
   }
 
-  return isLoggedIn
-    ? <Dashboard onLogout={handleLogout} />
-    : <LoginForm onLogin={() => setIsLoggedIn(true)} />
+  return <Dashboard onLogout={handleLogout} />
 }
