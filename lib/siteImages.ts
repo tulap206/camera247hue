@@ -5,7 +5,7 @@ export const SITE_IMAGES = {
     alt: 'Hàng camera giám sát CCTV chuyên nghiệp trên tường',
   },
   services: {
-    src: '/images/storefront-camera247.jpg',
-    alt: 'Showroom Camera 247 Huế tại 40 Tùng Thiện Vương',
+    src: '/images/storefront-sign.jpg',
+    alt: 'Bảng hiệu showroom Camera 247 Huế tại 40 Tùng Thiện Vương',
   },
 } as const
