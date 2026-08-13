@@ -5,7 +5,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Shield, ArrowLeft } from 'lucide-react'
-import { ADMIN_KEY } from '@/lib/adminAuth'
 import { SITE_IMAGES } from '@/lib/siteImages'
 
 export default function LoginView() {
@@ -16,9 +15,11 @@ export default function LoginView() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (localStorage.getItem(ADMIN_KEY) === 'true') {
-      router.replace('/admin')
-    }
+    fetch('/api/auth', { credentials: 'same-origin' })
+      .then((res) => {
+        if (res.ok) router.replace('/admin')
+      })
+      .catch(() => {})
   }, [router])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -30,12 +31,16 @@ export default function LoginView() {
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ password }),
       })
 
       if (res.ok) {
-        localStorage.setItem(ADMIN_KEY, 'true')
         router.replace('/admin')
+        return
+      }
+      if (res.status === 429) {
+        setError('Thử lại sau vài phút.')
         return
       }
       setError('Mật khẩu không đúng. Vui lòng thử lại.')

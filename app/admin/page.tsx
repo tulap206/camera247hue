@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Shield, LogOut, Plus, Edit, Trash2, CheckCircle, XCircle, Star, StarOff, Image as ImageIcon, MessageSquare, Settings } from 'lucide-react'
 import { supabase, type Post, type Category, type ContactMessage } from '@/lib/supabase'
-import { ADMIN_KEY } from '@/lib/adminAuth'
 
 // Helper to convert HTML back to plain text for simple editing
 function htmlToText(html: string): string {
@@ -926,17 +925,20 @@ export default function AdminPage() {
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
-    const auth = localStorage.getItem(ADMIN_KEY)
-    if (auth === 'true') {
-      setIsLoggedIn(true)
-      setChecking(false)
-      return
-    }
-    router.replace('/login')
+    fetch('/api/auth', { credentials: 'same-origin' })
+      .then((res) => {
+        if (res.ok) {
+          setIsLoggedIn(true)
+          setChecking(false)
+          return
+        }
+        router.replace('/login')
+      })
+      .catch(() => router.replace('/login'))
   }, [router])
 
-  const handleLogout = () => {
-    localStorage.removeItem(ADMIN_KEY)
+  const handleLogout = async () => {
+    await fetch('/api/auth', { method: 'DELETE', credentials: 'same-origin' })
     setIsLoggedIn(false)
     router.replace('/login')
   }

@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingContact from '@/components/FloatingContact'
 import { supabase } from '@/lib/supabase'
+import { sanitizeHtml } from '@/lib/sanitizeHtml'
 import { MapPin, Calendar, ChevronLeft, Building, Camera, Phone } from 'lucide-react'
 
 export const revalidate = 60
@@ -92,7 +93,9 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 )}
               </div>
 
-              {post.content && <div className="prose" dangerouslySetInnerHTML={{ __html: post.content }} />}
+              {post.content && (
+                <div className="prose" dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }} />
+              )}
 
               {post.images && post.images.length > 0 && (
                 <div className="mt-8">

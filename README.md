@@ -92,9 +92,9 @@ camera247hue/
 
 ## 🔑 ĐĂNG NHẬP ADMIN
 
-URL: `https://camera247hue.com/admin`
+URL: `https://camera247hue.com/login`
 
-Mật khẩu: Giá trị bạn đặt cho `ADMIN_SECRET` trong Vercel
+Mật khẩu: Giá trị `ADMIN_SECRET` (phiên đăng nhập lưu cookie httpOnly, hết hạn 7 ngày)
 
 ### Chức năng Admin:
 - ✅ Xem thống kê (tổng bài, đã đăng, liên hệ, chưa đọc)
