@@ -42,6 +42,7 @@ NEXT_PUBLIC_SUPABASE_URL = https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY = eyJ...
 SUPABASE_SERVICE_ROLE_KEY = eyJ...
 ADMIN_SECRET = (đặt mật khẩu mạnh của bạn)
+ADMIN_SESSION_SECRET = (chuỗi ngẫu nhiên dài để ký cookie đăng nhập)
 ```
 
 4. Click **Deploy** → Done! 🎉

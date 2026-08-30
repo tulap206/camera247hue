@@ -6,20 +6,15 @@ export const SESSION_COOKIE = 'c247_session'
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7
 
 export function getAdminPassword() {
-  return process.env.ADMIN_SECRET || 'Tulap@206c'
+  return process.env.ADMIN_SECRET?.trim() || ''
 }
 
 function signingKey() {
-  return (
-    process.env.ADMIN_SESSION_SECRET ||
-    process.env.ADMIN_SECRET ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    'camera247-session-key'
-  )
+  return process.env.ADMIN_SESSION_SECRET?.trim() || ''
 }
 
-function hmac(value: string) {
-  return createHmac('sha256', signingKey()).update(value).digest('hex')
+function hmac(value: string, key: string) {
+  return createHmac('sha256', key).update(value).digest('hex')
 }
 
 function safeEqual(a: string, b: string) {
@@ -33,20 +28,28 @@ function safeEqual(a: string, b: string) {
 }
 
 export function createSessionToken() {
+  const key = signingKey()
+  if (!key) {
+    throw new Error('ADMIN_SESSION_SECRET is required for admin sessions')
+  }
+
   const exp = Date.now() + SESSION_MAX_AGE * 1000
   const nonce = randomBytes(16).toString('hex')
   const payload = `${exp}.${nonce}`
-  return `${payload}.${hmac(payload)}`
+  return `${payload}.${hmac(payload, key)}`
 }
 
 export function verifySessionToken(token: string | undefined | null) {
+  const key = signingKey()
+  if (!key) return false
+
   if (!token) return false
   const parts = token.split('.')
   if (parts.length !== 3) return false
   const [exp, nonce, sig] = parts
   if (!exp || !nonce || !sig) return false
   const payload = `${exp}.${nonce}`
-  if (!safeEqual(hmac(payload), sig)) return false
+  if (!safeEqual(hmac(payload, key), sig)) return false
   if (Number(exp) < Date.now()) return false
   return true
 }
@@ -56,7 +59,8 @@ export function passwordMatches(password: unknown) {
     return false
   }
   const expected = getAdminPassword()
-  return safeEqual(hmac(`pw:${password}`), hmac(`pw:${expected}`))
+  if (!expected) return false
+  return safeEqual(password, expected)
 }
 
 export function sessionCookieOptions(maxAge = SESSION_MAX_AGE) {
