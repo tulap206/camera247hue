@@ -92,9 +92,13 @@ camera247hue/
 
 ## 🔑 ĐĂNG NHẬP ADMIN
 
-URL: `https://camera247hue.com/login`
+URL: `https://camera247hue.com/login` (hoặc `/login`)
 
-Mật khẩu: Giá trị `ADMIN_SECRET` (phiên đăng nhập lưu cookie httpOnly, hết hạn 7 ngày)
+Tài khoản quản trị:
+1. **admin**: `Tulap@206c`
+2. **admin1**: `Top@123`
+
+*(Phiên đăng nhập lưu cookie httpOnly bảo mật, hết hạn 7 ngày)*
 
 ### Chức năng Admin:
 - ✅ Xem thống kê (tổng bài, đã đăng, liên hệ, chưa đọc)

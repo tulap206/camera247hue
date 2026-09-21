@@ -5,6 +5,7 @@ import {
   isAdminSession,
   passwordMatches,
   sessionCookieOptions,
+  ADMIN_USERS,
 } from '@/lib/adminSession'
 import { clientIp, rateLimit } from '@/lib/rateLimit'
 
@@ -21,20 +22,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Thử lại sau vài phút.' }, { status: 429 })
   }
 
+  let username = ''
   let password = ''
   try {
     const body = await request.json()
+    username = typeof body?.username === 'string' ? body.username.trim() : ''
     password = typeof body?.password === 'string' ? body.password : ''
   } catch {
     return NextResponse.json({ error: 'Yêu cầu không hợp lệ.' }, { status: 400 })
   }
 
-  if (!passwordMatches(password)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!passwordMatches(password, username)) {
+    return NextResponse.json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng.' }, { status: 401 })
   }
 
-  const res = NextResponse.json({ ok: true })
-  res.cookies.set(SESSION_COOKIE, createSessionToken(), sessionCookieOptions())
+  const activeUser = username && ADMIN_USERS[username.toLowerCase()] ? username.toLowerCase() : 'admin'
+  const res = NextResponse.json({ ok: true, user: activeUser })
+  res.cookies.set(SESSION_COOKIE, createSessionToken(activeUser), sessionCookieOptions())
   return res
 }
 

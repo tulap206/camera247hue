@@ -9,6 +9,7 @@ import { SITE_IMAGES } from '@/lib/siteImages'
 
 export default function LoginView() {
   const router = useRouter()
+  const [username, setUsername] = useState('admin')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
@@ -32,7 +33,7 @@ export default function LoginView() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username, password }),
       })
 
       if (res.ok) {
@@ -43,7 +44,7 @@ export default function LoginView() {
         setError('Thử lại sau vài phút.')
         return
       }
-      setError('Mật khẩu không đúng. Vui lòng thử lại.')
+      setError('Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.')
     } catch {
       setError('Không kết nối được. Vui lòng thử lại.')
     }
@@ -114,34 +115,49 @@ export default function LoginView() {
               Đăng nhập
             </h2>
             <p className="text-brand-muted text-[15px] mb-8 leading-relaxed">
-              Nhập mật khẩu quản trị để vào bảng điều khiển.
+              Nhập tài khoản và mật khẩu quản trị để vào bảng điều khiển.
             </p>
 
-            <form onSubmit={handleLogin} className="rounded-2xl sm:rounded-[20px] bg-white border border-brand-border p-5 sm:p-7 shadow-soft">
-              <label className="block text-brand-muted text-xs mb-1.5 font-medium">Mật khẩu</label>
-              <div className="relative mb-4">
+            <form onSubmit={handleLogin} className="rounded-2xl sm:rounded-[20px] bg-white border border-brand-border p-5 sm:p-7 shadow-soft space-y-4">
+              <div>
+                <label className="block text-brand-muted text-xs mb-1.5 font-medium">Tên đăng nhập</label>
                 <input
-                  type={showPw ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pr-11"
-                  placeholder="Nhập mật khẩu"
-                  autoFocus
-                  autoComplete="current-password"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="input-field"
+                  placeholder="admin hoặc admin1"
+                  autoComplete="username"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-brand-muted hover:text-brand-navy"
-                  aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                >
-                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
               </div>
 
-              {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+              <div>
+                <label className="block text-brand-muted text-xs mb-1.5 font-medium">Mật khẩu</label>
+                <div className="relative">
+                  <input
+                    type={showPw ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-field pr-11"
+                    placeholder="Nhập mật khẩu"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-brand-muted hover:text-brand-navy"
+                    aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  >
+                    {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
 
-              <button type="submit" disabled={loading} className="btn-accent w-full disabled:opacity-60">
+              {error && <p className="text-red-600 text-sm">{error}</p>}
+
+              <button type="submit" disabled={loading} className="btn-accent w-full disabled:opacity-60 !py-3">
                 {loading ? 'Đang kiểm tra...' : 'Đăng nhập'}
               </button>
             </form>

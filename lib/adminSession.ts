@@ -5,8 +5,13 @@ import { NextResponse } from 'next/server'
 export const SESSION_COOKIE = 'c247_session'
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7
 
-export function getAdminPassword() {
-  return process.env.ADMIN_SECRET || 'Tulap@206c'
+export const ADMIN_USERS: Record<string, string> = {
+  admin: process.env.ADMIN_PASSWORD || process.env.ADMIN_SECRET || 'Tulap@206c',
+  admin1: process.env.ADMIN1_PASSWORD || 'Top@123',
+}
+
+export function getAdminPassword(username = 'admin') {
+  return ADMIN_USERS[username] || ADMIN_USERS.admin
 }
 
 function signingKey() {
@@ -32,17 +37,28 @@ function safeEqual(a: string, b: string) {
   return timingSafeEqual(left, right)
 }
 
-export function createSessionToken() {
+export function createSessionToken(username = 'admin') {
   const exp = Date.now() + SESSION_MAX_AGE * 1000
   const nonce = randomBytes(16).toString('hex')
-  const payload = `${exp}.${nonce}`
+  const payload = `${exp}.${nonce}.${username}`
   return `${payload}.${hmac(payload)}`
 }
 
 export function verifySessionToken(token: string | undefined | null) {
   if (!token) return false
   const parts = token.split('.')
-  if (parts.length !== 3) return false
+  if (parts.length !== 4 && parts.length !== 3) return false
+  
+  if (parts.length === 4) {
+    const [exp, nonce, username, sig] = parts
+    if (!exp || !nonce || !username || !sig) return false
+    const payload = `${exp}.${nonce}.${username}`
+    if (!safeEqual(hmac(payload), sig)) return false
+    if (Number(exp) < Date.now()) return false
+    return true
+  }
+
+  // Backward compatibility with 3-part tokens
   const [exp, nonce, sig] = parts
   if (!exp || !nonce || !sig) return false
   const payload = `${exp}.${nonce}`
@@ -51,12 +67,30 @@ export function verifySessionToken(token: string | undefined | null) {
   return true
 }
 
-export function passwordMatches(password: unknown) {
+export function verifyAdminCredentials(username: unknown, password: unknown) {
   if (typeof password !== 'string' || password.length === 0 || password.length > 200) {
     return false
   }
-  const expected = getAdminPassword()
-  return safeEqual(hmac(`pw:${password}`), hmac(`pw:${expected}`))
+
+  const u = typeof username === 'string' ? username.trim().toLowerCase() : ''
+  
+  if (u && ADMIN_USERS[u]) {
+    const expected = ADMIN_USERS[u]
+    return safeEqual(hmac(`pw:${password}`), hmac(`pw:${expected}`))
+  }
+
+  // If username is not passed or empty, check all valid admin accounts
+  for (const expected of Object.values(ADMIN_USERS)) {
+    if (safeEqual(hmac(`pw:${password}`), hmac(`pw:${expected}`))) {
+      return true
+    }
+  }
+
+  return false
+}
+
+export function passwordMatches(password: unknown, username?: unknown) {
+  return verifyAdminCredentials(username, password)
 }
 
 export function sessionCookieOptions(maxAge = SESSION_MAX_AGE) {
