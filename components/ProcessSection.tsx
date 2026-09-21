@@ -1,193 +1,282 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import {
-  Award,
-  Clock,
-  Headphones,
-  ThumbsUp,
-  ShieldCheck,
-  CheckCircle2,
   Compass,
   FileCheck2,
   Wrench,
+  ShieldCheck,
+  CheckCircle2,
   Sparkles,
+  ArrowRight,
+  Phone,
+  Clock,
+  Award,
+  Users,
 } from 'lucide-react'
 import Reveal from '@/components/Reveal'
 
 const steps = [
   {
     num: '01',
-    title: 'Khảo sát & Demo góc nhìn',
-    desc: 'Đến tận công trình tại TP. Huế đo đạc thực tế, demo góc nhìn camera và tư vấn phương án tối ưu hoàn toàn miễn phí.',
+    title: 'Khảo sát tận nơi',
+    desc: 'Đo đạc hiện trạng, demo góc nhìn thực tế tại công trình TP. Huế và tư vấn phương án tối ưu hoàn toàn miễn phí.',
     icon: Compass,
-    badge: 'Trong vòng 2h',
+    badge: 'Miễn phí 100%',
+    highlight: 'Có mặt trong vòng 2h',
   },
   {
     num: '02',
-    title: 'Báo giá trọn gói minh bạch',
-    desc: 'Lên sơ đồ vị trí, danh mục thiết bị chính hãng và bảng dự toán chi tiết. Cam kết không phát sinh bất kỳ chi phí nào.',
+    title: 'Báo giá rõ ràng',
+    desc: 'Đề xuất danh mục thiết bị chính hãng và bảng dự toán chi phí minh bạch, chuẩn ngân sách. Không phát sinh.',
     icon: FileCheck2,
-    badge: 'Rõ ràng 100%',
+    badge: 'Minh bạch 100%',
+    highlight: 'Cam kết giá trọn gói',
   },
   {
     num: '03',
-    title: 'Thi công giấu dây thẩm mỹ',
-    desc: 'Đội ngũ kỹ thuật lành nghề luồn ống gen, giấu dây âm tường tỉ mỉ, đảm bảo vẻ đẹp kiến trúc cho ngôi nhà của bạn.',
+    title: 'Thi công chuẩn kỹ thuật',
+    desc: 'Đội ngũ lành nghề thi công giấu dây, luồn ống gen tỉ mỉ, căn chỉnh góc nhìn sắc nét và bàn giao đúng tiến độ.',
     icon: Wrench,
     badge: 'Chuẩn thẩm mỹ',
+    highlight: 'Giấu dây âm tường',
   },
   {
     num: '04',
-    title: 'Bàn giao & Bảo hành 24/7',
-    desc: 'Cài đặt app quản lý trên điện thoại cho tất cả thành viên, kiểm tra hệ thống và kích hoạt bảo hành chính hãng 1 đổi 1.',
-    icon: Headphones,
-    badge: 'Hỗ trợ dài lâu',
+    title: 'Bảo hành & Hỗ trợ 24/7',
+    desc: 'Cài đặt app trên điện thoại cho từng thành viên, hướng dẫn sử dụng và kích hoạt bảo hành chính hãng 12–24 tháng 1 đổi 1.',
+    icon: ShieldCheck,
+    badge: 'Bảo hành 1 đổi 1',
+    highlight: 'Hỗ trợ kỹ thuật 24/7',
   },
 ]
 
-const reasons = [
+const stats = [
   {
+    value: 1200,
+    suffix: '+',
+    label: 'Công trình hoàn thành',
+    sub: 'Nhà phố, biệt thự, nhà hàng, khách sạn',
     icon: Award,
-    title: 'Thiết bị chính hãng 100%',
-    desc: 'Phân phối chính hãng Hikvision, Dahua, Ezviz, Kaadas, UniFi với đầy đủ CO/CQ và tem bảo hành nhà sản xuất.',
   },
   {
+    value: 12,
+    suffix: '+',
+    label: 'Năm kinh nghiệm',
+    sub: 'Thực chiến thi công an ninh tại Huế',
     icon: Clock,
-    title: 'Hỗ trợ nhanh < 2 giờ',
-    desc: 'Đội ngũ kỹ thuật túc trực tại TP. Huế, sẵn sàng có mặt xử lý sự cố an ninh và mạng nhanh chóng.',
   },
   {
-    icon: Headphones,
-    title: 'Tư vấn đúng nhu cầu',
-    desc: 'Khảo sát thực tế, đề xuất giải pháp tối ưu theo ngân sách, tuyệt đối không vẽ vời hay nâng khống cấu hình.',
+    value: 24,
+    suffix: '/7',
+    label: 'Hỗ trợ kỹ thuật',
+    sub: 'Xử lý sự cố tận nơi trong ngày',
+    icon: Wrench,
   },
   {
-    icon: ThumbsUp,
-    title: 'Thi công chuẩn thẩm mỹ',
-    desc: 'Quy chuẩn đi dây cẩn thận, thiết bị căn chỉnh ngay ngắn, thẩm mỹ cao cho biệt thự, văn phòng và nhà hàng.',
+    value: 98,
+    suffix: '%',
+    label: 'Khách hàng hài lòng',
+    sub: 'Đánh giá cao chất lượng thi công',
+    icon: Users,
   },
 ]
+
+function useCountUp(target: number, duration = 1800, started: boolean) {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    if (!started) return
+    let startTime: number
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp
+      const progress = Math.min((timestamp - startTime) / duration, 1)
+      setCount(Math.floor(progress * target))
+      if (progress < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }, [started, target, duration])
+
+  return count
+}
+
+function StatCounterItem({
+  value,
+  suffix,
+  label,
+  sub,
+  icon: Icon,
+  started,
+}: (typeof stats)[0] & { started: boolean }) {
+  const count = useCountUp(value, 1600, started)
+  return (
+    <div className="relative p-5 sm:p-6 rounded-2xl bg-white border border-brand-border/80 shadow-soft hover:border-brand-yellow/80 hover:shadow-lift transition-all duration-300 group">
+      <div className="flex items-center justify-between mb-3">
+        <div className="w-10 h-10 rounded-xl bg-brand-soft group-hover:bg-brand-yellow/20 flex items-center justify-center transition-colors">
+          <Icon className="w-5 h-5 text-brand-navy group-hover:text-brand-yellow-dark" />
+        </div>
+        <span className="w-2 h-2 rounded-full bg-brand-yellow" />
+      </div>
+
+      <div className="font-heading text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-navy tracking-tight font-tabular mb-1">
+        {count}
+        <span className="text-brand-yellow-dark">{suffix}</span>
+      </div>
+      <div className="font-heading font-bold text-sm sm:text-base text-brand-navy mb-1">
+        {label}
+      </div>
+      <p className="text-[11px] sm:text-xs text-brand-muted leading-relaxed">
+        {sub}
+      </p>
+    </div>
+  )
+}
 
 export default function ProcessSection() {
+  const [statsStarted, setStatsStarted] = useState(false)
+  const statsRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setStatsStarted(true)
+      },
+      { threshold: 0.25 }
+    )
+    if (statsRef.current) observer.observe(statsRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <section id="quy-trinh" className="section-y bg-brand-soft border-y border-brand-border/60">
-      <div className="container-page space-y-16 sm:space-y-20">
+    <section id="quy-trinh" className="section-y bg-brand-soft border-y border-brand-border/60 relative overflow-hidden">
+      <div className="container-page space-y-12 sm:space-y-16">
         
-        {/* Phần 1: Quy trình 4 bước làm việc */}
-        <div>
-          <Reveal className="max-w-2xl mb-8 sm:mb-12">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <Reveal className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-yellow/15 border border-brand-yellow/30 text-brand-navy text-xs font-bold uppercase tracking-wider mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-navy" />
+              <Sparkles className="w-3.5 h-3.5 text-brand-yellow-dark" />
               Quy trình chuẩn mực
             </div>
             <h2 className="font-heading text-[1.75rem] sm:text-4xl font-extrabold tracking-tight text-brand-navy mb-3">
               Quy trình làm việc chuyên nghiệp
             </h2>
-            <p className="text-brand-muted leading-relaxed text-[15px] sm:text-base">
-              Từ khảo sát tận nơi đến bàn giao và bảo hành, từng bước đều minh bạch giúp bạn hoàn toàn an tâm khi triển khai.
+            <p className="text-brand-muted leading-relaxed text-sm sm:text-base">
+              Từ khảo sát thực tế đến bàn giao và bảo hành tận nơi tại TP. Huế, từng bước đều minh bạch để bạn hoàn toàn yên tâm triển khai.
             </p>
           </Reveal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <Reveal delay={0.1} className="hidden md:flex items-center gap-3 shrink-0 pb-1">
+            <div className="text-right">
+              <div className="text-xs font-bold text-brand-navy">Tư vấn kỹ thuật 24/7</div>
+              <div className="text-xs text-brand-muted">Khảo sát miễn phí tại Huế</div>
+            </div>
+            <a
+              href="tel:0796785151"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-brand-border hover:border-brand-yellow text-brand-navy font-bold text-xs sm:text-sm shadow-sm transition-colors"
+            >
+              <Phone className="w-4 h-4 text-brand-yellow-dark" />
+              <span>0796 785 151</span>
+            </a>
+          </Reveal>
+        </div>
+
+        {/* 4-Step Cards Grid with Connecting Visual Flow */}
+        <div className="relative">
+          {/* Subtle Desktop Connector Line */}
+          <div className="hidden lg:block absolute top-1/2 left-8 right-8 h-0.5 bg-gradient-to-r from-brand-border/40 via-brand-yellow/50 to-brand-border/40 -translate-y-6 pointer-events-none z-0" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 relative z-10">
             {steps.map((step, i) => (
               <Reveal key={step.num} delay={i * 0.05}>
-                <div className="h-full bg-white rounded-2xl sm:rounded-[22px] p-6 border border-brand-border shadow-soft flex flex-col justify-between group hover:border-brand-yellow/60 transition-all duration-300">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="font-heading font-black text-2xl sm:text-3xl text-brand-yellow font-tabular">
+                <div className="h-full bg-white rounded-2xl sm:rounded-[22px] p-6 border border-brand-border shadow-soft hover:border-brand-yellow hover:shadow-lift transition-all duration-300 flex flex-col justify-between group relative">
+                  
+                  <div>
+                    {/* Top Step Header */}
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="font-heading font-black text-3xl sm:text-4xl text-brand-yellow group-hover:scale-110 transition-transform font-tabular">
                         {step.num}
                       </span>
-                      <span className="text-[11px] font-bold text-brand-navy bg-brand-soft px-2.5 py-1 rounded-lg">
+                      <span className="text-[10px] sm:text-[11px] font-bold text-brand-navy bg-brand-soft group-hover:bg-brand-yellow/20 px-2.5 py-1 rounded-full border border-brand-border/60 transition-colors">
                         {step.badge}
                       </span>
                     </div>
-                    
-                    <div className="w-10 h-10 rounded-xl bg-brand-bg flex items-center justify-center text-brand-navy group-hover:bg-brand-yellow group-hover:text-brand-navy transition-colors">
+
+                    {/* Step Icon */}
+                    <div className="w-11 h-11 rounded-xl bg-brand-soft group-hover:bg-brand-navy group-hover:text-white flex items-center justify-center text-brand-navy mb-4 transition-colors">
                       <step.icon className="w-5 h-5" strokeWidth={1.75} />
                     </div>
 
-                    <h3 className="font-heading font-extrabold text-base sm:text-lg text-brand-navy leading-snug">
+                    {/* Title & Description */}
+                    <h3 className="font-heading font-extrabold text-base sm:text-lg text-brand-navy mb-2 leading-snug">
                       {step.title}
                     </h3>
                     <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
                       {step.desc}
                     </p>
                   </div>
+
+                  {/* Step Footer Highlight */}
+                  <div className="pt-4 mt-5 border-t border-brand-border/60 flex items-center gap-1.5 text-[11px] font-bold text-brand-navy">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-brand-yellow-dark shrink-0" />
+                    <span>{step.highlight}</span>
+                  </div>
+
                 </div>
               </Reveal>
             ))}
           </div>
         </div>
 
-        {/* Phần 2: Đối tác an ninh tin cậy tại Huế (Why Us & Commitments) */}
-        <div className="pt-10 border-t border-brand-border/80">
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-14 items-start">
-            
-            {/* Cột trái: Thông điệp đối tác & Cam kết vàng (5 cols) */}
-            <Reveal className="lg:col-span-5 space-y-6">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-brand-border text-brand-navy text-xs font-bold uppercase tracking-wider mb-3">
-                  <ShieldCheck className="w-3.5 h-3.5 text-brand-yellow-dark" />
-                  Uy tín & Cam kết
-                </div>
-                <h3 className="font-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-navy mb-3">
-                  Đối tác an ninh đáng tin cậy tại TP. Huế
-                </h3>
-                <p className="text-brand-muted leading-relaxed text-sm sm:text-base">
-                  Với hơn 12 năm kinh nghiệm thực chiến, chúng tôi tự hào đồng hành bảo vệ bình yên cho các gia đình và cơ sở kinh doanh tại Cố Đô.
-                </p>
-              </div>
+        {/* Integrated Stats & Credibility Section */}
+        <div ref={statsRef} className="pt-4 sm:pt-6">
+          <Reveal>
+            <div className="rounded-2xl sm:rounded-[24px] bg-brand-navy text-white p-6 sm:p-8 lg:p-10 shadow-lift relative overflow-hidden">
+              {/* Background Ambient Glow */}
+              <div className="absolute -right-20 -top-20 w-80 h-80 bg-brand-yellow/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
-              {/* Cam kết vàng Card */}
-              <div className="rounded-[22px] bg-brand-navy text-white p-6 sm:p-7 shadow-soft space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-brand-yellow text-brand-navy flex items-center justify-center font-bold">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <div className="font-heading font-bold text-sm sm:text-base text-brand-yellow">
-                    Cam kết chất lượng Camera 247
-                  </div>
-                </div>
-
-                <div className="space-y-3 text-xs sm:text-sm text-white/80 border-t border-white/10 pt-4">
-                  <div className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-brand-yellow shrink-0" />
-                    <span>Khảo sát & tư vấn góc nhìn tận nơi 100% miễn phí</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-brand-yellow shrink-0" />
-                    <span>Bảo hành chính hãng 12 – 24 tháng 1 đổi 1</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-brand-yellow shrink-0" />
-                    <span>Kỹ thuật viên túc trực hỗ trợ trong vòng 2 giờ</span>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Cột phải: 4 Thẻ lý do bảo chứng (7 cols) */}
-            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {reasons.map((r, i) => (
-                <Reveal key={r.title} delay={0.06 + i * 0.05}>
-                  <div className="h-full rounded-[20px] border border-brand-border bg-white p-5 sm:p-6 shadow-soft flex flex-col justify-between hover:border-brand-navy/30 transition-all">
-                    <div className="space-y-3">
-                      <div className="w-10 h-10 rounded-xl bg-brand-bg border border-brand-border flex items-center justify-center text-brand-navy">
-                        <r.icon className="w-5 h-5 text-brand-navy" strokeWidth={1.75} />
-                      </div>
-                      <h4 className="font-heading font-extrabold text-base text-brand-navy">
-                        {r.title}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
-                        {r.desc}
-                      </p>
+              <div className="relative z-10 space-y-8">
+                {/* Stats Top Banner Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-brand-yellow text-xs font-bold uppercase tracking-wider mb-2">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      Năng lực thực tế
                     </div>
+                    <h3 className="font-heading text-xl sm:text-2xl lg:text-3xl font-extrabold text-white">
+                      Con số khẳng định uy tín tại TP. Huế
+                    </h3>
                   </div>
-                </Reveal>
-              ))}
-            </div>
+                  <p className="text-xs sm:text-sm text-white/70 max-w-md">
+                    Hơn một thập kỷ đồng hành cùng hàng ngàn khách hàng cá nhân và doanh nghiệp tại Cố Đô.
+                  </p>
+                </div>
 
-          </div>
+                {/* 4 Stat Boxes (Clean White on Navy Background) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                  {stats.map((s) => (
+                    <StatCounterItem key={s.label} {...s} started={statsStarted} />
+                  ))}
+                </div>
+
+                {/* Bottom Callout Strip */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/10 text-xs sm:text-sm">
+                  <div className="flex items-center gap-2 text-white/80 text-center sm:text-left">
+                    <CheckCircle2 className="w-4 h-4 text-brand-yellow shrink-0" />
+                    <span>Cam kết thiết bị chính hãng 100% – Hỗ trợ kỹ thuật tận nơi trong vòng 2 giờ.</span>
+                  </div>
+                  <a
+                    href="#lien-he"
+                    className="btn-accent inline-flex items-center gap-2 !py-2 !px-4 !text-xs shrink-0"
+                  >
+                    <span>Yêu cầu khảo sát ngay</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
 
       </div>

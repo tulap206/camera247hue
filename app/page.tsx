@@ -4,7 +4,6 @@ import PartnersSection from '@/components/PartnersSection'
 import ServicesSection from '@/components/ServicesSection'
 import ProcessSection from '@/components/ProcessSection'
 import ProjectsPreview from '@/components/ProjectsPreview'
-import StatsSection from '@/components/StatsSection'
 import ContactSection from '@/components/ContactSection'
 import Footer from '@/components/Footer'
 import FloatingContact from '@/components/FloatingContact'
@@ -33,7 +32,6 @@ export default async function HomePage() {
       <PartnersSection />
       <ServicesSection />
       <ProcessSection />
-      <StatsSection />
       <ProjectsPreview posts={featuredPosts} />
       <ContactSection />
       <Footer />
