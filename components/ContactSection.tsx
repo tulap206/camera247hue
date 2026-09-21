@@ -49,33 +49,6 @@ export default function ContactSection() {
     }
   }
 
-  const contactItems = [
-    {
-      icon: Phone,
-      title: 'Điện thoại / Zalo',
-      lines: ['0796 785 151 (Tước - Chính)', '0967 611 112 (Lập - Phụ)'],
-      action: 'tel:0796785151',
-    },
-    {
-      icon: MapPin,
-      title: 'Địa chỉ',
-      lines: ['40 Tùng Thiện Vương', 'Phường Vỹ Dạ, Tp. Huế'],
-      action: 'https://maps.google.com/?q=40+Tùng+Thiện+Vương+Huế',
-    },
-    {
-      icon: Facebook,
-      title: 'Facebook',
-      lines: ['Facebook.com/Camera247Hue'],
-      action: 'https://facebook.com/Camera247Hue',
-    },
-    {
-      icon: Clock,
-      title: 'Giờ làm việc',
-      lines: ['Thứ 2 - Thứ 7: 7:30 - 18:00', 'Chủ Nhật: 8:00 - 12:00'],
-      action: null,
-    },
-  ]
-
   return (
     <section id="lien-he" className="section-y bg-white">
       <div className="container-page">
@@ -90,40 +63,64 @@ export default function ContactSection() {
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-14">
           <Reveal className="order-2 lg:order-1">
-            <div className="space-y-3 mb-6">
-              {contactItems.map((item) => (
-                <div
-                  key={item.title}
-                  className="flex items-start gap-4 p-4 rounded-[16px] border border-brand-border bg-brand-bg/50"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-white border border-brand-border flex items-center justify-center shrink-0">
-                    <item.icon className="w-5 h-5 text-brand-navy" strokeWidth={1.75} />
+            <div className="space-y-3.5 mb-6">
+              {/* Hotline Card */}
+              <div className="p-4 sm:p-5 rounded-[18px] border border-brand-border bg-brand-bg/60">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-brand-yellow/15 flex items-center justify-center shrink-0">
+                    <Phone className="w-5 h-5 text-brand-navy" strokeWidth={2} />
                   </div>
                   <div>
-                    <div className="text-brand-muted text-xs mb-1">{item.title}</div>
-                    {item.lines.map((line) =>
-                      item.action ? (
-                        <a
-                          key={line}
-                          href={item.action}
-                          target={item.action.startsWith('http') ? '_blank' : undefined}
-                          rel={item.action.startsWith('http') ? 'noopener noreferrer' : undefined}
-                          className="block text-brand-navy font-semibold hover:text-[#16324A] transition-colors text-sm"
-                        >
-                          {line}
-                        </a>
-                      ) : (
-                        <div key={line} className="text-brand-ink font-medium text-sm">
-                          {line}
-                        </div>
-                      )
-                    )}
+                    <div className="text-brand-muted text-xs font-medium">Hotline Kỹ Thuật & Zalo (24/7)</div>
+                    <div className="text-brand-navy font-bold text-sm">Hỗ trợ tư vấn và xử lý sự cố</div>
                   </div>
                 </div>
-              ))}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-brand-border/60">
+                  <a
+                    href="tel:0796785151"
+                    className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-white border border-brand-border hover:border-brand-yellow text-brand-navy font-bold text-sm transition-colors shadow-sm"
+                  >
+                    <span>0796 785 151</span>
+                    <span className="text-xs font-semibold text-brand-muted bg-brand-soft px-2 py-0.5 rounded">Tước</span>
+                  </a>
+                  <a
+                    href="tel:0967611112"
+                    className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-white border border-brand-border hover:border-brand-yellow text-brand-navy font-bold text-sm transition-colors shadow-sm"
+                  >
+                    <span>0967 611 112</span>
+                    <span className="text-xs font-semibold text-brand-muted bg-brand-soft px-2 py-0.5 rounded">Lập</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Address & Hours Card */}
+              <div className="p-4 sm:p-5 rounded-[18px] border border-brand-border bg-brand-bg/60 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-white border border-brand-border flex items-center justify-center shrink-0 mt-0.5">
+                    <MapPin className="w-4 h-4 text-brand-navy" strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <div className="text-brand-muted text-xs font-medium">Văn phòng & Trung tâm kỹ thuật</div>
+                    <a
+                      href="https://maps.google.com/?q=40+Tùng+Thiện+Vương+Huế"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-navy font-semibold text-sm hover:underline block leading-snug mt-0.5"
+                    >
+                      40 Tùng Thiện Vương, Phường Vỹ Dạ, Tp. Huế
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2 border-t border-brand-border/60 text-xs text-brand-muted">
+                  <Clock className="w-4 h-4 text-brand-navy shrink-0" />
+                  <span>Giờ làm việc: 7:30 – 18:00 (Thứ 2 – Chủ Nhật)</span>
+                </div>
+              </div>
             </div>
 
-            <div className="rounded-[16px] overflow-hidden border border-brand-border h-44 sm:h-48">
+            <div className="rounded-[18px] overflow-hidden border border-brand-border h-48 sm:h-52 shadow-sm">
               <iframe
                 src="https://maps.google.com/maps?q=40%20T%C3%B9ng%20Thi%E1%BB%87n%20V%C6%B0%C6%A1ng%2C%20V%E1%BB%B9%20D%E1%BA%A1%2C%20Th%C3%A0nh%20ph%E1%BB%91%20Hu%E1%BA%BF&t=&z=16&ie=UTF8&iwloc=&output=embed"
                 width="100%"

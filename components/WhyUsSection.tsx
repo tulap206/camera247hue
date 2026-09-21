@@ -42,24 +42,23 @@ export default function WhyUsSection() {
 
             <div className="rounded-2xl sm:rounded-[20px] bg-brand-navy text-white p-5 sm:p-7">
               <div className="font-heading font-bold text-sm sm:text-base mb-2 text-brand-yellow">
-                Công ty TNHH Công nghệ An ninh Camera247 Huế
+                Cam kết chất lượng dịch vụ
               </div>
-              <div className="text-xs text-white/60 mb-4 font-mono">
-                MST: 3301677400
-              </div>
-              <div className="space-y-3 text-sm text-white/75">
-                <p className="flex items-start gap-2.5">
-                  <MapPin className="w-4 h-4 text-brand-yellow shrink-0 mt-0.5" />
-                  40 Tùng Thiện Vương, Phường Vỹ Dạ, Tp. Huế
-                </p>
-                <div className="space-y-1.5">
-                  <a href="tel:0796785151" className="flex items-start gap-2.5 hover:text-brand-yellow transition-colors">
-                    <Phone className="w-4 h-4 text-brand-yellow shrink-0 mt-0.5" />
-                    <span>0796 785 151 (Tước)</span>
-                  </a>
-                  <a href="tel:0967611112" className="flex items-start gap-2.5 pl-6.5 text-white/60 hover:text-brand-yellow transition-colors text-xs">
-                    <span>0967 611 112 (Lập)</span>
-                  </a>
+              <p className="text-xs text-white/70 leading-relaxed mb-4">
+                Thiết bị nhập khẩu chính hãng 100% có đầy đủ CO/CQ từ Hikvision, Dahua, Ezviz, Kaadas, UniFi.
+              </p>
+              <div className="space-y-2.5 text-xs text-white/80 border-t border-white/10 pt-4">
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
+                  <span>Khảo sát & tư vấn góc nhìn tận nơi miễn phí</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
+                  <span>Bảo hành chính hãng 12 - 24 tháng 1 đổi 1</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
+                  <span>Kỹ thuật viên túc trực hỗ trợ trong vòng 2 giờ</span>
                 </div>
               </div>
             </div>
