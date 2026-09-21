@@ -66,22 +66,23 @@ export default function HeroSection() {
       <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none hero-grain" aria-hidden />
 
       <div className="relative z-10 container-page w-full pt-[5.5rem] pb-[7.5rem] sm:pt-28 sm:pb-20">
-        <div className="max-w-2xl">
-          <p className="font-heading font-extrabold text-brand-yellow text-base sm:text-xl tracking-tight mb-3 sm:mb-5">
-            Camera 247 Huế
-          </p>
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-brand-yellow text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5">
+            <span className="w-2 h-2 rounded-full bg-brand-yellow animate-pulse" />
+            Công nghệ an ninh hàng đầu tại TP. Huế
+          </div>
 
           <h1 className="font-heading text-[1.85rem] leading-[1.15] sm:text-5xl lg:text-[3.5rem] sm:leading-[1.08] font-extrabold text-white tracking-tight mb-4 sm:mb-5">
             Giải pháp công nghệ an ninh cho doanh nghiệp và hộ gia đình
           </h1>
 
-          <p className="text-white/80 text-[15px] sm:text-lg leading-relaxed max-w-[38ch] mb-6 sm:mb-8">
-            Thi công camera, khóa thông minh và hệ thống mạng. Khảo sát tận nơi tại Huế.
+          <p className="text-white/85 text-[15px] sm:text-lg leading-relaxed max-w-[44ch] mb-6 sm:mb-8">
+            Chuyên tư vấn, thi công camera giám sát AI, khóa cửa vân tay và hạ tầng mạng Wifi Mesh. Khảo sát tận nơi trong 2 giờ tại TP. Huế.
           </p>
 
-          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 mb-8">
             <a href="#lien-he" className="btn-accent group w-full sm:w-auto">
-              Tư vấn khảo sát
+              Nhận tư vấn khảo sát
               <span className="w-8 h-8 rounded-full bg-brand-navy/10 flex items-center justify-center">
                 <ArrowUpRight className="w-4 h-4" />
               </span>
@@ -90,8 +91,24 @@ export default function HeroSection() {
               href="/cong-trinh"
               className="btn-ghost w-full sm:w-auto !border-white/30 !text-white hover:!bg-white/10"
             >
-              Xem công trình
+              Xem công trình thực tế
             </Link>
+          </div>
+
+          {/* Micro trust indicators */}
+          <div className="pt-6 border-t border-white/15 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-white/70">
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
+              <span>100% Thiết bị chính hãng CO/CQ</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
+              <span>Khảo sát đo góc camera miễn phí</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
+              <span>Bảo hành 1 đổi 1 tận nơi</span>
+            </div>
           </div>
         </div>
       </div>

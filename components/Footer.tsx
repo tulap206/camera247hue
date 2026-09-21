@@ -59,7 +59,7 @@ export default function Footer() {
                 className="flex items-start gap-2 text-xs text-white/70 hover:text-brand-yellow transition-colors"
               >
                 <MapPin className="w-4 h-4 text-brand-yellow shrink-0 mt-0.5" />
-                <span>40 Tùng Thiện Vương, Phường Vỹ Dạ, Tp. Huế</span>
+                <span>40 Tùng Thiện Vương, Phường Vỹ Dạ, TP. Huế</span>
               </a>
             </div>
           </div>
