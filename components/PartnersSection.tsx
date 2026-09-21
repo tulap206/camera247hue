@@ -142,7 +142,7 @@ export default function PartnersSection() {
         <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
-        <Marquee pauseOnHover className="[--duration:28s] [--gap:1.25rem]">
+        <Marquee reverse pauseOnHover repeat={6} className="[--duration:35s] [--gap:1.5rem]">
           {BRANDS.map((brand) => (
             <div
               key={brand.id}

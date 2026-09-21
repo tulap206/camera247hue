@@ -30,6 +30,20 @@ module.exports = {
       transitionTimingFunction: {
         out: 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
+      keyframes: {
+        marquee: {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(calc(-100% - var(--gap, 1rem)))' },
+        },
+        'marquee-vertical': {
+          from: { transform: 'translateY(0)' },
+          to: { transform: 'translateY(calc(-100% - var(--gap, 1rem)))' },
+        },
+      },
+      animation: {
+        marquee: 'marquee var(--duration, 30s) linear infinite',
+        'marquee-vertical': 'marquee-vertical var(--duration, 30s) linear infinite',
+      },
     },
   },
   plugins: [],
