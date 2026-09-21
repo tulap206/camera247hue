@@ -53,8 +53,8 @@ export default function ContactSection() {
     {
       icon: Phone,
       title: 'Điện thoại / Zalo',
-      lines: ['0967 611 112', '0777 611 112'],
-      action: 'tel:0967611112',
+      lines: ['0796 785 151 (Tước - Chính)', '0967 611 112 (Lập - Phụ)'],
+      action: 'tel:0796785151',
     },
     {
       icon: MapPin,
@@ -176,7 +176,7 @@ export default function ContactSection() {
                         value={form.phone}
                         onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
                         className="input-field"
-                        placeholder="0967 611 112"
+                        placeholder="0796 785 151"
                       />
                     </div>
                   </div>

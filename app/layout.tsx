@@ -4,7 +4,7 @@ import '../styles/globals.css'
 export const metadata: Metadata = {
   title: 'Camera 247 Huế - Giải Pháp Công Nghệ An Ninh',
   description:
-    'Công ty TNHH Giải Pháp Công Nghệ An Ninh Camera 247 Huế. Thi công camera an ninh, khóa cửa thông minh, hệ thống mạng, báo trộm chuyên nghiệp tại Tp. Huế.',
+    'Công ty TNHH Công nghệ An ninh Camera247 Huế. Thi công camera an ninh, khóa cửa thông minh, hệ thống mạng, báo trộm chuyên nghiệp tại Tp. Huế.',
   keywords:
     'camera an ninh huế, lắp camera huế, khóa cửa thông minh huế, hệ thống mạng huế, camera 247, an ninh huế',
   authors: [{ name: 'Camera 247 Huế' }],

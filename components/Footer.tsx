@@ -28,19 +28,29 @@ export default function Footer() {
                 <Shield className="w-5 h-5 text-brand-navy" />
               </div>
               <div>
-                <div className="font-heading font-extrabold text-brand-yellow text-lg leading-tight">
+                <div className="font-heading font-extrabold text-brand-yellow text-base sm:text-lg leading-tight">
                   Camera 247 Huế
                 </div>
                 <div className="text-white/50 text-xs">Giải pháp công nghệ an ninh</div>
               </div>
             </div>
+            <p className="text-white/70 text-xs font-semibold leading-relaxed mb-1 max-w-xs">
+              Công ty TNHH Công nghệ An ninh Camera247 Huế
+            </p>
+            <p className="text-white/50 text-xs font-mono mb-4">
+              Mã số thuế: 3301677400
+            </p>
             <p className="text-white/55 text-sm leading-relaxed mb-5 max-w-xs">
               Đơn vị thi công camera an ninh, khóa thông minh và hệ thống mạng tại Tp. Huế.
             </p>
-            <div className="space-y-2.5 text-sm text-white/55">
-              <a href="tel:0967611112" className="flex items-center gap-2 hover:text-brand-yellow transition-colors">
+            <div className="space-y-2 text-sm text-white/55">
+              <a href="tel:0796785151" className="flex items-center gap-2 hover:text-brand-yellow transition-colors">
                 <Phone className="w-4 h-4 shrink-0" />
-                0967 611 112
+                <span>0796 785 151 (Tước - Chính)</span>
+              </a>
+              <a href="tel:0967611112" className="flex items-center gap-2 hover:text-brand-yellow transition-colors text-white/45">
+                <Phone className="w-4 h-4 shrink-0 opacity-0" />
+                <span>0967 611 112 (Lập - Phụ)</span>
               </a>
               <a
                 href="https://maps.google.com/?q=40+Tùng+Thiện+Vương+Huế"
@@ -90,13 +100,17 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-heading font-bold text-sm mb-4">Hotline</h4>
+            <h4 className="font-heading font-bold text-sm mb-4">Hotline Kỹ Thuật</h4>
             <p className="text-white/55 text-sm mb-4 leading-relaxed">
               Gọi ngay để được khảo sát và tư vấn miễn phí trong ngày.
             </p>
-            <a href="tel:0967611112" className="btn-accent !text-sm inline-flex">
-              0967 611 112
-            </a>
+            <div className="space-y-2">
+              <a href="tel:0796785151" className="btn-accent !text-sm inline-flex items-center gap-2">
+                <Phone className="w-3.5 h-3.5" />
+                0796 785 151
+              </a>
+              <div className="text-[11px] text-white/50">Phụ: 0967 611 112</div>
+            </div>
           </div>
         </div>
 

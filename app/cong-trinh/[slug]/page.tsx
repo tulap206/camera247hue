@@ -125,12 +125,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 <p className="text-brand-muted text-sm mb-4 leading-relaxed">
                   Liên hệ để được khảo sát và tư vấn giải pháp an ninh phù hợp nhu cầu của bạn.
                 </p>
-                <a href="tel:0967611112" className="btn-accent w-full !text-sm mb-2">
+                <a href="tel:0796785151" className="btn-accent w-full !text-sm mb-2">
                   <Phone className="w-4 h-4" />
-                  0967 611 112
+                  0796 785 151 (Tước)
                 </a>
                 <a
-                  href="https://zalo.me/0967611112"
+                  href="https://zalo.me/0796785151"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-ghost w-full !text-sm"

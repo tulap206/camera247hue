@@ -1,6 +1,6 @@
 # Camera 247 Huế - Website
 
-Landing page chuyên nghiệp cho Công ty TNHH Giải Pháp Công Nghệ An Ninh Camera 247 Huế.
+Landing page chuyên nghiệp cho Công ty TNHH Công nghệ An ninh Camera247 Huế (MST: 3301677400).
 
 **Stack:** Next.js 14 + TypeScript + Tailwind CSS + Supabase + Vercel
 
@@ -126,4 +126,4 @@ Tải ảnh lên **Supabase Storage** bucket `posts-images`:
 
 ## 📞 HỖ TRỢ
 
-Camera 247 Huế - 0967 611 112
+Camera 247 Huế - 0796 785 151 (Tước) / 0967 611 112 (Lập)

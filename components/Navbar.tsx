@@ -99,21 +99,21 @@ export default function Navbar() {
                 </Link>
               )}
               <a
-                href="tel:0967611112"
+                href="tel:0796785151"
                 className="btn-accent !py-2.5 !px-5 !text-sm inline-flex items-center gap-2"
               >
                 <Phone className="w-3.5 h-3.5" />
-                0967 611 112
+                0796 785 151
               </a>
             </nav>
 
             <div className="flex items-center gap-1.5 lg:hidden">
               <a
-                href="tel:0967611112"
+                href="tel:0796785151"
                 className={`w-11 h-11 rounded-full flex items-center justify-center ${
                   solid ? 'bg-brand-yellow text-brand-navy' : 'bg-white/15 text-white'
                 }`}
-                aria-label="Gọi 0967 611 112"
+                aria-label="Gọi 0796 785 151"
               >
                 <Phone className="w-4 h-4" />
               </a>
@@ -153,11 +153,11 @@ export default function Navbar() {
               </Link>
             )}
             <a
-              href="tel:0967611112"
+              href="tel:0796785151"
               className="mt-6 btn-accent w-full"
               onClick={() => setMobileOpen(false)}
             >
-              Gọi 0967 611 112
+              Gọi 0796 785 151 (Tước)
             </a>
           </div>
         )}
