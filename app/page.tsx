@@ -3,7 +3,6 @@ import HeroSection from '@/components/HeroSection'
 import PartnersSection from '@/components/PartnersSection'
 import ServicesSection from '@/components/ServicesSection'
 import ProcessSection from '@/components/ProcessSection'
-import WhyUsSection from '@/components/WhyUsSection'
 import ProjectsPreview from '@/components/ProjectsPreview'
 import StatsSection from '@/components/StatsSection'
 import ContactSection from '@/components/ContactSection'
@@ -36,7 +35,6 @@ export default async function HomePage() {
       <ProcessSection />
       <StatsSection />
       <ProjectsPreview posts={featuredPosts} />
-      <WhyUsSection />
       <ContactSection />
       <Footer />
       <FloatingContact />
