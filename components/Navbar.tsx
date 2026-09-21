@@ -132,33 +132,54 @@ export default function Navbar() {
         </div>
 
         {mobileOpen && (
-          <div className="lg:hidden fixed inset-x-0 bottom-0 top-[calc(3.5rem+env(safe-area-inset-top))] z-40 bg-white overflow-y-auto px-5 py-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="block py-4 text-brand-ink font-medium border-b border-brand-border/70 text-base"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            {pathname !== '/login' && pathname !== '/admin' && (
-              <Link
-                href="/login"
-                className="block py-4 text-brand-ink font-medium border-b border-brand-border/70 text-base"
-                onClick={() => setMobileOpen(false)}
-              >
-                Đăng nhập
-              </Link>
-            )}
-            <a
-              href="tel:0796785151"
-              className="mt-6 btn-accent w-full"
-              onClick={() => setMobileOpen(false)}
-            >
-              Gọi 0796 785 151 (Tước)
-            </a>
+          <div className="lg:hidden fixed inset-x-0 bottom-0 top-[calc(3.5rem+env(safe-area-inset-top))] sm:top-[calc(68px+env(safe-area-inset-top))] z-40 bg-white/98 backdrop-blur-2xl overflow-y-auto px-5 py-4 pb-[max(2rem,env(safe-area-inset-bottom))] flex flex-col justify-between shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="space-y-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center justify-between py-3.5 text-brand-navy font-bold border-b border-brand-border/60 text-[15px] active:text-brand-yellow-dark"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <span>{link.label}</span>
+                  <span className="text-xs text-brand-muted font-normal">→</span>
+                </Link>
+              ))}
+              {pathname !== '/login' && pathname !== '/admin' && (
+                <Link
+                  href="/login"
+                  className="flex items-center justify-between py-3.5 text-brand-navy font-bold border-b border-brand-border/60 text-[15px]"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <span>Đăng nhập Admin</span>
+                  <span className="text-xs text-brand-muted font-normal">→</span>
+                </Link>
+              )}
+            </div>
+
+            <div className="pt-6 space-y-2.5">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-brand-muted mb-2">
+                Hotline kỹ thuật tại TP. Huế:
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <a
+                  href="tel:0796785151"
+                  className="btn-accent w-full !py-2.5 !text-xs text-center flex items-center justify-center gap-1.5"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>0796 785 151 (Tước)</span>
+                </a>
+                <a
+                  href="tel:0967611112"
+                  className="btn-ghost w-full !py-2.5 !text-xs text-center flex items-center justify-center gap-1.5 !bg-brand-soft"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>0967 611 112 (Lập)</span>
+                </a>
+              </div>
+            </div>
           </div>
         )}
       </div>

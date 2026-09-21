@@ -110,22 +110,22 @@ function StatCounterItem({
 }: (typeof stats)[0] & { started: boolean }) {
   const count = useCountUp(value, 1600, started)
   return (
-    <div className="relative p-5 sm:p-6 rounded-2xl bg-white border border-brand-border/80 shadow-soft hover:border-brand-yellow/80 hover:shadow-lift transition-all duration-300 group">
-      <div className="flex items-center justify-between mb-3">
-        <div className="w-10 h-10 rounded-xl bg-brand-soft group-hover:bg-brand-yellow/20 flex items-center justify-center transition-colors">
-          <Icon className="w-5 h-5 text-brand-navy group-hover:text-brand-yellow-dark" />
+    <div className="relative p-4 sm:p-6 rounded-2xl bg-white border border-brand-border/80 shadow-soft hover:border-brand-yellow/80 hover:shadow-lift transition-all duration-300 group">
+      <div className="flex items-center justify-between mb-2 sm:mb-3">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-brand-soft group-hover:bg-brand-yellow/20 flex items-center justify-center transition-colors">
+          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-navy group-hover:text-brand-yellow-dark" />
         </div>
         <span className="w-2 h-2 rounded-full bg-brand-yellow" />
       </div>
 
-      <div className="font-heading text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-navy tracking-tight font-tabular mb-1">
+      <div className="font-heading text-2xl sm:text-4xl lg:text-5xl font-extrabold text-brand-navy tracking-tight font-tabular mb-1">
         {count}
         <span className="text-brand-yellow-dark">{suffix}</span>
       </div>
-      <div className="font-heading font-bold text-sm sm:text-base text-brand-navy mb-1">
+      <div className="font-heading font-bold text-xs sm:text-base text-brand-navy mb-1 leading-snug">
         {label}
       </div>
-      <p className="text-[11px] sm:text-xs text-brand-muted leading-relaxed">
+      <p className="text-[10px] sm:text-xs text-brand-muted leading-relaxed line-clamp-2">
         {sub}
       </p>
     </div>
@@ -169,7 +169,7 @@ export default function ProcessSection() {
           <Reveal delay={0.1} className="hidden md:flex items-center gap-3 shrink-0 pb-1">
             <div className="text-right">
               <div className="text-xs font-bold text-brand-navy">Tư vấn kỹ thuật 24/7</div>
-              <div className="text-xs text-brand-muted">Khảo sát miễn phí tại Huế</div>
+              <div className="text-xs text-brand-muted">Khảo sát miễn phí tại TP. Huế</div>
             </div>
             <a
               href="tel:0796785151"
@@ -189,7 +189,7 @@ export default function ProcessSection() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 relative z-10">
             {steps.map((step, i) => (
               <Reveal key={step.num} delay={i * 0.05}>
-                <div className="h-full bg-white rounded-2xl sm:rounded-[22px] p-6 border border-brand-border shadow-soft hover:border-brand-yellow hover:shadow-lift transition-all duration-300 flex flex-col justify-between group relative">
+                <div className="h-full bg-white rounded-2xl sm:rounded-[22px] p-5 sm:p-6 border border-brand-border shadow-soft hover:border-brand-yellow hover:shadow-lift transition-all duration-300 flex flex-col justify-between group relative">
                   
                   <div>
                     {/* Top Step Header */}
@@ -203,7 +203,7 @@ export default function ProcessSection() {
                     </div>
 
                     {/* Step Icon */}
-                    <div className="w-11 h-11 rounded-xl bg-brand-soft group-hover:bg-brand-navy group-hover:text-white flex items-center justify-center text-brand-navy mb-4 transition-colors">
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-brand-soft group-hover:bg-brand-navy group-hover:text-white flex items-center justify-center text-brand-navy mb-4 transition-colors">
                       <step.icon className="w-5 h-5" strokeWidth={1.75} />
                     </div>
 
@@ -231,14 +231,14 @@ export default function ProcessSection() {
         {/* Integrated Stats & Credibility Section */}
         <div ref={statsRef} className="pt-4 sm:pt-6">
           <Reveal>
-            <div className="rounded-2xl sm:rounded-[24px] bg-brand-navy text-white p-6 sm:p-8 lg:p-10 shadow-lift relative overflow-hidden">
+            <div className="rounded-2xl sm:rounded-[24px] bg-brand-navy text-white p-5 sm:p-8 lg:p-10 shadow-lift relative overflow-hidden">
               {/* Background Ambient Glow */}
               <div className="absolute -right-20 -top-20 w-80 h-80 bg-brand-yellow/10 rounded-full blur-3xl pointer-events-none" />
               <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
-              <div className="relative z-10 space-y-8">
+              <div className="relative z-10 space-y-6 sm:space-y-8">
                 {/* Stats Top Banner Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5 sm:pb-6">
                   <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-brand-yellow text-xs font-bold uppercase tracking-wider mb-2">
                       <ShieldCheck className="w-3.5 h-3.5" />
@@ -253,8 +253,8 @@ export default function ProcessSection() {
                   </p>
                 </div>
 
-                {/* 4 Stat Boxes (Clean White on Navy Background) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                {/* 4 Stat Boxes (Clean White on Navy Background: 2x2 on Mobile, 4x1 on Desktop) */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
                   {stats.map((s) => (
                     <StatCounterItem key={s.label} {...s} started={statsStarted} />
                   ))}
@@ -268,7 +268,7 @@ export default function ProcessSection() {
                   </div>
                   <a
                     href="#lien-he"
-                    className="btn-accent inline-flex items-center gap-2 !py-2 !px-4 !text-xs shrink-0"
+                    className="btn-accent inline-flex items-center gap-2 !py-2.5 !px-5 !text-xs shrink-0 w-full sm:w-auto justify-center"
                   >
                     <span>Yêu cầu khảo sát ngay</span>
                     <ArrowRight className="w-3.5 h-3.5" />
