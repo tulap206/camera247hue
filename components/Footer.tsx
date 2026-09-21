@@ -48,7 +48,7 @@ export default function Footer() {
             </div>
 
             <p className="text-white/60 text-xs leading-relaxed max-w-sm">
-              Đơn vị phân phối và thi công camera quan sát, khóa cửa vân tay và hạ tầng mạng chuyên nghiệp tại Thừa Thiên Huế.
+              Đơn vị phân phối và thi công camera quan sát, khóa cửa vân tay và hạ tầng mạng chuyên nghiệp tại TP. Huế.
             </p>
 
             <div className="pt-1">
