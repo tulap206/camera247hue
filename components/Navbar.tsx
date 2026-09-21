@@ -68,8 +68,8 @@ export default function Navbar() {
                 >
                   Camera 247
                 </div>
-                <div className={`text-[10px] sm:text-[11px] mt-0.5 truncate ${solid ? 'text-brand-muted' : 'text-white/70'}`}>
-                  Giải pháp an ninh Huế
+                <div className={`text-[10px] sm:text-[11px] mt-0.5 max-w-[210px] sm:max-w-none truncate ${solid ? 'text-brand-muted' : 'text-white/75'}`}>
+                  Công ty TNHH Công Nghệ An Ninh Huế - Camera247 Huế
                 </div>
               </div>
             </Link>

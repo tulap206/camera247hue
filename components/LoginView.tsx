@@ -69,7 +69,9 @@ export default function LoginView() {
             </div>
             <div>
               <div className="font-heading font-extrabold text-[17px] leading-none">Camera 247</div>
-              <div className="text-[11px] text-white/70 mt-0.5">Giải pháp an ninh Huế</div>
+              <div className="text-[11px] text-white/75 mt-0.5 max-w-[280px] truncate">
+                Công ty TNHH Công Nghệ An Ninh Huế - Camera247 Huế
+              </div>
             </div>
           </Link>
 
