@@ -2,16 +2,8 @@
 
 import Image from 'next/image'
 import {
-  Camera,
-  Lock,
-  Wifi,
-  Bell,
-  Monitor,
-  Cpu,
   ArrowRight,
-  ShieldCheck,
   CheckCircle2,
-  Clock,
   Sparkles,
   MapPin,
   Phone,
@@ -40,37 +32,37 @@ const highlights = [
 
 const services = [
   {
-    icon: Camera,
+    image: '/images/services/camera-cctv.jpg',
     title: 'Camera an ninh AI',
     description: 'Hệ thống giám sát Ultra HD 4K Hikvision, Dahua, KBVISION. Nhận diện người, xe và xem ban đêm có màu 24/7.',
     badge: 'Phổ biến nhất',
   },
   {
-    icon: Lock,
+    image: '/images/services/smart-door-lock.jpg',
     title: 'Khóa cửa thông minh',
     description: 'Mở bằng FaceID 3D, vân tay sinh trắc học FPC, thẻ từ mã hóa hoặc qua App. Báo động khi có xâm nhập trái phép.',
     badge: 'Bảo mật cao',
   },
   {
-    icon: Wifi,
+    image: '/images/services/wifi-network.jpg',
     title: 'Hệ thống mạng & Wifi Mesh',
     description: 'Wifi Roaming phủ sóng liền mạch, chịu tải cao cho nhà hàng, cafe, khách sạn. Thi công cáp mạng Cat6 chuẩn Gigabit.',
     badge: 'Tốc độ cao',
   },
   {
-    icon: Bell,
+    image: '/images/services/alarm-security.jpg',
     title: 'Báo trộm & Định vị GPS',
     description: 'Cảm biến chuyển động hồng ngoại PIR, cảm biến mở cửa, hàng rào điện tử cảnh báo còi hú và tự động gọi điện thoại.',
     badge: 'An toàn 24/7',
   },
   {
-    icon: Monitor,
+    image: '/images/services/time-attendance.jpg',
     title: 'Máy chấm công FaceID',
     description: 'Chấm công nhận diện khuôn mặt AI chống gian lận, vân tay và thẻ từ cho công ty, nhà hàng kèm xuất báo cáo Excel.',
     badge: 'Chính xác',
   },
   {
-    icon: Cpu,
+    image: '/images/services/office-it-devices.jpg',
     title: 'Máy tính & Thiết bị văn phòng',
     description: 'Cung cấp linh kiện máy tính, lắp đặt và sửa chữa máy in, bảo trì hệ thống công nghệ thông tin tận nơi tại TP. Huế.',
     badge: 'Tận nơi',
@@ -160,38 +152,50 @@ export default function ServicesSection() {
           </Reveal>
         </div>
 
-        {/* Bottom: 6 Service Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+        {/* Bottom: 6 Service Cards Grid with Device Images */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
           {services.map((service, i) => (
             <Reveal key={service.title} delay={i * 0.04}>
-              <div className="p-6 sm:p-7 h-full bg-white rounded-2xl sm:rounded-[22px] border border-brand-border shadow-soft hover:border-brand-yellow hover:shadow-lift transition-all duration-300 flex flex-col justify-between group">
+              <div className="overflow-hidden h-full bg-white rounded-2xl sm:rounded-[22px] border border-brand-border shadow-soft hover:border-brand-yellow hover:shadow-lift transition-all duration-300 flex flex-col justify-between group">
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-11 h-11 rounded-xl bg-brand-soft group-hover:bg-brand-yellow/20 flex items-center justify-center transition-colors">
-                      <service.icon className="w-5 h-5 text-brand-navy group-hover:text-brand-yellow-dark" strokeWidth={1.75} />
+                  {/* Device Image Box */}
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-brand-soft">
+                    <Image
+                      src={service.image}
+                      alt={service.title}
+                      width={600}
+                      height={375}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <span className="text-[11px] font-bold text-brand-navy bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full border border-brand-border/60 shadow-sm">
+                        {service.badge}
+                      </span>
                     </div>
-                    <span className="text-[10px] font-bold text-brand-navy bg-brand-soft px-2.5 py-1 rounded-full border border-brand-border/60">
-                      {service.badge}
-                    </span>
                   </div>
 
-                  <h3 className="font-heading font-extrabold text-lg text-brand-navy mb-2 group-hover:text-brand-navy">
-                    {service.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
-                    {service.description}
-                  </p>
+                  <div className="p-5 sm:p-6">
+                    <h3 className="font-heading font-extrabold text-lg text-brand-navy mb-2 group-hover:text-brand-navy">
+                      {service.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+                      {service.description}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="pt-5 mt-5 border-t border-brand-border/60 flex items-center justify-between">
-                  <a
-                    href="#lien-he"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-navy hover:text-brand-yellow-dark transition-colors"
-                  >
-                    <span>Yêu cầu khảo sát</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </a>
-                  <span className="text-[10px] text-brand-muted font-medium">TP. Huế</span>
+                <div className="px-5 sm:px-6 pb-5 pt-0 mt-auto">
+                  <div className="pt-4 border-t border-brand-border/60 flex items-center justify-between">
+                    <a
+                      href="#lien-he"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-navy hover:text-brand-yellow-dark transition-colors"
+                    >
+                      <span>Yêu cầu khảo sát</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </a>
+                    <span className="text-[11px] text-brand-muted font-medium">TP. Huế</span>
+                  </div>
                 </div>
               </div>
             </Reveal>
