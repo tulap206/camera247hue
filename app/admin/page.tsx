@@ -395,7 +395,7 @@ export default function AdminPage() {
   const unreadContactsCount = contacts.filter((c) => !c.read).length
 
   return (
-    <div className="flex min-h-[100dvh] bg-[#070A0F] text-slate-100 overflow-x-clip font-sans antialiased selection:bg-yellow-400 selection:text-black">
+    <div className="flex min-h-[100dvh] bg-[#F5F5F7] text-[#1D1D1F] overflow-x-clip font-sans antialiased selection:bg-[#0071E3] selection:text-white">
       {/* Sidebar navigation */}
       <AdminSidebar
         currentTab={currentTab}

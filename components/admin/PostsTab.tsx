@@ -7,7 +7,7 @@ import {
   Plus,
   Edit2,
   Trash2,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
   Star,
   ExternalLink,
@@ -17,8 +17,13 @@ import {
   MapPin,
   X,
   Sparkles,
+  Check,
+  FolderPlus,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import type { Post, Category } from '@/lib/supabase'
+import { cn } from '@/lib/utils'
 
 interface PostsTabProps {
   posts: Post[]
@@ -296,61 +301,135 @@ export function PostsTab({
     return filteredPosts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
   }, [filteredPosts, currentPage])
 
+  const publishedCount = useMemo(() => posts.filter((p) => p.published).length, [posts])
+  const featuredCount = useMemo(() => posts.filter((p) => p.featured).length, [posts])
+
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] p-5 sm:p-6 rounded-2xl border border-slate-800 shadow-xl">
+    <div className="space-y-6">
+      {/* Apple Header Card */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
-            <FileText className="w-6 h-6 text-yellow-400" />
-            Quản Lý Bài Viết & Công Trình Tiêu Biểu
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#0071E3] tracking-wide uppercase">
+            <FileText className="w-4 h-4" />
+            <span>Quản Trị Nội Dung CMS</span>
+          </div>
+          <h1 className="text-2xl font-bold text-[#1D1D1F] tracking-tight mt-1">
+            Bài Viết & Công Trình Tiêu Biểu
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Đăng tải dự án thực tế, hình ảnh thi công và kinh nghiệm lắp đặt hiển thị trên landing page.
+          <p className="text-xs sm:text-sm text-[#86868B] mt-1">
+            Đăng tải dự án thực tế, tư liệu ảnh thi công và câu chuyện nghiệm thu tại Thừa Thiên Huế.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
           <button
             onClick={() => setShowCatManager(true)}
-            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm border border-slate-700 transition-all"
+            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-slate-200/80 transition-all shadow-2xs"
           >
-            <Settings className="w-4 h-4 text-yellow-400" /> Quản Lý Danh Mục
+            <Settings className="w-4 h-4 text-[#86868B]" />
+            <span>Danh mục ({categories.length})</span>
           </button>
           <button
             onClick={openNewPostForm}
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm shadow-lg shadow-blue-500/25 transition-all"
+            className="inline-flex items-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4" /> Viết Bài Công Trình Mới
+            <Plus className="w-4 h-4" />
+            <span>Viết Bài Công Trình Mới</span>
           </button>
         </div>
       </div>
 
-      {/* Search & Filter Toolbar */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between shadow-sm">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value)
+      {/* Segmented Controls & Search Toolbar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3.5 rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+        {/* Apple Segmented Control for Status */}
+        <div className="inline-flex p-1 bg-slate-100/90 rounded-2xl border border-slate-200/60 self-start md:self-auto max-w-full overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => {
+              setStatusFilter('all')
               setCurrentPage(1)
             }}
-            placeholder="Tìm theo tiêu đề, địa điểm công trình, khách hàng..."
-            className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400"
-          />
+            className={cn(
+              'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap',
+              statusFilter === 'all'
+                ? 'bg-white text-[#1D1D1F] font-semibold shadow-xs'
+                : 'text-[#86868B] hover:text-[#1D1D1F]'
+            )}
+          >
+            Tất cả ({posts.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStatusFilter('published')
+              setCurrentPage(1)
+            }}
+            className={cn(
+              'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+              statusFilter === 'published'
+                ? 'bg-white text-emerald-700 font-semibold shadow-xs'
+                : 'text-[#86868B] hover:text-[#1D1D1F]'
+            )}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            Đã đăng ({publishedCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStatusFilter('featured')
+              setCurrentPage(1)
+            }}
+            className={cn(
+              'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+              statusFilter === 'featured'
+                ? 'bg-white text-amber-700 font-semibold shadow-xs'
+                : 'text-[#86868B] hover:text-[#1D1D1F]'
+            )}
+          >
+            <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
+            Nổi bật ({featuredCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStatusFilter('hidden')
+              setCurrentPage(1)
+            }}
+            className={cn(
+              'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap',
+              statusFilter === 'hidden'
+                ? 'bg-white text-[#1D1D1F] font-semibold shadow-xs'
+                : 'text-[#86868B] hover:text-[#1D1D1F]'
+            )}
+          >
+            Đang ẩn ({posts.length - publishedCount})
+          </button>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Category filter */}
+        {/* Search & Category Filter */}
+        <div className="flex items-center gap-2 flex-1 md:max-w-md">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setCurrentPage(1)
+              }}
+              placeholder="Tìm tiêu đề, địa điểm, khách hàng..."
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-3.5 py-2 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
+            />
+          </div>
+
           <select
             value={categoryFilter}
             onChange={(e) => {
               setCategoryFilter(e.target.value)
               setCurrentPage(1)
             }}
-            className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400"
+            className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0"
           >
             <option value="all">Tất cả danh mục</option>
             {categories.map((c) => (
@@ -359,39 +438,26 @@ export function PostsTab({
               </option>
             ))}
           </select>
-
-          {/* Status filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value as any)
-              setCurrentPage(1)
-            }}
-            className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400"
-          >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="published">Đã đăng</option>
-            <option value="hidden">Ẩn</option>
-            <option value="featured">Nổi bật ⭐</option>
-          </select>
         </div>
       </div>
 
-      {/* Posts List */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-        <div className="divide-y divide-slate-800/60">
+      {/* Post Items Container */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="divide-y divide-slate-100">
           {paginatedPosts.length === 0 ? (
-            <div className="py-12 text-center text-slate-500 text-xs sm:text-sm">
-              Chưa có bài viết nào phù hợp với bộ lọc.
+            <div className="py-16 text-center space-y-2">
+              <FileText className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="text-sm font-semibold text-[#1D1D1F]">Không tìm thấy bài viết phù hợp</p>
+              <p className="text-xs text-[#86868B]">Thử đổi từ khóa tìm kiếm hoặc bấm nút Viết bài mới ở góc trên.</p>
             </div>
           ) : (
             paginatedPosts.map((post) => (
               <div
                 key={post.id}
-                className="p-4 sm:p-5 hover:bg-slate-800/40 transition-colors flex flex-col sm:flex-row sm:items-center gap-4 group"
+                className="p-4 sm:p-5 hover:bg-slate-50/60 transition-colors flex flex-col sm:flex-row sm:items-center gap-4 group"
               >
                 {/* Thumbnail */}
-                <div className="w-full sm:w-28 h-28 sm:h-20 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden shrink-0 relative">
+                <div className="w-full sm:w-28 h-28 sm:h-20 rounded-2xl bg-slate-100 border border-slate-200/80 overflow-hidden shrink-0 relative shadow-2xs">
                   {post.cover_image ? (
                     <img
                       src={post.cover_image}
@@ -399,7 +465,7 @@ export function PostsTab({
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-600">
+                    <div className="w-full h-full flex items-center justify-center text-slate-400">
                       <ImageIcon className="w-6 h-6" />
                     </div>
                   )}
@@ -408,42 +474,52 @@ export function PostsTab({
                 {/* Info */}
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-white text-sm sm:text-base group-hover:text-yellow-400 transition-colors">
+                    <span className="font-bold text-[#1D1D1F] text-sm sm:text-base group-hover:text-[#0071E3] transition-colors line-clamp-1">
                       {post.title}
                     </span>
                     {post.featured && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-400/15 text-yellow-400 border border-yellow-400/30">
-                        <Star className="w-3 h-3 fill-yellow-400" /> Nổi bật
+                      <span className="inline-flex items-center gap-1 text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        <Star className="w-3 h-3 fill-amber-400 text-amber-500" /> Nổi bật
                       </span>
                     )}
                     {post.published ? (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      <span className="text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                         Đã xuất bản
                       </span>
                     ) : (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-                        Ẩn
+                      <span className="text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                        Đang ẩn
                       </span>
                     )}
                   </div>
 
                   {post.excerpt && (
-                    <p className="text-xs text-slate-400 line-clamp-1">{post.excerpt}</p>
+                    <p className="text-xs text-[#86868B] line-clamp-1">{post.excerpt}</p>
                   )}
 
-                  <div className="flex items-center gap-3 text-[11px] text-slate-400 flex-wrap pt-0.5 font-sans">
+                  <div className="flex items-center gap-3 text-[11px] text-[#86868B] flex-wrap pt-0.5">
                     {post.category && (
-                      <span className="bg-slate-800/80 px-2 py-0.5 rounded-md text-slate-300 font-medium">
+                      <span className="bg-slate-100 px-2 py-0.5 rounded-lg text-[#1D1D1F] font-medium border border-slate-200/60">
                         📁 {post.category.name}
                       </span>
                     )}
-                    {post.location && <span>📍 {post.location}</span>}
-                    {post.completed_at && <span>📅 {post.completed_at}</span>}
+                    {post.location && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-[#86868B]" />
+                        {post.location}
+                      </span>
+                    )}
+                    {post.completed_at && (
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="w-3 h-3 text-[#86868B]" />
+                        {post.completed_at}
+                      </span>
+                    )}
                     <a
                       href={`/cong-trinh/${post.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 font-mono inline-flex items-center gap-1"
+                      className="text-[#0071E3] hover:underline font-mono inline-flex items-center gap-1 ml-auto sm:ml-0"
                     >
                       /{post.slug} <ExternalLink className="w-3 h-3" />
                     </a>
@@ -451,24 +527,25 @@ export function PostsTab({
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-800/60 justify-end">
+                <div className="flex items-center gap-1.5 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 justify-end">
                   <button
                     onClick={() => onTogglePublish(post)}
-                    className={`p-2 rounded-xl transition-colors ${
+                    className={cn(
+                      'p-2 rounded-xl transition-all',
                       post.published
-                        ? 'text-emerald-400 hover:bg-emerald-400/10'
-                        : 'text-slate-600 hover:bg-slate-800 hover:text-slate-300'
-                    }`}
-                    title={post.published ? 'Bấm để ẩn bài' : 'Bấm để hiển thị'}
+                        ? 'text-emerald-600 hover:bg-emerald-50 border border-emerald-200/60'
+                        : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 border border-slate-200/60'
+                    )}
+                    title={post.published ? 'Bấm để ẩn bài khỏi website' : 'Bấm để xuất bản bài viết'}
                   >
-                    {post.published ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                    {post.published ? <CheckCircle2 className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
                   <button
                     onClick={() => openEditPostForm(post)}
-                    className="p-2 rounded-xl text-yellow-400 hover:bg-yellow-400/10 transition-colors"
-                    title="Chỉnh sửa"
+                    className="p-2 rounded-xl text-[#0071E3] hover:bg-blue-50 border border-blue-200/60 transition-colors"
+                    title="Chỉnh sửa bài viết"
                   >
-                    <Edit2 className="w-5 h-5" />
+                    <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => {
@@ -476,10 +553,10 @@ export function PostsTab({
                         onDeletePost(post.id)
                       }
                     }}
-                    className="p-2 rounded-xl text-rose-400 hover:bg-rose-400/10 transition-colors"
-                    title="Xóa bài"
+                    className="p-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200/60 transition-colors"
+                    title="Xóa bài viết"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -487,24 +564,24 @@ export function PostsTab({
           )}
         </div>
 
-        {/* Pagination */}
+        {/* Apple Pagination Bar */}
         {totalPages > 1 && (
-          <div className="p-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs text-[#86868B]">
             <span>
               Trang {currentPage} / {totalPages} ({filteredPosts.length} bài viết)
             </span>
-            <div className="flex gap-1.5">
+            <div className="flex gap-2">
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="px-3 py-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 rounded-lg text-white font-medium"
+                className="px-3.5 py-1.5 bg-white hover:bg-slate-100 disabled:opacity-40 rounded-xl text-[#1D1D1F] font-medium border border-slate-200 shadow-2xs transition-all"
               >
                 Trước
               </button>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="px-3 py-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 rounded-lg text-white font-medium"
+                className="px-3.5 py-1.5 bg-white hover:bg-slate-100 disabled:opacity-40 rounded-xl text-[#1D1D1F] font-medium border border-slate-200 shadow-2xs transition-all"
               >
                 Sau
               </button>
@@ -513,58 +590,69 @@ export function PostsTab({
         )}
       </div>
 
-      {/* Post Form Modal */}
+      {/* Post Form Sheet Modal (iOS Sheet Style) */}
       {editingPost !== undefined && (
-        <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl bg-[#121620] border border-slate-700/80 rounded-2xl overflow-hidden shadow-2xl max-h-[92vh] flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0E121A] shrink-0">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <FileText className="w-5 h-5 text-yellow-400" />
-                {editingPost ? 'Chỉnh Sửa Bài Viết Công Trình' : 'Tạo Bài Viết Công Trình Mới'}
-              </h3>
-              <button onClick={() => setEditingPost(undefined)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-md z-[100] flex items-center justify-center p-3 sm:p-4">
+          <div className="w-full max-w-2xl bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.15)] max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0071E3] flex items-center justify-center border border-blue-200/60">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-[#1D1D1F]">
+                    {editingPost ? 'Chỉnh Sửa Bài Viết Công Trình' : 'Viết Bài Công Trình Mới'}
+                  </h3>
+                  <p className="text-[11px] text-[#86868B]">Hiển thị công trình tiêu biểu trên Camera 247 Huế</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditingPost(undefined)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handlePostSubmit} className="p-6 overflow-y-auto space-y-4">
+            <form onSubmit={handlePostSubmit} className="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm">
               {formError && (
-                <div className="p-3 bg-rose-500/15 border border-rose-500/30 rounded-xl text-rose-300 text-xs">
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs">
                   {formError}
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Tiêu Đề Bài Viết *</label>
+                <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Tiêu Đề Bài Viết *</label>
                 <input
                   type="text"
                   required
                   value={form.title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="VD: Lắp Đặt 32 Camera An Ninh Khách Sạn Hương Giang Huế"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400"
+                  className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Slug URL *</label>
+                <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Slug URL *</label>
                 <input
                   type="text"
                   required
                   value={form.slug}
                   onChange={(e) => setForm((p) => ({ ...p, slug: e.target.value }))}
                   placeholder="lap-dat-32-camera-an-ninh-khach-san-huong-giang-hue"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400 font-mono"
+                  className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-[#1D1D1F] font-mono focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Danh Mục Công Trình</label>
+                  <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Danh Mục Công Trình</label>
                   <select
                     value={form.category_id}
                     onChange={(e) => setForm((p) => ({ ...p, category_id: e.target.value }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400"
+                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
                   >
                     <option value="">-- Chọn danh mục --</option>
                     {categories.map((c) => (
@@ -575,52 +663,52 @@ export function PostsTab({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Ngày Hoàn Thành</label>
+                  <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Ngày Hoàn Thành</label>
                   <input
                     type="date"
                     value={form.completed_at}
                     onChange={(e) => setForm((p) => ({ ...p, completed_at: e.target.value }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400"
+                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Địa Điểm Tại Huế</label>
+                  <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Địa Điểm Tại Huế</label>
                   <input
                     type="text"
                     value={form.location}
                     onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))}
                     placeholder="VD: P. Phú Hội, TP. Huế"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400"
+                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Tên Khách Hàng / Đơn Vị</label>
+                  <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Tên Khách Hàng / Đơn Vị</label>
                   <input
                     type="text"
                     value={form.client_name}
                     onChange={(e) => setForm((p) => ({ ...p, client_name: e.target.value }))}
                     placeholder="Khách sạn Hương Giang"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400"
+                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
               </div>
 
               {/* Cover image */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Ảnh Bìa Đại Diện</label>
+                <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Ảnh Bìa Đại Diện</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={form.cover_image}
                     onChange={(e) => setForm((p) => ({ ...p, cover_image: e.target.value }))}
-                    placeholder="https://... hoặc tải ảnh lên"
-                    className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400 font-mono"
+                    placeholder="https://... hoặc tải ảnh từ máy"
+                    className="flex-1 bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2 text-xs sm:text-sm text-[#1D1D1F] font-mono focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
-                  <label className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold cursor-pointer border border-slate-700 flex items-center gap-1.5">
-                    <ImageIcon className="w-4 h-4" />
+                  <label className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#1D1D1F] rounded-2xl text-xs font-semibold cursor-pointer border border-slate-200 flex items-center gap-1.5 transition-all">
+                    <ImageIcon className="w-4 h-4 text-[#0071E3]" />
                     {uploadingCover ? 'Đang tải...' : 'Tải Ảnh'}
                     <input
                       type="file"
@@ -632,12 +720,12 @@ export function PostsTab({
                   </label>
                 </div>
                 {form.cover_image && (
-                  <div className="mt-2 relative w-24 h-24 border border-slate-700 rounded-xl overflow-hidden bg-black">
+                  <div className="mt-2.5 relative w-24 h-24 border border-slate-200 rounded-2xl overflow-hidden bg-slate-100 shadow-2xs">
                     <img src={form.cover_image} alt="Cover preview" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => setForm((p) => ({ ...p, cover_image: '' }))}
-                      className="absolute top-1 right-1 bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                      className="absolute top-1 right-1 bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-sm hover:scale-110 transition-transform"
                     >
                       ✕
                     </button>
@@ -647,8 +735,8 @@ export function PostsTab({
 
               {/* Album gallery */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Album Ảnh Thực Tế Thi Công</label>
-                <label className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-yellow-400 rounded-xl text-xs font-semibold cursor-pointer border border-slate-700">
+                <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Album Ảnh Thực Tế Thi Công</label>
+                <label className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#0071E3] rounded-2xl text-xs font-semibold cursor-pointer border border-slate-200 transition-all">
                   <Plus className="w-4 h-4" />
                   {uploadingGallery ? 'Đang tải...' : 'Thêm nhiều ảnh công trình'}
                   <input
@@ -663,7 +751,7 @@ export function PostsTab({
                 {form.images && form.images.length > 0 && (
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 mt-2.5">
                     {form.images.map((img, index) => (
-                      <div key={index} className="relative aspect-square border border-slate-700 rounded-lg overflow-hidden bg-black group">
+                      <div key={index} className="relative aspect-square border border-slate-200 rounded-xl overflow-hidden bg-slate-100 group shadow-2xs">
                         <img src={img} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
                         <button
                           type="button"
@@ -680,63 +768,65 @@ export function PostsTab({
 
               {/* Excerpt */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Mô Tả Ngắn</label>
+                <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Mô Tả Tóm Tắt (1-2 câu)</label>
                 <textarea
                   rows={2}
                   value={form.excerpt}
                   onChange={(e) => setForm((p) => ({ ...p, excerpt: e.target.value }))}
-                  placeholder="Mô tả tóm tắt 1-2 câu về giải pháp..."
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400 resize-none"
+                  placeholder="Mô tả tóm tắt về giải pháp camera / mạng / khóa cho khách..."
+                  className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all resize-none"
                 />
               </div>
 
               {/* Content */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Nội Dung Chi Tiết</label>
+                <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">Nội Dung Chi Tiết</label>
                 <textarea
-                  rows={8}
+                  rows={7}
                   value={form.content}
                   onChange={(e) => setForm((p) => ({ ...p, content: e.target.value }))}
                   placeholder="Nhập nội dung bài viết. Dùng '- ' cho gạch đầu dòng, '# ' cho tiêu đề mục..."
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-yellow-400 font-sans resize-y"
+                  className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all resize-y font-sans"
                 />
               </div>
 
               {/* Checkboxes */}
               <div className="flex gap-6 pt-1">
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-[#1D1D1F]">
                   <input
                     type="checkbox"
                     checked={form.published}
                     onChange={(e) => setForm((p) => ({ ...p, published: e.target.checked }))}
-                    className="accent-yellow-400 w-4 h-4"
+                    className="accent-[#0071E3] w-4 h-4 rounded"
                   />
                   <span>Hiển thị trên website</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-[#1D1D1F]">
                   <input
                     type="checkbox"
                     checked={form.featured}
                     onChange={(e) => setForm((p) => ({ ...p, featured: e.target.checked }))}
-                    className="accent-yellow-400 w-4 h-4"
+                    className="accent-[#0071E3] w-4 h-4 rounded"
                   />
-                  <span className="text-yellow-400 font-semibold">Ghim nổi bật ⭐ (Trang chủ)</span>
+                  <span className="text-amber-700 font-semibold flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" /> Ghim nổi bật (Trang chủ)
+                  </span>
                 </label>
               </div>
 
-              {/* Submit */}
-              <div className="pt-3 border-t border-slate-800 flex gap-3">
+              {/* Submit Button Bar */}
+              <div className="pt-3 border-t border-slate-100 flex gap-2.5">
                 <button
                   type="submit"
                   disabled={savingPost}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow-md disabled:opacity-50"
+                  className="flex-1 bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-2.5 rounded-2xl text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all disabled:opacity-50"
                 >
-                  {savingPost ? 'Đang lưu...' : (editingPost ? 'Cập Nhật Bài Viết' : 'Xuất Bản Bài Viết')}
+                  {savingPost ? 'Đang lưu...' : editingPost ? 'Cập Nhật Bài Viết' : 'Xuất Bản Bài Viết'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditingPost(undefined)}
-                  className="px-5 py-2.5 bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs sm:text-sm border border-slate-700 font-medium"
+                  className="px-5 py-2.5 bg-slate-100 text-[#1D1D1F] hover:bg-slate-200 rounded-2xl text-xs sm:text-sm border border-slate-200 font-medium transition-all"
                 >
                   Hủy
                 </button>
@@ -746,30 +836,37 @@ export function PostsTab({
         </div>
       )}
 
-      {/* Category Manager Modal */}
+      {/* Category Manager Sheet Modal */}
       {showCatManager && (
-        <div className="fixed inset-0 bg-black/85 z-[110] flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#121620] border border-slate-700/80 rounded-2xl overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-[#0E121A]">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Settings className="w-4 h-4 text-yellow-400" />
-                Quản Lý Danh Mục Công Trình
-              </h3>
-              <button onClick={() => setShowCatManager(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-md z-[110] flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-blue-50 text-[#0071E3] flex items-center justify-center border border-blue-200/60">
+                  <Settings className="w-3.5 h-3.5" />
+                </div>
+                <h3 className="text-sm font-bold text-[#1D1D1F]">
+                  Quản Lý Danh Mục Công Trình
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowCatManager(false)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="p-5 max-h-72 overflow-y-auto space-y-2">
               {categories.map((c) => (
-                <div key={c.id} className="flex items-center justify-between p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+                <div key={c.id} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-2xl border border-slate-200/60">
                   {editingCatId === c.id ? (
                     <div className="flex-1 flex gap-2">
                       <input
                         type="text"
                         value={editingCatName}
                         onChange={(e) => setEditingCatName(e.target.value)}
-                        className="flex-1 bg-slate-950 border border-yellow-400 rounded-lg px-2.5 py-1 text-xs text-white"
+                        className="flex-1 bg-white border border-[#0071E3] rounded-xl px-2.5 py-1 text-xs text-[#1D1D1F]"
                       />
                       <button
                         onClick={async () => {
@@ -778,27 +875,27 @@ export function PostsTab({
                             setEditingCatId(null)
                           }
                         }}
-                        className="bg-emerald-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold"
+                        className="bg-emerald-600 text-white px-2.5 py-1 rounded-xl text-xs font-bold"
                       >
                         Lưu
                       </button>
                       <button
                         onClick={() => setEditingCatId(null)}
-                        className="bg-slate-800 text-slate-400 px-2 py-1 rounded-lg text-xs"
+                        className="bg-slate-200 text-slate-700 px-2 py-1 rounded-xl text-xs"
                       >
                         Hủy
                       </button>
                     </div>
                   ) : (
                     <>
-                      <span className="text-xs font-semibold text-white">{c.name}</span>
+                      <span className="text-xs font-semibold text-[#1D1D1F]">{c.name}</span>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => {
                             setEditingCatId(c.id)
                             setEditingCatName(c.name)
                           }}
-                          className="p-1 text-yellow-400 hover:bg-yellow-400/10 rounded"
+                          className="p-1.5 text-[#0071E3] hover:bg-blue-50 rounded-lg transition-colors"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
@@ -808,7 +905,7 @@ export function PostsTab({
                               await onDeleteCategory(c.id)
                             }
                           }}
-                          className="p-1 text-rose-400 hover:bg-rose-400/10 rounded"
+                          className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -819,13 +916,13 @@ export function PostsTab({
               ))}
             </div>
 
-            <div className="p-4 border-t border-slate-800 bg-[#0E121A] flex gap-2">
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-2">
               <input
                 type="text"
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
                 placeholder="Tên danh mục mới..."
-                className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-yellow-400"
+                className="flex-1 bg-white border border-slate-200 rounded-2xl px-3.5 py-2 text-xs text-[#1D1D1F] focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10"
               />
               <button
                 type="button"
@@ -835,7 +932,7 @@ export function PostsTab({
                     setNewCatName('')
                   }
                 }}
-                className="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs transition-colors"
+                className="bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold px-4 py-2 rounded-2xl text-xs transition-all shadow-xs"
               >
                 Thêm Mới
               </button>
