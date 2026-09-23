@@ -874,7 +874,7 @@ export function SettingsBackupTab({
           </div>
           <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60">
             <span className="text-[#86868B] block text-[11px] font-medium">Mã Số Thuế Doanh Nghiệp:</span>
-            <span className="font-mono font-bold text-[#1D1D1F] mt-0.5 block">3301677400 · Sở KH&ĐT TT Huế</span>
+            <span className="font-mono font-bold text-[#1D1D1F] mt-0.5 block">3301677400 · Sở KH&ĐT TP. Huế</span>
           </div>
           <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60">
             <span className="text-[#86868B] block text-[11px] font-medium">Hotline Quản Trị Trực 24/7:</span>

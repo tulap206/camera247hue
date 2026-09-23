@@ -22,10 +22,10 @@ import {
   Calendar,
   Layers,
   Sparkles,
-  Download,
   Copy,
   Check,
   AlertTriangle,
+  RotateCcw,
 } from 'lucide-react'
 import { formatDateTimeVN } from '@/lib/formatters'
 import type { AccessLog } from '@/lib/camera247-data'
@@ -100,35 +100,20 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
     [logs]
   )
 
-  // Export CSV with UTF-8 BOM
-  const handleExportCSV = () => {
-    if (logs.length === 0) {
-      alert('Không có dữ liệu nhật ký để xuất!')
-      return
-    }
+  const isFiltering =
+    searchQuery !== '' ||
+    scopeFilter !== 'all' ||
+    accountFilter !== 'all' ||
+    moduleFilter !== 'all' ||
+    actionFilter !== 'all'
 
-    const headers = ['Mã Log', 'Thời Gian', 'Tài Khoản', 'Tên Hiển Thị', 'Hành Động', 'Phân Hệ', 'Địa Chỉ IP', 'Chi Tiết Thao Tác']
-
-    const rows = logs.map((l) => [
-      `"${l.id}"`,
-      `"${formatDateTimeVN(l.timestamp)}"`,
-      `"${l.username}"`,
-      `"${(l.displayName || '').replace(/"/g, '""')}"`,
-      `"${l.action}"`,
-      `"${l.module}"`,
-      `"${l.ip_address || ''}"`,
-      `"${(l.details || '').replace(/"/g, '""')}"`,
-    ].join(','))
-
-    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n')
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', `Camera247_NhatKy_TruyCap_${new Date().toISOString().split('T')[0]}.csv`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const resetFilters = () => {
+    setSearchQuery('')
+    setScopeFilter('all')
+    setAccountFilter('all')
+    setModuleFilter('all')
+    setActionFilter('all')
+    setCurrentPage(1)
   }
 
   const handleCopyDetails = (text: string, id: string) => {
@@ -148,11 +133,11 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
 
         const matchSearch =
           !q ||
-          l.details.toLowerCase().includes(q) ||
-          l.username.toLowerCase().includes(q) ||
-          l.displayName.toLowerCase().includes(q) ||
+          l.details?.toLowerCase().includes(q) ||
+          l.username?.toLowerCase().includes(q) ||
+          l.displayName?.toLowerCase().includes(q) ||
           (l.ip_address && l.ip_address.includes(q)) ||
-          l.module.toLowerCase().includes(q)
+          l.module?.toLowerCase().includes(q)
 
         const matchAccount = accountFilter === 'all' || l.username === accountFilter
         const matchModule = moduleFilter === 'all' || l.module === moduleFilter
@@ -186,15 +171,6 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
-          <button
-            onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-slate-200/80 transition-all shadow-2xs active:scale-[0.98]"
-            title="Xuất nhật ký ra file Excel / CSV"
-          >
-            <Download className="w-4 h-4 text-[#86868B]" />
-            <span>Xuất Excel</span>
-          </button>
-
           {onClearLogs && (
             <button
               onClick={() => {
@@ -288,63 +264,77 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
         </div>
       </div>
 
-      {/* Scope Segmented Pill Control & Filter Toolbar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-3.5 rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-        {/* Apple Segmented Control for Scope */}
-        <div className="inline-flex p-1 bg-slate-100/90 rounded-2xl border border-slate-200/60 self-start lg:self-auto max-w-full overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => {
-              setScopeFilter('all')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-              scopeFilter === 'all'
-                ? 'bg-white text-[#1D1D1F] font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            <History className="w-3.5 h-3.5" />
-            Tất cả ({logs.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setScopeFilter('staff')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-              scopeFilter === 'staff'
-                ? 'bg-white text-[#0071E3] font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            <Users className="w-3.5 h-3.5" />
-            Ban Quản Trị ({staffCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setScopeFilter('visitor')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-              scopeFilter === 'visitor'
-                ? 'bg-white text-sky-700 font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            <Globe className="w-3.5 h-3.5" />
-            Khách Xem Web ({visitorCount})
-          </button>
+      {/* Smart 2-Tier Filter Toolbar */}
+      <div className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-3.5">
+        {/* Tier 1: Segmented Scope Pills + Reset Filter */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/60 overflow-x-auto max-w-full">
+            <button
+              type="button"
+              onClick={() => {
+                setScopeFilter('all')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                scopeFilter === 'all'
+                  ? 'bg-white text-[#1D1D1F] font-bold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              <History className="w-3.5 h-3.5" />
+              Tất cả ({logs.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setScopeFilter('staff')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                scopeFilter === 'staff'
+                  ? 'bg-white text-[#0071E3] font-bold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              <Users className="w-3.5 h-3.5" />
+              Ban Quản Trị ({staffCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setScopeFilter('visitor')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                scopeFilter === 'visitor'
+                  ? 'bg-white text-sky-700 font-bold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              <Globe className="w-3.5 h-3.5" />
+              Khách Xem Web ({visitorCount})
+            </button>
+          </div>
+
+          {isFiltering && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-all active:scale-95 self-end sm:self-auto"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Đặt lại lọc</span>
+            </button>
+          )}
         </div>
 
-        {/* Search & Detailed Filters */}
-        <div className="flex items-center gap-2 flex-wrap lg:flex-nowrap flex-1 lg:max-w-2xl">
-          <div className="relative flex-1 min-w-[160px]">
+        {/* Tier 2: Search, Account, Module & Action Filters */}
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+          {/* Search Box (5 cols) */}
+          <div className="sm:col-span-5 relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -354,60 +344,74 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
                 setCurrentPage(1)
               }}
               placeholder="Tìm nội dung, tài khoản, IP thiết bị..."
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-3.5 py-2 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-9 py-2.5 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-200 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          {/* Account */}
-          <select
-            value={accountFilter}
-            onChange={(e) => {
-              setAccountFilter(e.target.value)
-              setCurrentPage(1)
-            }}
-            className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0 font-medium"
-          >
-            <option value="all">Tất cả tài khoản</option>
-            {accounts.map((acc) => (
-              <option key={acc} value={acc}>
-                @{acc}
-              </option>
-            ))}
-          </select>
+          {/* Account Filter (2 cols) */}
+          <div className="sm:col-span-2 relative">
+            <select
+              value={accountFilter}
+              onChange={(e) => {
+                setAccountFilter(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all font-medium"
+            >
+              <option value="all">Tất cả tài khoản</option>
+              {accounts.map((acc) => (
+                <option key={acc} value={acc}>
+                  @{acc}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          {/* Module */}
-          <select
-            value={moduleFilter}
-            onChange={(e) => {
-              setModuleFilter(e.target.value)
-              setCurrentPage(1)
-            }}
-            className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0 font-medium"
-          >
-            <option value="all">Tất cả phân hệ</option>
-            {modules.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
+          {/* Module Filter (2 cols) */}
+          <div className="sm:col-span-2 relative">
+            <select
+              value={moduleFilter}
+              onChange={(e) => {
+                setModuleFilter(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all font-medium"
+            >
+              <option value="all">Tất cả phân hệ</option>
+              {modules.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          {/* Action */}
-          <select
-            value={actionFilter}
-            onChange={(e) => {
-              setActionFilter(e.target.value)
-              setCurrentPage(1)
-            }}
-            className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0 font-medium"
-          >
-            <option value="all">Tất cả hành động</option>
-            {actions.map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
+          {/* Action Filter (3 cols) */}
+          <div className="sm:col-span-3 relative">
+            <select
+              value={actionFilter}
+              onChange={(e) => {
+                setActionFilter(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all font-medium"
+            >
+              <option value="all">Tất cả hành động</option>
+              {actions.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -494,7 +498,7 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
 
                       {/* Details */}
                       <td className="py-3.5 px-4">
-                        <p className="text-[#1D1D1F] font-medium line-clamp-2 leading-relaxed">
+                        <p className="text-[#1D1D1F] font-medium break-words leading-relaxed">
                           {log.details}
                         </p>
                       </td>

@@ -361,7 +361,7 @@ Kiểm tra thực tế với hơn 160 thiết bị online cùng lúc cho tốc �
     title: 'Hệ Thống Camera An Ninh & Máy Chấm Công Khuôn Mặt AI Nhà Xưởng May Phú Bài',
     slug: 'camera-an-ninh-may-cham-cong-khuon-mat-nha-xuong-may-phu-bai',
     content: `# Quy Mô Dự Án Nhà Xưởng
-Công ty May Xuất Khẩu Phú Bài tại Khu Công Nghiệp Phú Bài (Hương Thủy, TT. Huế) có diện tích sản xuất hơn 3.500m2 với hơn 200 công nhân. Yêu cầu đặt ra là giám sát chặt chẽ chuyền may, kho vải, bãi xuất nhập hàng và tự động hóa quy trình chấm công tránh tình trạng gian lận bấm hộ.
+Công ty May Xuất Khẩu Phú Bài tại Khu Công Nghiệp Phú Bài (Hương Thủy, TP. Huế) có diện tích sản xuất hơn 3.500m2 với hơn 200 công nhân. Yêu cầu đặt ra là giám sát chặt chẽ chuyền may, kho vải, bãi xuất nhập hàng và tự động hóa quy trình chấm công tránh tình trạng gian lận bấm hộ.
 
 # Hạng Mục Kỹ Thuật Đã Hoàn Thành
 - **16 Camera Thân Trụ Dahua Full HD 2.0MP** chuẩn chống nước IP67 chuyên dụng cho môi trường công nghiệp nhiều bụi bẩn.

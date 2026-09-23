@@ -339,7 +339,7 @@ export default function AdminPage() {
           currentDisplayName,
           'Chỉnh sửa',
           'Khách hàng',
-          `Cập nhật thông tin khách hàng: ${customerData.name} (${customerData.phone})`
+          `Cập nhật thông tin khách hàng: ${customerData.name}${customerData.phone ? ` (${customerData.phone})` : ''}`
         )
       } else {
         // Create
@@ -367,7 +367,7 @@ export default function AdminPage() {
           currentDisplayName,
           'Thêm mới',
           'Khách hàng',
-          `Thêm khách hàng mới: ${newCust.name} (${newCust.phone}) tại ${newCust.address}`
+          `Thêm khách hàng mới: ${newCust.name}${newCust.phone ? ` (${newCust.phone})` : ''}${newCust.address ? ` tại ${newCust.address}` : ''}`
         )
       }
       saveStoredCustomers(next)
@@ -392,7 +392,7 @@ export default function AdminPage() {
           currentDisplayName,
           'Xóa',
           'Khách hàng',
-          `Xóa hồ sơ khách hàng: ${target.name} (${target.phone})`
+          `Xóa hồ sơ khách hàng: ${target.name}${target.phone ? ` (${target.phone})` : ''}`
         )
       }
       saveStoredCustomers(next)
