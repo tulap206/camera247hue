@@ -123,12 +123,12 @@ export function PostsTab({
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'hidden' | 'featured'>('all')
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('table')
   const [editingPost, setEditingPost] = useState<Post | null | undefined>(undefined) // undefined = closed, null = create new
   const [showCatManager, setShowCatManager] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null)
-  const ITEMS_PER_PAGE = viewMode === 'grid' ? 6 : 8
+  const ITEMS_PER_PAGE = viewMode === 'grid' ? 6 : 10
 
   // Post form state
   const [form, setForm] = useState({
@@ -611,6 +611,16 @@ export function PostsTab({
           {/* Finder View Mode Toggle */}
           <div className="flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200/60 shrink-0">
             <button
+              onClick={() => setViewMode('table')}
+              className={cn(
+                'p-1.5 rounded-xl transition-all',
+                viewMode === 'table' ? 'bg-white text-[#0071E3] shadow-xs' : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+              title="Chế độ Bảng Danh Sách (Mặc định)"
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => setViewMode('grid')}
               className={cn(
                 'p-1.5 rounded-xl transition-all',
@@ -619,16 +629,6 @@ export function PostsTab({
               title="Chế độ Lưới (Thẻ Dự Án)"
             >
               <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={cn(
-                'p-1.5 rounded-xl transition-all',
-                viewMode === 'table' ? 'bg-white text-[#0071E3] shadow-xs' : 'text-[#86868B] hover:text-[#1D1D1F]'
-              )}
-              title="Chế độ Bảng Danh Sách"
-            >
-              <List className="w-4 h-4" />
             </button>
           </div>
         </div>

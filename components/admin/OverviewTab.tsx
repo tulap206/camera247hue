@@ -764,10 +764,10 @@ export function OverviewTab({
                   <div className="text-xs font-bold">Phan Lê Tự Lập</div>
                 </div>
                 <div>
-                  <div className="text-xs font-bold uppercase">KỸ THUẬT TRƯỞNG</div>
+                  <div className="text-xs font-bold uppercase">GIÁM ĐỐC & KỸ THUẬT</div>
                   <div className="text-[11px] text-slate-500 italic mt-0.5">(Ký & ghi rõ họ tên)</div>
                   <div className="h-16" />
-                  <div className="text-xs font-bold">Nguyễn Viết Tước</div>
+                  <div className="text-xs font-bold">Phạm Bá Tước</div>
                 </div>
               </div>
             </div>
