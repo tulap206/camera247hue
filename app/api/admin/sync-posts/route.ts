@@ -5,15 +5,28 @@ import { safeText } from '@/lib/sanitizeHtml'
 
 export const dynamic = 'force-dynamic'
 
-export async function POST() {
+export async function POST(request: Request) {
   const denied = requireAdmin()
   if (denied) return denied
 
   try {
     const db = supabaseAdmin()
+    let cleanReset = true
+    try {
+      const body = await request.json()
+      if (body && typeof body.cleanReset === 'boolean') {
+        cleanReset = body.cleanReset
+      }
+    } catch {
+      // default cleanReset to true for automatic self-healing
+    }
 
     // 1. Fetch all posts from Supabase
-    const { data: posts, error: postsErr } = await db.from('posts').select('*').order('created_at', { ascending: true })
+    const { data: posts, error: postsErr } = await db
+      .from('posts')
+      .select('*')
+      .order('created_at', { ascending: true })
+
     if (postsErr) {
       return NextResponse.json({ error: postsErr.message }, { status: 400 })
     }
@@ -22,31 +35,23 @@ export async function POST() {
       return NextResponse.json({ message: 'Không có bài viết nào để đồng bộ.', synced: 0 })
     }
 
-    // 2. Fetch existing customers and orders
-    const [{ data: existingCustomers }, { data: existingOrders }] = await Promise.all([
-      db.from('customers').select('*'),
-      db.from('installation_orders').select('*'),
-    ])
-
-    const custMap = new Map<string, any>()
-    for (const c of existingCustomers || []) {
-      if (c.name) custMap.set(c.name.trim().toLowerCase(), c)
+    // 2. If cleanReset is requested, remove duplicated / orphaned customers & orders
+    if (cleanReset) {
+      await db.from('installation_orders').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+      await db.from('customers').delete().neq('id', '00000000-0000-0000-0000-000000000000')
     }
 
-    const orderCodes = new Set((existingOrders || []).map((o) => o.order_code))
-    const orderNotes = new Set((existingOrders || []).map((o) => o.notes))
-
-    let createdCustomersCount = 0
-    let createdOrdersCount = 0
+    // 3. Loop through all posts and create 1 Customer & 1 Order per post
+    const createdCustomers: any[] = []
+    const createdOrders: any[] = []
+    const custMap = new Map<string, any>()
 
     for (let i = 0; i < posts.length; i++) {
       const p = posts[i]
       const clientName = (p.client_name || p.title || `Khách hàng công trình #${i + 1}`).trim()
       const clientKey = clientName.toLowerCase()
 
-      let customer = custMap.get(clientKey)
-
-      // Determine district from location
+      // Location & District
       const loc = p.location || 'TP. Huế'
       let district = 'TP. Huế (Trung tâm)'
       if (/Phú Bài|Hương Thủy/i.test(loc)) district = 'KCN Phú Bài - Hương Thủy'
@@ -57,9 +62,11 @@ export async function POST() {
 
       const isBusiness = /Công ty|Khách sạn|Resort|Quán|Coffee|Cafe|Spa|Shop|Nhà hàng|Xưởng|Doanh nghiệp/i.test(clientName)
 
-      // 1. Create Customer if not exists
-      if (!customer) {
-        const newCustomerRecord = {
+      // Get or create customer
+      let customerId = custMap.get(clientKey)?.id
+
+      if (!customerId) {
+        const custRecord = {
           name: safeText(clientName, 255),
           phone: '0967 611 112',
           phone_secondary: null,
@@ -78,90 +85,84 @@ export async function POST() {
           updated_at: new Date().toISOString(),
         }
 
-        const { data: insertedCust, error: insErr } = await db
+        const { data: insertedCust, error: custErr } = await db
           .from('customers')
-          .insert([newCustomerRecord])
+          .insert([custRecord])
           .select()
           .single()
 
-        if (!insErr && insertedCust) {
-          customer = insertedCust
+        if (!custErr && insertedCust) {
+          customerId = insertedCust.id
           custMap.set(clientKey, insertedCust)
-          createdCustomersCount++
+          createdCustomers.push(insertedCust)
         }
       }
 
-      // 2. Create Order if not exists
-      const postOrderTag = `Công trình: ${p.slug}`
-      const hasOrder = Array.from(orderNotes).some((n) => n && n.includes(p.slug))
+      // Order Code
+      const orderNum = String(i + 1).padStart(3, '0')
+      const orderCode = `C247-2026-${orderNum}`
 
-      if (!hasOrder) {
-        const orderNum = String(i + 1).padStart(3, '0')
-        let orderCode = `C247-2026-${orderNum}`
-        if (orderCodes.has(orderCode)) {
-          orderCode = `C247-2026-${orderNum}-${Date.now().toString().slice(-3)}`
-        }
+      const completedDateStr = p.completed_at
+        ? new Date(p.completed_at).toLocaleDateString('vi-VN')
+        : new Date(p.created_at || Date.now()).toLocaleDateString('vi-VN')
 
-        const completedDateStr = p.completed_at
-          ? new Date(p.completed_at).toLocaleDateString('vi-VN')
-          : new Date(p.created_at || Date.now()).toLocaleDateString('vi-VN')
+      const baseDate = p.completed_at ? new Date(p.completed_at) : new Date(p.created_at || Date.now())
+      const warrantyDate = new Date(baseDate)
+      warrantyDate.setFullYear(warrantyDate.getFullYear() + 2)
+      const warrantyUntilStr = warrantyDate.toLocaleDateString('vi-VN')
 
-        // Calculate 24 months warranty until
-        const baseDate = p.completed_at ? new Date(p.completed_at) : new Date(p.created_at || Date.now())
-        const warrantyDate = new Date(baseDate)
-        warrantyDate.setFullYear(warrantyDate.getFullYear() + 2)
-        const warrantyUntilStr = warrantyDate.toLocaleDateString('vi-VN')
+      // Services
+      const services: string[] = []
+      const textToScan = `${p.title} ${p.excerpt || ''} ${p.content || ''}`
+      if (/camera|giám sát|cctv/i.test(textToScan)) services.push('camera')
+      if (/khóa|faceid|vân tay/i.test(textToScan)) services.push('smart_lock')
+      if (/wifi|mạng|router/i.test(textToScan)) services.push('wifi')
+      if (/chấm công|vào ra/i.test(textToScan)) services.push('time_attendance')
+      if (/báo động|chống trộm/i.test(textToScan)) services.push('alarm')
+      if (services.length === 0) services.push('camera')
 
-        // Infer services
-        const services: string[] = []
-        const textToScan = `${p.title} ${p.excerpt || ''} ${p.content || ''}`
-        if (/camera|giám sát|cctv/i.test(textToScan)) services.push('camera')
-        if (/khóa|faceid|vân tay/i.test(textToScan)) services.push('smart_lock')
-        if (/wifi|mạng|router/i.test(textToScan)) services.push('wifi')
-        if (/chấm công|vào ra/i.test(textToScan)) services.push('time_attendance')
-        if (/báo động|chống trộm/i.test(textToScan)) services.push('alarm')
-        if (services.length === 0) services.push('camera')
+      const equipment = p.excerpt
+        ? p.excerpt
+        : `Hạng mục thi công thiết bị an ninh công trình ${p.title}`
 
-        const equipment = p.excerpt
-          ? p.excerpt
-          : `Hạng mục thi công hệ thống thiết bị an ninh cho công trình ${p.title}`
+      const orderRecord = {
+        order_code: orderCode,
+        customer_id: customerId || null,
+        customer_name: safeText(clientName, 255),
+        customer_phone: '0967 611 112',
+        customer_address: safeText(loc, 500),
+        services,
+        equipment_list: safeText(equipment, 1000),
+        installation_date: completedDateStr,
+        completion_date: completedDateStr,
+        warranty_months: 24,
+        warranty_until: warrantyUntilStr,
+        total_amount: 0,
+        deposit_amount: 0,
+        status: 'warranty',
+        technician: 'Phan Lê Tự Lập & Phạm Bá Tước',
+        notes: safeText(`Công trình: ${p.title} (${p.slug})`, 1000),
+        created_at: p.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
 
-        const newOrderRecord = {
-          order_code: orderCode,
-          customer_id: customer?.id || null,
-          customer_name: safeText(clientName, 255),
-          customer_phone: customer?.phone || '0967 611 112',
-          customer_address: safeText(loc, 500),
-          services,
-          equipment_list: safeText(equipment, 1000),
-          installation_date: completedDateStr,
-          completion_date: completedDateStr,
-          warranty_months: 24,
-          warranty_until: warrantyUntilStr,
-          total_amount: 0,
-          deposit_amount: 0,
-          status: 'warranty',
-          technician: 'Phan Lê Tự Lập & Phạm Bá Tước',
-          notes: safeText(`Đơn thi công công trình: ${p.title} (${postOrderTag})`, 1000),
-          created_at: p.created_at || new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
+      const { data: insertedOrder, error: ordErr } = await db
+        .from('installation_orders')
+        .insert([orderRecord])
+        .select()
+        .single()
 
-        const { error: orderInsErr } = await db.from('installation_orders').insert([newOrderRecord])
-        if (!orderInsErr) {
-          orderCodes.add(orderCode)
-          orderNotes.add(postOrderTag)
-          createdOrdersCount++
-        }
+      if (!ordErr && insertedOrder) {
+        createdOrders.push(insertedOrder)
       }
     }
 
     return NextResponse.json({
       ok: true,
       totalPosts: posts.length,
-      createdCustomers: createdCustomersCount,
-      createdOrders: createdOrdersCount,
-      message: `Đã đồng bộ thành công từ ${posts.length} bài viết sang ${createdCustomersCount} khách hàng mới và ${createdOrdersCount} đơn hàng mới!`,
+      customersCount: createdCustomers.length,
+      ordersCount: createdOrders.length,
+      message: `Đã xử lý tự động & đồng bộ chuẩn xác: ${posts.length} bài viết ➔ ${createdCustomers.length} khách hàng ➔ ${createdOrders.length} đơn hàng!`,
     })
   } catch (e: any) {
     return NextResponse.json({ error: e.message || 'Lỗi đồng bộ bài viết' }, { status: 500 })

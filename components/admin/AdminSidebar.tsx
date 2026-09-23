@@ -44,7 +44,7 @@ interface AdminSidebarProps {
 const MENU_ITEMS = [
   { id: 'overview' as AdminTab, label: 'Tổng quan', icon: LayoutDashboard, badgeKey: null },
   { id: 'customers' as AdminTab, label: 'Khách hàng', icon: Users, badgeKey: 'customers' },
-  { id: 'orders' as AdminTab, label: 'Đơn hàng', icon: ClipboardList, badgeKey: 'inProgressOrders' },
+  { id: 'orders' as AdminTab, label: 'Đơn hàng', icon: ClipboardList, badgeKey: 'orders' },
   { id: 'posts' as AdminTab, label: 'Bài viết', icon: FileText, badgeKey: 'posts' },
   { id: 'access-history' as AdminTab, label: 'Lịch sử truy cập', icon: History, badgeKey: null },
   { id: 'settings' as AdminTab, label: 'Cài đặt sao lưu', icon: Settings, badgeKey: null },
