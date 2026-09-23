@@ -727,13 +727,19 @@ export function OrdersTab({
                         <span className="font-bold text-[#1D1D1F] text-sm block font-mono tabular-nums">
                           {formatVND(ord.total_amount)}
                         </span>
-                        {remainingAmount > 0 ? (
-                          <span className="text-[10.5px] text-rose-600 font-mono font-semibold block">
-                            Nợ: {formatVND(remainingAmount)}
-                          </span>
+                        {ord.total_amount > 0 ? (
+                          remainingAmount > 0 ? (
+                            <span className="text-[10.5px] text-rose-600 font-mono font-semibold block">
+                              Nợ: {formatVND(remainingAmount)}
+                            </span>
+                          ) : (
+                            <span className="text-[10.5px] text-emerald-700 font-semibold block">
+                              Đã thu đủ ✓
+                            </span>
+                          )
                         ) : (
-                          <span className="text-[10.5px] text-emerald-700 font-semibold block">
-                            Đã thu đủ ✓
+                          <span className="text-[10.5px] text-[#86868B] font-medium block">
+                            Báo giá theo HĐ
                           </span>
                         )}
                       </td>

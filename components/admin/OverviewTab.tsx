@@ -104,10 +104,7 @@ export function OverviewTab({
       'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
     ]
     const revenueMap: Record<number, number> = {
-      0: 32000000,
-      1: 48500000,
-      2: 74200000,
-      3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0
+      0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0
     }
 
     orders.forEach((o) => {
@@ -120,7 +117,7 @@ export function OverviewTab({
       }
     })
 
-    const max = Math.max(...Object.values(revenueMap), 80000000)
+    const max = Math.max(...Object.values(revenueMap), 1)
     return months.map((m, idx) => ({
       name: m,
       short: `T${idx + 1}`,
@@ -744,10 +741,16 @@ export function OverviewTab({
                         </td>
                         <td className="border border-slate-300 p-2 text-center">
                           {o.status === 'completed'
-                            ? 'Hoàn thành'
+                            ? 'Đã bàn giao'
+                            : o.status === 'warranty'
+                            ? 'Đang bảo hành'
                             : o.status === 'in_progress'
                             ? 'Đang thi công'
-                            : 'Chờ khảo sát'}
+                            : o.status === 'pending'
+                            ? 'Chờ thi công'
+                            : o.status === 'survey'
+                            ? 'Khảo sát / Báo giá'
+                            : 'Đã hủy'}
                         </td>
                       </tr>
                     ))}
