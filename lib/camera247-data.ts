@@ -779,3 +779,25 @@ export function addAuditLog(
   const updated = [newLog, ...current].slice(0, 200)
   saveStoredLogs(updated)
 }
+
+export function clearStoredLogs() {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY_LOGS, JSON.stringify(SAMPLE_LOGS))
+  } catch (e) {
+    console.error('Error clearing stored logs', e)
+  }
+}
+
+export function resetAllToDefaultSamples() {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOMERS, JSON.stringify(SAMPLE_CUSTOMERS))
+    localStorage.setItem(LOCAL_STORAGE_KEY_ORDERS, JSON.stringify(SAMPLE_ORDERS))
+    localStorage.setItem(LOCAL_STORAGE_KEY_LOGS, JSON.stringify(SAMPLE_LOGS))
+  } catch (e) {
+    console.error('Error resetting all to default samples', e)
+  }
+}
+
+

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import {
   Settings,
   Database,
@@ -19,6 +19,12 @@ import {
   UserCheck,
   Check,
   Info,
+  RotateCcw,
+  Sparkles,
+  Users,
+  FileText,
+  Clock,
+  HardDrive,
 } from 'lucide-react'
 import type { Customer, InstallationOrder, AccessLog } from '@/lib/camera247-data'
 import type { Post, Category } from '@/lib/supabase'
@@ -37,6 +43,7 @@ interface SettingsBackupTabProps {
     categories?: Category[]
     logs?: AccessLog[]
   }) => void
+  onResetDefaultSamples?: () => void
 }
 
 export function SettingsBackupTab({
@@ -46,6 +53,7 @@ export function SettingsBackupTab({
   categories,
   logs,
   onRestoreData,
+  onResetDefaultSamples,
 }: SettingsBackupTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [exporting, setExporting] = useState(false)
@@ -68,6 +76,18 @@ export function SettingsBackupTab({
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [passwordLoading, setPasswordLoading] = useState(false)
+
+  // Estimated JSON size
+  const estimatedPayloadSize = useMemo(() => {
+    try {
+      const payload = { customers, orders, posts, categories, logs }
+      const str = JSON.stringify(payload)
+      const bytes = new Blob([str]).size
+      return bytes > 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${bytes} B`
+    } catch {
+      return '12.5 KB'
+    }
+  }, [customers, orders, posts, categories, logs])
 
   // Handle JSON Export
   const handleExportBackup = () => {
@@ -200,128 +220,219 @@ export function SettingsBackupTab({
       <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-[#0071E3] tracking-wide uppercase">
-            <Settings className="w-4 h-4" />
-            <span>Cấu Hình & Sao Lưu</span>
+            <span className="w-2 h-2 rounded-full bg-[#0071E3] animate-pulse" />
+            <span>Hệ Thống Cấu Hình & An Ninh Dữ Liệu</span>
           </div>
-          <h1 className="text-2xl font-bold text-[#1D1D1F] tracking-tight mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] tracking-tight mt-1">
             Cài Đặt Hệ Thống & Bảo Mật Dữ Liệu
           </h1>
-          <p className="text-xs sm:text-sm text-[#86868B] mt-1">
-            Xuất và khôi phục bản sao lưu JSON toàn hệ thống, quản lý mật khẩu tài khoản quản trị và bảo mật.
+          <p className="text-xs sm:text-sm text-[#86868B] mt-1 max-w-2xl">
+            Tạo và khôi phục bản sao lưu ngoại tuyến JSON, quản lý tài khoản quản trị và duy trì tính toàn vẹn hệ thống Camera 247 Huế.
           </p>
+        </div>
+      </div>
+
+      {/* 4 System Metric KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1 */}
+        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+          <div className="flex items-center justify-between text-[#86868B] text-xs font-semibold uppercase tracking-wider">
+            <span>Khách Hàng</span>
+            <div className="w-8 h-8 rounded-2xl bg-blue-50 text-[#0071E3] flex items-center justify-center border border-blue-200/50">
+              <Users className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] tabular-nums tracking-tight">
+              {customers.length}
+            </div>
+            <p className="text-xs text-[#86868B] mt-1 font-medium">Hồ sơ khách hàng tại Huế</p>
+          </div>
+        </div>
+
+        {/* Card 2 */}
+        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+          <div className="flex items-center justify-between text-[#86868B] text-xs font-semibold uppercase tracking-wider">
+            <span>Đơn Thi Công</span>
+            <div className="w-8 h-8 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/50">
+              <Layers className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-2xl sm:text-3xl font-bold text-emerald-600 tabular-nums tracking-tight">
+              {orders.length}
+            </div>
+            <p className="text-xs text-[#86868B] mt-1 font-medium">Công trình camera & khóa</p>
+          </div>
+        </div>
+
+        {/* Card 3 */}
+        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+          <div className="flex items-center justify-between text-[#86868B] text-xs font-semibold uppercase tracking-wider">
+            <span>Bài Viết CMS</span>
+            <div className="w-8 h-8 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/50">
+              <FileText className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-2xl sm:text-3xl font-bold text-amber-600 tabular-nums tracking-tight">
+              {posts.length}
+            </div>
+            <p className="text-xs text-[#86868B] mt-1 font-medium">Tư liệu dự án tiêu biểu</p>
+          </div>
+        </div>
+
+        {/* Card 4 */}
+        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+          <div className="flex items-center justify-between text-[#86868B] text-xs font-semibold uppercase tracking-wider">
+            <span>Dung Lượng Snapshot</span>
+            <div className="w-8 h-8 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-200/50">
+              <HardDrive className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-2xl sm:text-3xl font-bold text-purple-600 tabular-nums tracking-tight">
+              {estimatedPayloadSize}
+            </div>
+            <p className="text-xs text-[#86868B] mt-1 font-medium">Bản sao lưu JSON gọn nhẹ</p>
+          </div>
         </div>
       </div>
 
       {/* Two Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Backup & Restore Card */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-6">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#0071E3] uppercase tracking-wider">
-              <Database className="w-4 h-4" />
-              <span>Snapshot JSON</span>
-            </div>
-            <h3 className="text-lg font-bold text-[#1D1D1F] mt-1">
-              Sao Lưu & Khôi Phục Dữ Liệu Ngoại Tuyến
-            </h3>
-            <p className="text-xs text-[#86868B] mt-1 leading-relaxed">
-              Tạo tệp sao lưu JSON chứa toàn bộ dữ liệu khách hàng, đơn thi công, bài viết và lịch sử truy cập để lưu trữ an toàn hoặc chuyển đổi thiết bị.
-            </p>
-          </div>
-
-          {/* Current Counts Summary Chips */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80">
+        <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-6 flex flex-col justify-between">
+          <div className="space-y-4">
             <div>
-              <span className="text-[11px] text-[#86868B] block">Khách hàng:</span>
-              <span className="text-lg font-bold text-[#1D1D1F] font-mono tabular-nums">{customers.length}</span>
-            </div>
-            <div>
-              <span className="text-[11px] text-[#86868B] block">Đơn thi công:</span>
-              <span className="text-lg font-bold text-[#0071E3] font-mono tabular-nums">{orders.length}</span>
-            </div>
-            <div>
-              <span className="text-[11px] text-[#86868B] block">Bài viết:</span>
-              <span className="text-lg font-bold text-amber-600 font-mono tabular-nums">{posts.length}</span>
-            </div>
-            <div>
-              <span className="text-[11px] text-[#86868B] block">Nhật ký logs:</span>
-              <span className="text-lg font-bold text-emerald-600 font-mono tabular-nums">{logs.length}</span>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-1">
-            <button
-              onClick={handleExportBackup}
-              disabled={exporting}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 px-4 rounded-2xl text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all disabled:opacity-50 active:scale-[0.98]"
-            >
-              <Download className="w-4 h-4" />
-              <span>{exporting ? 'Đang xuất tệp...' : 'Tải Về Tệp Sao Lưu (.JSON)'}</span>
-            </button>
-
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={importing}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] font-semibold py-3 px-4 rounded-2xl text-xs sm:text-sm border border-slate-200/80 transition-all disabled:opacity-50 active:scale-[0.98] shadow-2xs"
-            >
-              <Upload className="w-4 h-4 text-[#0071E3]" />
-              <span>{importing ? 'Đang đọc tệp...' : 'Khôi Phục Từ File (.JSON)'}</span>
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-          </div>
-
-          {importError && (
-            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{importError}</span>
-            </div>
-          )}
-
-          {/* Preview Alert Box for Restore */}
-          {importPreview && (
-            <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-3 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-                  <FileJson className="w-4 h-4 text-amber-600" />
-                  Xác Nhận Khôi Phục Dữ Liệu Hệ Thống
-                </span>
-                <button
-                  onClick={() => setImportPreview(null)}
-                  className="text-xs text-amber-700 hover:text-amber-950 font-bold"
-                >
-                  ✕
-                </button>
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#0071E3] uppercase tracking-wider">
+                <Database className="w-4 h-4" />
+                <span>Sao Lưu & Khôi Phục Snapshot</span>
               </div>
-
-              <p className="text-xs text-amber-900 leading-relaxed">
-                Tệp sao lưu chứa: <strong>{importPreview.customersCount}</strong> khách hàng,{' '}
-                <strong>{importPreview.ordersCount}</strong> đơn thi công,{' '}
-                <strong>{importPreview.postsCount}</strong> bài viết. Khôi phục sẽ đồng bộ và ghi đè dữ liệu trên trình duyệt này.
+              <h3 className="text-lg font-bold text-[#1D1D1F] mt-1">
+                Quản Trị Bản Sao Lưu JSON Ngoại Tuyến
+              </h3>
+              <p className="text-xs text-[#86868B] mt-1 leading-relaxed">
+                Tạo tệp sao lưu JSON chứa toàn bộ dữ liệu khách hàng, đơn thi công, bài viết và lịch sử truy cập để lưu trữ an toàn hoặc di chuyển sang thiết bị khác.
               </p>
+            </div>
 
-              <div className="flex gap-2 pt-1">
-                <button
-                  onClick={handleConfirmRestore}
-                  className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-xs transition-colors"
-                >
-                  Đồng Ý Khôi Phục Ngay
-                </button>
-                <button
-                  onClick={() => setImportPreview(null)}
-                  className="px-4 py-2 bg-white text-slate-700 hover:bg-slate-100 rounded-xl text-xs border border-slate-200"
-                >
-                  Hủy Bỏ
-                </button>
+            {/* Current Counts Summary Chips */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs">
+              <div>
+                <span className="text-[11px] text-[#86868B] block font-medium">Khách hàng:</span>
+                <span className="text-lg font-bold text-[#1D1D1F] font-mono tabular-nums">{customers.length}</span>
+              </div>
+              <div>
+                <span className="text-[11px] text-[#86868B] block font-medium">Đơn thi công:</span>
+                <span className="text-lg font-bold text-[#0071E3] font-mono tabular-nums">{orders.length}</span>
+              </div>
+              <div>
+                <span className="text-[11px] text-[#86868B] block font-medium">Bài viết:</span>
+                <span className="text-lg font-bold text-amber-600 font-mono tabular-nums">{posts.length}</span>
+              </div>
+              <div>
+                <span className="text-[11px] text-[#86868B] block font-medium">Nhật ký logs:</span>
+                <span className="text-lg font-bold text-emerald-600 font-mono tabular-nums">{logs.length}</span>
               </div>
             </div>
-          )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-1">
+              <button
+                onClick={handleExportBackup}
+                disabled={exporting}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white font-bold py-3 px-4 rounded-2xl text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all disabled:opacity-50 active:scale-[0.98]"
+              >
+                <Download className="w-4 h-4" />
+                <span>{exporting ? 'Đang xuất tệp...' : 'Tải Về Tệp Sao Lưu (.JSON)'}</span>
+              </button>
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={importing}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] font-bold py-3 px-4 rounded-2xl text-xs sm:text-sm border border-slate-200/80 transition-all disabled:opacity-50 active:scale-[0.98] shadow-2xs"
+              >
+                <Upload className="w-4 h-4 text-[#0071E3]" />
+                <span>{importing ? 'Đang đọc tệp...' : 'Khôi Phục Từ File (.JSON)'}</span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            {/* Reset to Default 5 Samples Button */}
+            {onResetDefaultSamples && (
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-[#1D1D1F] block">Đặt lại dữ liệu 5 mẫu chuẩn</span>
+                  <span className="text-[11px] text-[#86868B] block">Khôi phục 5 khách hàng, 5 đơn hàng và 5 bài viết mẫu chuẩn ban đầu.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm('Xác nhận khôi phục toàn bộ hệ thống về 5 mẫu chuẩn (Khách hàng, Đơn hàng, Bài viết)?')) {
+                      onResetDefaultSamples()
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#1D1D1F] font-semibold text-xs rounded-2xl border border-slate-200 transition-all shadow-2xs active:scale-95 shrink-0"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-[#0071E3]" />
+                  <span>Nạp 5 Mẫu Chuẩn</span>
+                </button>
+              </div>
+            )}
+
+            {importError && (
+              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{importError}</span>
+              </div>
+            )}
+
+            {/* Preview Alert Box for Restore */}
+            {importPreview && (
+              <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-3 animate-in fade-in duration-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                    <FileJson className="w-4 h-4 text-amber-600" />
+                    Xác Nhận Khôi Phục Dữ Liệu Hệ Thống
+                  </span>
+                  <button
+                    onClick={() => setImportPreview(null)}
+                    className="text-xs text-amber-700 hover:text-amber-950 font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <p className="text-xs text-amber-900 leading-relaxed">
+                  Tệp sao lưu chứa: <strong>{importPreview.customersCount}</strong> khách hàng,{' '}
+                  <strong>{importPreview.ordersCount}</strong> đơn thi công,{' '}
+                  <strong>{importPreview.postsCount}</strong> bài viết. Khôi phục sẽ đồng bộ dữ liệu vào hệ thống.
+                </p>
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={handleConfirmRestore}
+                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-xs transition-colors"
+                  >
+                    Đồng Ý Khôi Phục Ngay
+                  </button>
+                  <button
+                    onClick={() => setImportPreview(null)}
+                    className="px-4 py-2 bg-white text-slate-700 hover:bg-slate-100 rounded-xl text-xs border border-slate-200 font-semibold"
+                  >
+                    Hủy Bỏ
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Change Password & Admin Accounts */}
@@ -335,7 +446,7 @@ export function SettingsBackupTab({
               Đổi Mật Khẩu Quản Trị
             </h3>
             <p className="text-xs text-[#86868B] mt-1">
-              Đổi mật khẩu cho tài khoản <code className="text-[#0071E3] font-mono font-semibold">admin</code> hoặc tài khoản kỹ thuật <code className="text-[#0071E3] font-mono font-semibold">admin1</code>.
+              Đổi mật khẩu cho tài khoản <code className="text-[#0071E3] font-mono font-bold">admin</code> (Tước) hoặc tài khoản kỹ thuật <code className="text-[#0071E3] font-mono font-bold">admin1</code> (Lập).
             </p>
           </div>
 
@@ -343,7 +454,7 @@ export function SettingsBackupTab({
             {passwordMsg && (
               <div
                 className={cn(
-                  'p-3 rounded-2xl text-xs flex items-center gap-2 border',
+                  'p-3 rounded-2xl text-xs flex items-center gap-2 border font-medium',
                   passwordMsg.type === 'success'
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                     : 'bg-rose-50 border-rose-200 text-rose-700'
@@ -359,19 +470,19 @@ export function SettingsBackupTab({
             )}
 
             <div>
-              <label className="block text-[11px] font-medium text-[#86868B] mb-1">Tài khoản cần đổi</label>
+              <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">Tài khoản cần đổi</label>
               <select
                 value={username}
                 onChange={(e) => setUsername(e.target.value as any)}
-                className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all font-medium"
+                className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all font-semibold"
               >
-                <option value="admin">admin (Quản trị viên chính)</option>
-                <option value="admin1">admin1 (Kỹ thuật viên 2)</option>
+                <option value="admin">admin (Quản trị viên - Tước)</option>
+                <option value="admin1">admin1 (Kỹ thuật viên - Lập)</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-[#86868B] mb-1">Mật khẩu hiện tại *</label>
+              <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">Mật khẩu hiện tại *</label>
               <input
                 type="password"
                 required
@@ -383,7 +494,7 @@ export function SettingsBackupTab({
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-[#86868B] mb-1">Mật khẩu mới *</label>
+              <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">Mật khẩu mới *</label>
               <input
                 type="password"
                 required
@@ -395,7 +506,7 @@ export function SettingsBackupTab({
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-[#86868B] mb-1">Xác nhận mật khẩu mới *</label>
+              <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">Xác nhận mật khẩu mới *</label>
               <input
                 type="password"
                 required
@@ -409,7 +520,7 @@ export function SettingsBackupTab({
             <button
               type="submit"
               disabled={passwordLoading}
-              className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-2.5 rounded-2xl text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all disabled:opacity-50 active:scale-[0.98]"
+              className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-bold py-3 rounded-2xl text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all disabled:opacity-50 active:scale-[0.98]"
             >
               {passwordLoading ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
             </button>
@@ -420,28 +531,28 @@ export function SettingsBackupTab({
       {/* Apple System & Business Identity Footer Card */}
       <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-3">
         <div className="flex items-center gap-2.5 text-[#1D1D1F] font-bold text-sm">
-          <div className="w-8 h-8 rounded-xl bg-yellow-50 text-[#B88700] flex items-center justify-center border border-yellow-200/60">
+          <div className="w-8 h-8 rounded-xl bg-yellow-50 text-[#B88700] flex items-center justify-center border border-yellow-200/60 shadow-2xs">
             <Shield className="w-4 h-4" />
           </div>
           <span>Thông Tin Doanh Nghiệp & Bản Quyền Hệ Thống</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 text-xs">
-          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/60">
-            <span className="text-[#86868B] block text-[11px]">Đơn Vị Chủ Quản:</span>
-            <span className="font-semibold text-[#1D1D1F] mt-0.5 block">Công ty TNHH Công Nghệ An Ninh Huế</span>
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60">
+            <span className="text-[#86868B] block text-[11px] font-medium">Đơn Vị Chủ Quản:</span>
+            <span className="font-bold text-[#1D1D1F] mt-0.5 block">Công ty TNHH Công Nghệ An Ninh Huế</span>
           </div>
-          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/60">
-            <span className="text-[#86868B] block text-[11px]">Mã Số Thuế Doanh Nghiệp:</span>
-            <span className="font-mono font-semibold text-[#1D1D1F] mt-0.5 block">3301677400 · Sở KH&ĐT TT Huế</span>
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60">
+            <span className="text-[#86868B] block text-[11px] font-medium">Mã Số Thuế Doanh Nghiệp:</span>
+            <span className="font-mono font-bold text-[#1D1D1F] mt-0.5 block">3301677400 · Sở KH&ĐT TT Huế</span>
           </div>
-          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/60">
-            <span className="text-[#86868B] block text-[11px]">Hotline Kỹ Thuật Trực 24/7:</span>
-            <span className="font-semibold text-[#0071E3] mt-0.5 block">0796 785 151 (Tước) · 0967 611 112 (Lập)</span>
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60">
+            <span className="text-[#86868B] block text-[11px] font-medium">Hotline Kỹ Thuật Trực 24/7:</span>
+            <span className="font-bold text-[#0071E3] mt-0.5 block">0796 785 151 (Tước) · 0967 611 112 (Lập)</span>
           </div>
-          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/60">
-            <span className="text-[#86868B] block text-[11px]">Phiên Bản Phần Mềm:</span>
-            <span className="font-mono font-semibold text-[#1D1D1F] mt-0.5 block">Camera247 macOS Engine v2.5</span>
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60">
+            <span className="text-[#86868B] block text-[11px] font-medium">Phiên Bản Phần Mềm:</span>
+            <span className="font-mono font-bold text-[#1D1D1F] mt-0.5 block">Camera247 macOS Engine v2.5</span>
           </div>
         </div>
       </div>
