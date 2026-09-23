@@ -896,13 +896,8 @@ export default function AdminPage() {
               categories={categories}
               logs={logs}
               onRestoreData={handleRestoreData}
-              onResetDefaultSamples={() => {
-                resetAllToDefaultSamples()
-                setCustomers(getStoredCustomers())
-                setOrders(getStoredOrders())
-                setLogs(getStoredLogs())
-                alert('Đã khôi phục 5 mẫu chuẩn cho Khách hàng, Đơn hàng và Nhật ký!')
-              }}
+              activeUser={currentUser}
+              activeDisplayName={currentDisplayName}
             />
           )}
         </main>
