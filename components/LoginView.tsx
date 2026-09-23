@@ -78,12 +78,9 @@ export default function LoginView() {
 
           <div>
             <p className="font-heading font-extrabold text-brand-yellow text-lg mb-3">Khu vực quản trị</p>
-            <h1 className="font-heading text-4xl xl:text-[2.75rem] font-extrabold tracking-tight leading-[1.12] max-w-[16ch] mb-4">
+            <h1 className="font-heading text-4xl xl:text-[2.75rem] font-extrabold tracking-tight leading-[1.12] max-w-[16ch]">
               Quản lý công trình và liên hệ khách hàng
             </h1>
-            <p className="text-white/75 text-[15px] leading-relaxed max-w-[36ch]">
-              Dành cho nhân sự Camera 247 Huế. Nội dung sau đăng nhập không hiển thị trên trang công khai.
-            </p>
           </div>
         </div>
       </aside>
