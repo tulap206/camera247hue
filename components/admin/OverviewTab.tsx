@@ -586,7 +586,7 @@ export function OverviewTab({
               <p className="text-xs text-[#86868B] mt-0.5">
                 {displayOrders.isUpcoming
                   ? 'Các công trình đang triển khai và chuẩn bị thi công tại Huế'
-                  : 'Hệ thống thiết bị an ninh đã bàn giao tại Thừa Thiên Huế'}
+                  : 'Hệ thống thiết bị an ninh đã bàn giao tại TP. Huế'}
               </p>
             </div>
             <button

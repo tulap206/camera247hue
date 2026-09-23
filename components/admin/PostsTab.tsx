@@ -415,7 +415,7 @@ export function PostsTab({
             Bài Viết & Dự Án Công Trình
           </h1>
           <p className="text-xs sm:text-sm text-[#86868B] mt-1 max-w-2xl">
-            Đăng tải tư liệu hình ảnh thực tế, quản trị danh mục công trình và khẳng định năng lực thi công của Camera 247 Huế tại Thừa Thiên Huế.
+            Đăng tải tư liệu hình ảnh thực tế, quản trị danh mục công trình và khẳng định năng lực thi công của Camera 247 Huế tại TP. Huế.
           </p>
         </div>
 

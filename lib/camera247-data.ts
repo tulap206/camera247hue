@@ -444,7 +444,7 @@ Công trình được bàn giao đúng hạn, hình ảnh sắc nét, khách hà
     title: 'Camera Khách Sạn / Doanh Nghiệp',
     description: 'Dự án quy mô lớn, nhà xưởng, khách sạn, resort',
     category_id: 'cat-01',
-    excerpt: 'Lắp đặt hệ thống camera IP giám sát tập trung chuẩn công nghiệp cho đơn vị doanh nghiệp / khách sạn tại Thừa Thiên Huế.',
+    excerpt: 'Lắp đặt hệ thống camera IP giám sát tập trung chuẩn công nghiệp cho đơn vị doanh nghiệp / khách sạn tại TP. Huế.',
     content: `# Nhu Cầu & Khảo Sát Dự Án
 Doanh nghiệp / Khách sạn cần hệ thống giám sát an ninh toàn diện với số lượng lớn camera, yêu cầu đường truyền ổn định và quản lý phân quyền tập trung.
 

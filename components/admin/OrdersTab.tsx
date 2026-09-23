@@ -30,7 +30,6 @@ import {
   Fingerprint,
   Server,
   Sparkles,
-  Download,
   MessageCircle,
   ExternalLink,
   Layers,
@@ -40,6 +39,9 @@ import {
   Receipt,
   BadgeAlert,
   RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  RotateCcw,
 } from 'lucide-react'
 import {
   formatVND,
@@ -260,71 +262,6 @@ export function OrdersTab({
     setIsModalOpen(false)
   }
 
-  // Export orders list to CSV
-  const handleExportCSV = () => {
-    try {
-      const headers = [
-        'Mã Đơn Hàng',
-        'Tên Khách Hàng',
-        'Số Điện Thoại',
-        'Địa Chỉ Thi Công',
-        'Gói Dịch Vụ',
-        'Danh Mục Thiết Bị',
-        'Ngày Thi Công',
-        'Ngày Bàn Giao',
-        'Thời Hạn Bảo Hành (Tháng)',
-        'Hạn Bảo Hành Đến',
-        'Tổng Tiền (VND)',
-        'Đã Cọc / Thanh Toán (VND)',
-        'Còn Lại (VND)',
-        'Trạng Thái',
-        'Kỹ Thuật Viên Phụ Trách',
-        'Ghi Chú',
-      ]
-
-      const rows = filteredOrders.map((o) => {
-        const remaining = Math.max(0, (o.total_amount || 0) - (o.deposit_amount || 0))
-        const statusLabel = ORDER_STATUS_CONFIG[o.status]?.label || o.status
-        const servicesText = (o.services || [])
-          .map((sId) => CAMERA247_SERVICES.find((s) => s.id === sId)?.name || sId)
-          .join('; ')
-
-        return [
-          `"${o.order_code}"`,
-          `"${(o.customer_name || '').replace(/"/g, '""')}"`,
-          `"${o.customer_phone || ''}"`,
-          `"${(o.customer_address || '').replace(/"/g, '""')}"`,
-          `"${servicesText}"`,
-          `"${(o.equipment_list || '').replace(/"/g, '""')}"`,
-          `"${o.installation_date || ''}"`,
-          `"${o.completion_date || ''}"`,
-          o.warranty_months || 24,
-          `"${o.warranty_until || ''}"`,
-          o.total_amount || 0,
-          o.deposit_amount || 0,
-          remaining,
-          `"${statusLabel}"`,
-          `"${(o.technician || '').replace(/"/g, '""')}"`,
-          `"${(o.notes || '').replace(/"/g, '""')}"`,
-        ].join(',')
-      })
-
-      const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n')
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      const dateTag = new Date().toISOString().split('T')[0]
-      link.href = url
-      link.download = `danh-sach-don-hang-camera247-${dateTag}.csv`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-    } catch (err: any) {
-      alert('Lỗi xuất file CSV: ' + err.message)
-    }
-  }
-
   // Filter & Sort Orders
   const filteredOrders = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
@@ -441,14 +378,6 @@ export function OrdersTab({
             <span>{isSyncing ? 'Đang đồng bộ...' : 'Đồng Bộ Từ Bài Viết'}</span>
           </button>
           <button
-            onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-slate-200/80 transition-all shadow-2xs active:scale-[0.98]"
-            title="Tải về danh sách đơn hàng định dạng CSV"
-          >
-            <Download className="w-4 h-4 text-[#86868B]" />
-            <span>Xuất Báo Cáo (.CSV)</span>
-          </button>
-          <button
             onClick={() => openCreateModal(initialNewOrderCustomer)}
             className="inline-flex items-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all active:scale-[0.98]"
           >
@@ -521,50 +450,71 @@ export function OrdersTab({
       </div>
 
       {/* Multi-layer Search & Status Segmented Toolbar */}
-      <div className="space-y-3">
-        {/* Apple Segmented Status Tabs */}
-        <div className="bg-white p-2.5 rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-          {[
-            { id: 'all', label: 'Tất cả đơn', count: orders.length },
-            { id: 'in_progress', label: 'Đang thi công', count: orders.filter((o) => o.status === 'in_progress').length, color: 'text-[#0071E3]' },
-            { id: 'pending', label: 'Chờ thi công', count: orders.filter((o) => o.status === 'pending').length },
-            { id: 'survey', label: 'Khảo sát / Báo giá', count: orders.filter((o) => o.status === 'survey').length },
-            { id: 'warranty', label: 'Đang bảo hành', count: orders.filter((o) => o.status === 'warranty').length, color: 'text-purple-700' },
-            { id: 'completed', label: 'Đã hoàn thành', count: orders.filter((o) => o.status === 'completed').length, color: 'text-emerald-700' },
-          ].map((tab) => {
-            const active = statusFilter === tab.id
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  setStatusFilter(tab.id)
-                  setCurrentPage(1)
-                }}
-                className={cn(
-                  'px-3.5 py-2 rounded-2xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-2 shrink-0',
-                  active
-                    ? 'bg-[#0071E3] text-white font-semibold shadow-[0_2px_8px_rgba(0,113,227,0.25)]'
-                    : 'text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-slate-100/80'
-                )}
-              >
-                <span>{tab.label}</span>
-                <span
+      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-3">
+        {/* Row 1: Apple Segmented Status Tabs & Active Reset */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="inline-flex p-1 bg-slate-100 rounded-2xl border border-slate-200/60 overflow-x-auto no-scrollbar gap-1 max-w-full">
+            {[
+              { id: 'all', label: 'Tất cả đơn', count: orders.length },
+              { id: 'in_progress', label: 'Đang thi công', count: orderStats.inProgressCount },
+              { id: 'pending', label: 'Chờ thi công', count: orders.filter((o) => o.status === 'pending').length },
+              { id: 'survey', label: 'Khảo sát / Báo giá', count: orderStats.surveyCount },
+              { id: 'warranty', label: 'Đang bảo hành', count: orderStats.warrantyCount },
+              { id: 'completed', label: 'Đã hoàn thành', count: orders.filter((o) => o.status === 'completed').length },
+            ].map((tab) => {
+              const active = statusFilter === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    setStatusFilter(tab.id)
+                    setCurrentPage(1)
+                  }}
                   className={cn(
-                    'text-[10.5px] px-2 py-0.2 rounded-full font-mono tabular-nums font-bold',
-                    active ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#86868B]'
+                    'px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0',
+                    active
+                      ? 'bg-white text-[#1D1D1F] font-semibold shadow-xs'
+                      : 'text-[#86868B] hover:text-[#1D1D1F]'
                   )}
                 >
-                  {tab.count}
-                </span>
-              </button>
-            )
-          })}
+                  <span>{tab.label}</span>
+                  <span
+                    className={cn(
+                      'text-[10px] px-1.5 py-0.2 rounded-full font-mono tabular-nums font-bold',
+                      active ? 'bg-blue-50 text-[#0071E3]' : 'bg-slate-200/60 text-[#86868B]'
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          {(searchQuery || statusFilter !== 'all' || serviceFilter !== 'all' || paymentFilter !== 'all' || sortBy !== 'newest') && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('')
+                setStatusFilter('all')
+                setServiceFilter('all')
+                setPaymentFilter('all')
+                setSortBy('newest')
+                setCurrentPage(1)
+              }}
+              className="inline-flex items-center gap-1 text-xs text-[#0071E3] hover:underline self-end sm:self-auto font-medium px-2 py-1 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Đặt lại bộ lọc
+            </button>
+          )}
         </div>
 
-        {/* Search, Services & Payment Filter Toolbar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-3.5 rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-          <div className="relative flex-1 min-w-[200px]">
+        {/* Row 2: Search Input + Service Filter + Payment Filter + Sort By */}
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+          {/* Search Bar */}
+          <div className="relative sm:col-span-12 lg:col-span-5">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -574,19 +524,33 @@ export function OrdersTab({
                 setCurrentPage(1)
               }}
               placeholder="Tìm theo mã đơn (C247-...), tên khách, SĐT, thiết bị, KTV..."
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-3.5 py-2 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9.5 pr-8 py-2.5 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('')
+                  setCurrentPage(1)
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                title="Xóa tìm kiếm"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            {/* Service Filter */}
+          {/* Service Filter */}
+          <div className="relative sm:col-span-4 lg:col-span-3">
+            <Wrench className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={serviceFilter}
               onChange={(e) => {
                 setServiceFilter(e.target.value)
                 setCurrentPage(1)
               }}
-              className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0"
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-7 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none cursor-pointer truncate"
             >
               <option value="all">Tất cả gói dịch vụ</option>
               {CAMERA247_SERVICES.map((s) => (
@@ -595,34 +559,43 @@ export function OrdersTab({
                 </option>
               ))}
             </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
 
-            {/* Payment Filter */}
+          {/* Payment Filter */}
+          <div className="relative sm:col-span-4 lg:col-span-2">
+            <Receipt className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={paymentFilter}
               onChange={(e) => {
                 setPaymentFilter(e.target.value as any)
                 setCurrentPage(1)
               }}
-              className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0"
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-7 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none cursor-pointer truncate"
             >
               <option value="all">Tất cả thanh toán</option>
               <option value="paid">Đã thanh toán 100%</option>
-              <option value="unpaid">Còn công nợ chưa thu</option>
+              <option value="unpaid">Còn công nợ</option>
             </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
 
-            {/* Sort By */}
+          {/* Sort By */}
+          <div className="relative sm:col-span-4 lg:col-span-2">
+            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={sortBy}
               onChange={(e) => {
                 setSortBy(e.target.value as any)
                 setCurrentPage(1)
               }}
-              className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0"
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-7 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none cursor-pointer truncate"
             >
               <option value="newest">Mới tạo gần đây</option>
               <option value="amount_desc">Trị giá cao nhất</option>
               <option value="date_asc">Lịch thi công gần nhất</option>
             </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
       </div>
@@ -685,7 +658,7 @@ export function OrdersTab({
                       {/* Customer & Direct Action Hub */}
                       <td className="py-4 px-4">
                         <div className="space-y-1">
-                          <p className="font-bold text-[#1D1D1F] group-hover:text-[#0071E3] transition-colors line-clamp-1 text-sm">
+                          <p className="font-bold text-[#1D1D1F] group-hover:text-[#0071E3] transition-colors break-words leading-snug text-sm">
                             {ord.customer_name}
                           </p>
                           <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
@@ -913,8 +886,8 @@ export function OrdersTab({
 
                   {/* Customer Information */}
                   <div className="bg-slate-50/80 rounded-2xl p-3 border border-slate-200/60 space-y-2 text-xs">
-                    <div className="flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
-                      <h4 className="font-bold text-sm text-[#1D1D1F] line-clamp-1">
+                    <div className="flex items-start justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                      <h4 className="font-bold text-sm text-[#1D1D1F] break-words leading-snug flex-1">
                         {ord.customer_name}
                       </h4>
                       {ord.customer_phone ? (
@@ -1376,7 +1349,7 @@ export function OrdersTab({
                     Hotline kỹ thuật: 0796 785 151 (Tước) · 0967 611 112 (Lập)
                   </p>
                   <p className="text-[11px] text-slate-600">
-                    Website: camera247hue.com · Địa bàn: Thừa Thiên Huế
+                    Website: camera247hue.com · Địa bàn: TP. Huế
                   </p>
                 </div>
                 <div className="text-right">
@@ -1437,7 +1410,7 @@ export function OrdersTab({
                   <p className="font-bold text-slate-900 uppercase">Chính Sách Bảo Hành Chính Hãng</p>
                   <p>• Thời hạn cam kết: <strong className="text-[#0071E3]">{viewingOrder.warranty_months} tháng</strong></p>
                   <p>• Hiệu lực đến ngày: <strong className="text-indigo-700 font-mono">{viewingOrder.warranty_until}</strong></p>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">• Hỗ trợ xử lý sự cố kỹ thuật tận nơi 24/7 trên toàn tỉnh Thừa Thiên Huế.</p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">• Hỗ trợ xử lý sự cố kỹ thuật tận nơi 24/7 tại TP. Huế.</p>
                 </div>
 
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5 text-right">
