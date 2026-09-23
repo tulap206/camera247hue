@@ -324,7 +324,7 @@ export function AdminSidebar({
       </aside>
 
       {/* Mobile Top Header Bar */}
-      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between min-h-14 px-4 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 text-[#1D1D1F] shadow-2xs">
+      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between min-h-14 w-full px-4 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 text-[#1D1D1F] shadow-2xs">
         <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
