@@ -416,7 +416,8 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">
-                <th className="py-3.5 px-4 sm:px-6 whitespace-nowrap">Thời Gian</th>
+                <th className="py-3.5 px-4 text-center w-12">STT</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">Thời Gian</th>
                 <th className="py-3.5 px-4 whitespace-nowrap">Tài Khoản</th>
                 <th className="py-3.5 px-4 whitespace-nowrap">Hành Động</th>
                 <th className="py-3.5 px-4 whitespace-nowrap">Phân Hệ</th>
@@ -428,14 +429,14 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
             <tbody className="divide-y divide-slate-100 text-xs text-[#1D1D1F]">
               {paginatedLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center space-y-2">
+                  <td colSpan={8} className="py-16 text-center space-y-2">
                     <History className="w-10 h-10 text-slate-300 mx-auto" />
                     <p className="text-sm font-bold text-[#1D1D1F]">Không có nhật ký nào phù hợp</p>
                     <p className="text-xs text-[#86868B]">Thử làm mới hoặc thay đổi các tiêu chí lọc ở trên.</p>
                   </td>
                 </tr>
               ) : (
-                paginatedLogs.map((log) => {
+                paginatedLogs.map((log, idx) => {
                   const actStyle = ACTION_CONFIG[log.action] || {
                     color: 'text-slate-700',
                     bg: 'bg-slate-100',
@@ -447,8 +448,13 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
                       className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
                       onClick={() => setSelectedLog(log)}
                     >
+                      {/* STT */}
+                      <td className="py-3.5 px-4 text-center font-mono text-[#86868B] text-[11px]">
+                        {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                      </td>
+
                       {/* Time */}
-                      <td className="py-3.5 px-4 sm:px-6 whitespace-nowrap font-mono text-[#86868B] text-[11px]">
+                      <td className="py-3.5 px-4 whitespace-nowrap font-mono text-[#86868B] text-[11px]">
                         {formatDateTimeVN(log.timestamp)}
                       </td>
 

@@ -507,7 +507,7 @@ export function CustomersTab({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">
-                <th className="py-3.5 px-4 text-center w-12">#</th>
+                <th className="py-3.5 px-4 text-center w-12">STT</th>
                 <th className="py-3.5 px-4 min-w-[220px]">Khách Hàng & Phân Hạng</th>
                 <th className="py-3.5 px-4 min-w-[190px]">Liên Hệ Trực Tiếp</th>
                 <th className="py-3.5 px-4 min-w-[200px]">Địa Bàn & Địa Chỉ</th>

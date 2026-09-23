@@ -599,6 +599,7 @@ export function OrdersTab({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">
+                <th className="py-3.5 px-4 text-center w-12 whitespace-nowrap">STT</th>
                 <th className="py-3.5 px-4 whitespace-nowrap">Mã Đơn & KTV</th>
                 <th className="py-3.5 px-4 min-w-[200px]">Khách Hàng & Địa Chỉ</th>
                 <th className="py-3.5 px-4 min-w-[220px]">Gói Dịch Vụ & Thiết Bị</th>
@@ -612,14 +613,14 @@ export function OrdersTab({
             <tbody className="divide-y divide-slate-100 text-xs text-[#1D1D1F]">
               {paginatedOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center space-y-2">
+                  <td colSpan={9} className="py-16 text-center space-y-2">
                     <ClipboardList className="w-10 h-10 text-slate-300 mx-auto" />
                     <p className="text-sm font-semibold text-[#1D1D1F]">Không tìm thấy đơn hàng phù hợp</p>
                     <p className="text-xs text-[#86868B]">Thử đổi điều kiện tìm kiếm hoặc bấm Tạo đơn thi công mới.</p>
                   </td>
                 </tr>
               ) : (
-                paginatedOrders.map((ord) => {
+                paginatedOrders.map((ord, idx) => {
                   const remainingAmount = Math.max(0, (ord.total_amount || 0) - (ord.deposit_amount || 0))
                   const warrantyInfo = isWarrantyActive(ord.warranty_until)
                   const st = ORDER_STATUS_CONFIG[ord.status] || ORDER_STATUS_CONFIG.pending
@@ -630,6 +631,11 @@ export function OrdersTab({
                       className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
                       onClick={() => setViewingOrder(ord)}
                     >
+                      {/* Index / STT */}
+                      <td className="py-4 px-4 text-center font-mono text-[#86868B] text-[11px]">
+                        {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                      </td>
+
                       {/* Order Code & Technician */}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span className="font-mono font-bold text-[#0071E3] text-xs block">

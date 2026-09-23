@@ -721,6 +721,7 @@ export function OverviewTab({
                 <table className="w-full text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-100 text-slate-800">
+                      <th className="border border-slate-300 p-2 text-center w-10">STT</th>
                       <th className="border border-slate-300 p-2 text-left">Mã Đơn</th>
                       <th className="border border-slate-300 p-2 text-left">Khách Hàng</th>
                       <th className="border border-slate-300 p-2 text-left">Địa Chỉ</th>
@@ -730,8 +731,9 @@ export function OverviewTab({
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.slice(0, 5).map((o) => (
+                    {orders.slice(0, 5).map((o, idx) => (
                       <tr key={o.id}>
+                        <td className="border border-slate-300 p-2 text-center font-mono">{idx + 1}</td>
                         <td className="border border-slate-300 p-2 font-mono font-bold">{o.order_code}</td>
                         <td className="border border-slate-300 p-2 font-semibold">{o.customer_name}</td>
                         <td className="border border-slate-300 p-2">{o.customer_address}</td>

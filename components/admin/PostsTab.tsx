@@ -834,6 +834,7 @@ export function PostsTab({
             <table className="w-full text-left text-xs sm:text-sm">
               <thead className="bg-slate-50/80 border-b border-slate-200/60 text-[#86868B] font-semibold uppercase tracking-wider text-[10.5px]">
                 <tr>
+                  <th className="py-3.5 px-4 text-center w-12 whitespace-nowrap">STT</th>
                   <th className="py-3.5 px-4 sm:px-6">Công Trình & Tiêu Đề</th>
                   <th className="py-3.5 px-4">Danh Mục</th>
                   <th className="py-3.5 px-4">Khách Hàng & Vị Trí</th>
@@ -843,7 +844,7 @@ export function PostsTab({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {paginatedPosts.map((post) => {
+                {paginatedPosts.map((post, idx) => {
                   const catName =
                     categories.find((c) => c.id === post.category_id)?.name ||
                     post.category?.name ||
@@ -851,6 +852,11 @@ export function PostsTab({
 
                   return (
                     <tr key={post.id} className="hover:bg-slate-50/60 transition-colors group">
+                      {/* Index / STT */}
+                      <td className="py-3.5 px-4 text-center font-mono text-[#86868B] text-[11px]">
+                        {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                      </td>
+
                       {/* Title & Thumbnail */}
                       <td className="py-3.5 px-4 sm:px-6">
                         <div className="flex items-center gap-3.5">
