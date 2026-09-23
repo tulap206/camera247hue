@@ -65,9 +65,11 @@ export default function LoginView() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#07131F] via-[#0B1F33]/70 to-[#07131F]/35" />
         <div className="relative z-10 flex flex-col justify-between p-10 xl:p-12 text-white w-full">
           <Link href="/" className="flex items-center gap-2.5 w-fit">
-            <div className="w-10 h-10 rounded-xl bg-brand-yellow flex items-center justify-center">
-              <Shield className="w-5 h-5 text-brand-navy" strokeWidth={2.25} />
-            </div>
+            <img
+              src="/images/logo/logo-diamond.png"
+              alt="Camera 247 Huế"
+              className="w-10 h-10 object-contain drop-shadow-xs shrink-0"
+            />
             <div>
               <div className="font-heading font-extrabold text-[17px] leading-none">Camera 247</div>
               <div className="text-[11px] text-white/75 mt-0.5 max-w-[280px] truncate">
@@ -88,9 +90,11 @@ export default function LoginView() {
       <main className="flex-1 flex flex-col min-h-[100svh]">
         <div className="lg:hidden flex items-center justify-between px-5 h-14 border-b border-brand-border bg-white">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-brand-yellow flex items-center justify-center">
-              <Shield className="w-5 h-5 text-brand-navy" strokeWidth={2.25} />
-            </div>
+            <img
+              src="/images/logo/logo-diamond.png"
+              alt="Camera 247 Huế"
+              className="w-9 h-9 object-contain drop-shadow-xs shrink-0"
+            />
             <span className="font-heading font-extrabold text-brand-navy">Camera 247</span>
           </Link>
           <Link href="/" className="text-sm text-brand-muted font-medium">

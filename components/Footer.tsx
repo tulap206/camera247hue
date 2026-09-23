@@ -27,9 +27,11 @@ export default function Footer() {
           {/* Cột 1: Thông tin pháp nhân & Trụ sở (5 cols) */}
           <div className="lg:col-span-4 space-y-3.5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-brand-yellow rounded-xl flex items-center justify-center shrink-0">
-                <Shield className="w-5 h-5 text-brand-navy" strokeWidth={2.25} />
-              </div>
+              <img
+                src="/images/logo/logo-diamond.png"
+                alt="Camera 247 Huế"
+                className="w-10 h-10 object-contain drop-shadow-xs shrink-0"
+              />
               <div>
                 <div className="font-heading font-extrabold text-brand-yellow text-base sm:text-lg leading-tight">
                   Camera 247 Huế

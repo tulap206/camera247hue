@@ -153,9 +153,11 @@ export function AdminSidebar({
 
         {/* Brand identity */}
         <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#F5C518] to-[#E5B508] flex items-center justify-center shadow-[0_4px_12px_rgba(245,197,24,0.3)] shrink-0 border border-yellow-300/40">
-            <Shield className="w-5 h-5 text-[#0B1F33]" strokeWidth={2.4} />
-          </div>
+          <img
+            src="/images/logo/logo-diamond.png"
+            alt="Camera 247 Huế"
+            className="w-10 h-10 object-contain drop-shadow-xs shrink-0"
+          />
           <div className="min-w-0 flex-1">
             <p className="text-[14.5px] font-bold text-[#1D1D1F] tracking-tight leading-tight truncate">
               Camera 247 Huế
@@ -335,9 +337,11 @@ export function AdminSidebar({
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-xl bg-yellow-400 flex items-center justify-center shrink-0 shadow-xs">
-              <Shield className="w-4 h-4 text-slate-900" strokeWidth={2.4} />
-            </div>
+            <img
+              src="/images/logo/logo-diamond.png"
+              alt="Camera 247 Huế"
+              className="w-7 h-7 object-contain drop-shadow-2xs shrink-0"
+            />
             <p className="text-sm font-bold text-[#1D1D1F] truncate">
               Camera 247 Huế
             </p>

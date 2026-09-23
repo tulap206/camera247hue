@@ -57,9 +57,11 @@ export default function Navbar() {
         <div className="container-page">
           <div className="flex items-center justify-between h-14 sm:h-[68px]">
             <Link href="/" className="flex items-center gap-2.5 min-w-0 group">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-yellow flex items-center justify-center shrink-0">
-                <Shield className="w-5 h-5 text-brand-navy" strokeWidth={2.25} />
-              </div>
+              <img
+                src="/images/logo/logo-diamond.png"
+                alt="Camera 247 Huế"
+                className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-xs shrink-0 transition-transform group-hover:scale-105"
+              />
               <div className="min-w-0">
                 <div
                   className={`font-heading font-extrabold text-[16px] sm:text-[17px] leading-none tracking-tight transition-colors ${
