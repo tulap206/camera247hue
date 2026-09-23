@@ -243,7 +243,7 @@ export function AdminSidebar({
               Ban Quản Trị C247
             </p>
             <p className="text-[10.5px] text-[#86868B] truncate">
-              Kỹ thuật & Giám sát
+              Lập (0967) · Tước (0796)
             </p>
           </div>
           <Settings className="w-3.5 h-3.5 text-[#86868B] group-hover:text-[#0071E3] transition-transform group-hover:rotate-45 shrink-0" />
@@ -378,8 +378,8 @@ export function AdminSidebar({
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold text-[#1D1D1F]">Công Ty TNHH CN An Ninh Huế</p>
-                  <p className="text-xs text-[#0071E3] font-mono mt-0.5">Tài khoản: admin / admin1</p>
-                  <p className="text-[11px] text-[#86868B] mt-0.5">Hotline: 0796 785 151 · 0967 611 112</p>
+                  <p className="text-xs text-[#0071E3] font-medium mt-0.5">admin: Lập · admin1: Tước</p>
+                  <p className="text-[11px] text-[#86868B] mt-0.5">Hotline: 0967 611 112 (Lập) · 0796 785 151 (Tước)</p>
                 </div>
               </div>
 

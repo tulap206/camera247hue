@@ -1,5 +1,12 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import '../styles/globals.css'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0B1F33',
+}
 
 export const metadata: Metadata = {
   title: 'Camera 247 Huế - Giải Pháp Công Nghệ An Ninh',
@@ -17,12 +24,6 @@ export const metadata: Metadata = {
     description: 'Thi công camera an ninh, khóa cửa thông minh, hệ thống mạng chuyên nghiệp tại Tp. Huế',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    viewportFit: 'cover',
-  },
-  themeColor: '#0B1F33',
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
