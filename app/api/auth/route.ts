@@ -25,15 +25,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const ip = clientIp(request)
-  if (!rateLimit(`login:${ip}`, 8, 15 * 60 * 1000).ok) {
-    return NextResponse.json({ error: 'Thử lại sau vài phút.' }, { status: 429 })
+  if (!rateLimit(`login:${ip}`, 30, 15 * 60 * 1000).ok) {
+    return NextResponse.json({ error: 'Quá nhiều lần thử đăng nhập. Vui lòng thử lại sau vài phút.' }, { status: 429 })
   }
 
   let username = ''
   let password = ''
   try {
     const body = await request.json()
-    username = typeof body?.username === 'string' ? body.username.trim() : ''
+    username = typeof body?.username === 'string' ? body.username.trim().toLowerCase() : ''
     password = typeof body?.password === 'string' ? body.password : ''
   } catch {
     return NextResponse.json({ error: 'Yêu cầu không hợp lệ.' }, { status: 400 })
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng.' }, { status: 401 })
   }
 
-  const activeUser = username && ADMIN_USERS[username.toLowerCase()] ? username.toLowerCase() : 'admin'
+  const activeUser = username === 'admin1' ? 'admin1' : 'admin'
   const res = NextResponse.json({ ok: true, user: activeUser })
   res.cookies.set(SESSION_COOKIE, createSessionToken(activeUser), sessionCookieOptions())
   return res
