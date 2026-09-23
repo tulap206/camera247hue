@@ -182,65 +182,6 @@ export function CustomersTab({
     setIsModalOpen(false)
   }
 
-  // Export Customer List to CSV
-  const handleExportCSV = () => {
-    try {
-      const headers = [
-        'Mã KH',
-        'Tên Khách Hàng',
-        'Số Điện Thoại',
-        'SĐT Phụ',
-        'Zalo',
-        'Email',
-        'Địa Chỉ',
-        'Khu Vực',
-        'Loại KH',
-        'Hạng KH',
-        'Mã Số Thuế',
-        'Tổng Số Đơn',
-        'Tổng Chi Tiêu (VND)',
-        'Ghi Chú',
-        'Ngày Tạo',
-      ]
-
-      const rows = filteredCustomers.map((c) => {
-        const custOrders = orders.filter((o) => isOrderOfCustomer(o, c))
-        const totalSpent = custOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
-        return [
-          `"${c.id}"`,
-          `"${(c.name || '').replace(/"/g, '""')}"`,
-          `"${c.phone || ''}"`,
-          `"${c.phone_secondary || ''}"`,
-          `"${c.zalo || ''}"`,
-          `"${c.email || ''}"`,
-          `"${(c.address || '').replace(/"/g, '""')}"`,
-          `"${c.district || ''}"`,
-          `"${c.type === 'business' ? 'Doanh nghiệp' : 'Cá nhân'}"`,
-          `"${c.tier || 'standard'}"`,
-          `"${c.tax_code || ''}"`,
-          custOrders.length,
-          totalSpent,
-          `"${(c.notes || '').replace(/"/g, '""')}"`,
-          `"${formatDateVN(c.created_at)}"`,
-        ].join(',')
-      })
-
-      const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n')
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      const dateTag = new Date().toISOString().split('T')[0]
-      link.href = url
-      link.download = `danh-ba-khach-hang-camera247-${dateTag}.csv`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-    } catch (err: any) {
-      alert('Lỗi xuất file CSV: ' + err.message)
-    }
-  }
-
   // Filter & Search & Sort
   const filteredCustomers = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
@@ -350,10 +291,10 @@ export function CustomersTab({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 w-full sm:w-auto self-start sm:self-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 w-full sm:w-auto self-start sm:self-auto">
           <button
             onClick={openCreateModal}
-            className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all active:scale-[0.98]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>Thêm Khách Hàng Mới</span>
@@ -361,19 +302,11 @@ export function CustomersTab({
           <button
             onClick={handleSyncFromPosts}
             disabled={isSyncing}
-            className="inline-flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-[#0071E3] px-3.5 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-blue-200/80 transition-all shadow-2xs active:scale-[0.98] disabled:opacity-50"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-[#0071E3] px-3.5 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-blue-200/80 transition-all shadow-2xs active:scale-[0.98] disabled:opacity-50"
             title="Tự động đồng bộ và trích xuất khách hàng từ tất cả các bài viết công trình"
           >
             <RefreshCw className={cn("w-4 h-4 text-[#0071E3]", isSyncing && "animate-spin")} />
             <span>{isSyncing ? 'Đang đồng bộ...' : 'Đồng Bộ Từ Bài Viết'}</span>
-          </button>
-          <button
-            onClick={handleExportCSV}
-            className="inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-3.5 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-slate-200/80 transition-all shadow-2xs active:scale-[0.98]"
-            title="Tải về danh sách khách hàng định dạng CSV"
-          >
-            <Download className="w-4 h-4 text-[#86868B]" />
-            <span>Xuất Danh Bạ (.CSV)</span>
           </button>
         </div>
       </div>
