@@ -54,6 +54,21 @@ interface CustomersTabProps {
 type FilterType = 'all' | 'individual' | 'business' | 'vip'
 type SortOption = 'newest' | 'spent_desc' | 'orders_desc' | 'name_asc'
 
+function isOrderOfCustomer(o: InstallationOrder, c: Customer | null | undefined): boolean {
+  if (!c || !o) return false
+  if (c.id && o.customer_id && o.customer_id === c.id) return true
+  if (
+    c.phone &&
+    o.customer_phone &&
+    c.phone.trim() !== '' &&
+    o.customer_phone.trim() !== '' &&
+    o.customer_phone.trim() === c.phone.trim()
+  ) {
+    return true
+  }
+  return false
+}
+
 export function CustomersTab({
   customers,
   orders,
@@ -90,6 +105,16 @@ export function CustomersTab({
     notes: '',
   })
   const [formError, setFormError] = useState('')
+
+  const handleToggleVip = async (cust: Customer, e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    const newTier = cust.tier === 'vip' ? 'standard' : 'vip'
+    await onSaveCustomer({
+      ...cust,
+      id: cust.id,
+      tier: newTier,
+    })
+  }
 
   const openCreateModal = () => {
     setEditingCustomer(null)
@@ -133,8 +158,8 @@ export function CustomersTab({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.name.trim() || !formData.phone.trim()) {
-      setFormError('Vui lòng nhập tên và số điện thoại khách hàng.')
+    if (!formData.name.trim()) {
+      setFormError('Vui lòng nhập tên khách hàng.')
       return
     }
 
@@ -179,9 +204,7 @@ export function CustomersTab({
       ]
 
       const rows = filteredCustomers.map((c) => {
-        const custOrders = orders.filter(
-          (o) => o.customer_id === c.id || o.customer_phone === c.phone
-        )
+        const custOrders = orders.filter((o) => isOrderOfCustomer(o, c))
         const totalSpent = custOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
         return [
           `"${c.id}"`,
@@ -244,8 +267,8 @@ export function CustomersTab({
         return matchSearch && matchType && matchDistrict
       })
       .sort((a, b) => {
-        const ordersA = orders.filter((o) => o.customer_id === a.id || o.customer_phone === a.phone)
-        const ordersB = orders.filter((o) => o.customer_id === b.id || o.customer_phone === b.phone)
+        const ordersA = orders.filter((o) => isOrderOfCustomer(o, a))
+        const ordersB = orders.filter((o) => isOrderOfCustomer(o, b))
         const spentA = ordersA.reduce((sum, o) => sum + (o.total_amount || 0), 0)
         const spentB = ordersB.reduce((sum, o) => sum + (o.total_amount || 0), 0)
 
@@ -283,9 +306,7 @@ export function CustomersTab({
   // Orders linked to viewing customer
   const viewingCustomerOrders = useMemo(() => {
     if (!viewingCustomer) return []
-    return orders.filter(
-      (o) => o.customer_id === viewingCustomer.id || o.customer_phone === viewingCustomer.phone
-    )
+    return orders.filter((o) => isOrderOfCustomer(o, viewingCustomer))
   }, [orders, viewingCustomer])
 
   const viewingCustomerActiveWarranties = useMemo(() => {
@@ -563,9 +584,7 @@ export function CustomersTab({
                 </tr>
               ) : (
                 paginatedCustomers.map((cust, idx) => {
-                  const custOrders = orders.filter(
-                    (o) => o.customer_id === cust.id || o.customer_phone === cust.phone
-                  )
+                  const custOrders = orders.filter((o) => isOrderOfCustomer(o, cust))
                   const totalSpent = custOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
                   const tierInfo = CUSTOMER_TIERS[cust.tier || 'standard'] || CUSTOMER_TIERS.standard
 
@@ -600,12 +619,28 @@ export function CustomersTab({
 
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
+                              {/* Quick VIP Star Toggle Button */}
+                              <button
+                                type="button"
+                                onClick={(e) => handleToggleVip(cust, e)}
+                                className={cn(
+                                  'p-1 rounded-lg transition-all active:scale-90 shrink-0 hover:scale-110',
+                                  cust.tier === 'vip'
+                                    ? 'text-amber-500 bg-amber-50/80 border border-amber-200 shadow-2xs'
+                                    : 'text-slate-300 hover:text-amber-400 hover:bg-slate-100'
+                                )}
+                                title={cust.tier === 'vip' ? 'Khách hàng VIP ⭐ (Bấm để hủy VIP)' : 'Bấm vào ngôi sao để gắn VIP nhanh'}
+                              >
+                                <Star className={cn('w-4 h-4', cust.tier === 'vip' ? 'fill-amber-400 text-amber-500' : 'text-slate-300 hover:text-amber-400')} />
+                              </button>
+
                               <span className="font-bold text-[#1D1D1F] text-sm group-hover:text-[#0071E3] transition-colors line-clamp-1">
                                 {cust.name}
                               </span>
+
                               {cust.tier === 'vip' && (
                                 <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
-                                  <Star className="w-3 h-3 fill-amber-400 text-amber-500" /> VIP
+                                  VIP
                                 </span>
                               )}
                             </div>
@@ -758,9 +793,7 @@ export function CustomersTab({
             </div>
           ) : (
             paginatedCustomers.map((cust, idx) => {
-              const custOrders = orders.filter(
-                (o) => o.customer_id === cust.id || o.customer_phone === cust.phone
-              )
+              const custOrders = orders.filter((o) => isOrderOfCustomer(o, cust))
               const totalSpent = custOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
 
               return (
@@ -791,12 +824,28 @@ export function CustomersTab({
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
+                          {/* Quick VIP Star Toggle Button Mobile */}
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleVip(cust, e)}
+                            className={cn(
+                              'p-1 rounded-lg transition-all active:scale-90 shrink-0 hover:scale-110',
+                              cust.tier === 'vip'
+                                ? 'text-amber-500 bg-amber-50/80 border border-amber-200 shadow-2xs'
+                                : 'text-slate-300 hover:text-amber-400 hover:bg-slate-100'
+                            )}
+                            title={cust.tier === 'vip' ? 'Khách VIP ⭐ (Bấm để hủy)' : 'Gắn VIP nhanh'}
+                          >
+                            <Star className={cn('w-3.5 h-3.5', cust.tier === 'vip' ? 'fill-amber-400 text-amber-500' : 'text-slate-300 hover:text-amber-400')} />
+                          </button>
+
                           <h4 className="font-bold text-sm text-[#1D1D1F] line-clamp-1">
                             {cust.name}
                           </h4>
+
                           {cust.tier === 'vip' && (
                             <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
-                              <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" /> VIP
+                              VIP
                             </span>
                           )}
                         </div>
@@ -1255,14 +1304,13 @@ export function CustomersTab({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">
-                    Số Điện Thoại Chính *
+                    Số Điện Thoại Chính (Tùy chọn)
                   </label>
                   <input
                     type="tel"
-                    required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="0914 xxx xxx"
+                    placeholder="VD: 0914 xxx xxx (hoặc để trống)"
                     className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-[#1D1D1F] font-mono focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
