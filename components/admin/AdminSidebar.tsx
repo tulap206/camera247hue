@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Shield,
+  ShieldCheck,
+  KeyRound,
   LayoutDashboard,
   Users,
   ClipboardList,
@@ -22,12 +24,15 @@ import {
   Search,
   CalendarCheck,
   Phone,
+  MessageCircle,
   Mail,
   MapPin,
   Building2,
   BadgeCheck,
   Globe,
   Lock,
+  Eye,
+  EyeOff,
   Fingerprint,
   Wifi,
 } from 'lucide-react'
@@ -86,6 +91,9 @@ export function AdminSidebar({
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showOldPassword, setShowOldPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [changingPassword, setChangingPassword] = useState(false)
 
@@ -388,17 +396,17 @@ export function AdminSidebar({
 
       {/* Profile & Change Password Modal (iOS Sheet Style) */}
       {isProfileOpen && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.18)] animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0071E3] flex items-center justify-center border border-blue-200/60">
-                  <Shield className="w-4 h-4" />
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-[#F5F5F7]/60">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#0071E3] flex items-center justify-center border border-blue-200/60 shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-[#1D1D1F]">Thông Tin Quản Trị Viên</h3>
-                  <p className="text-[11px] text-[#86868B]">Camera 247 Huế · Ban Quản Trị</p>
+                  <h3 className="text-base font-bold text-[#1D1D1F]">Thông Tin Quản Trị Viên</h3>
+                  <p className="text-xs text-[#86868B]">Camera 247 Huế · Hệ Thống Điều Hành</p>
                 </div>
               </div>
               <button
@@ -406,114 +414,233 @@ export function AdminSidebar({
                   setIsProfileOpen(false)
                   setPasswordMessage(null)
                 }}
-                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                title="Đóng"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-5">
-              {/* Account summary with avatar pick */}
-              <div className="flex items-center gap-4 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/80">
-                <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-lg font-bold overflow-hidden border-2 border-white shadow-sm">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <span>247</span>
-                    )}
+            <div className="p-5 sm:p-6 space-y-4">
+              {/* Account summary with avatar & status */}
+              <div className="p-4 bg-[#F5F5F7]/80 rounded-2xl border border-slate-200/80 space-y-3">
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="relative group cursor-pointer shrink-0"
+                    onClick={() => avatarInputRef.current?.click()}
+                    title="Bấm để đổi ảnh đại diện"
+                  >
+                    <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#0071E3] to-blue-700 flex items-center justify-center text-white text-base font-bold overflow-hidden border-2 border-white shadow-xs">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <span>247</span>
+                      )}
+                    </div>
+                    <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white">
+                      <Camera className="w-4 h-4" />
+                    </div>
+                    <input
+                      ref={avatarInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarChange}
+                    />
                   </div>
-                  <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white">
-                    <Camera className="w-4 h-4" />
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-[#1D1D1F] truncate">
+                      Công Ty TNHH CN An Ninh Huế
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        {activeDisplayName || (adminUser === 'admin1' ? 'Quản trị viên (Tước)' : 'Quản trị viên (Lập)')}
+                      </span>
+                      <span className="text-[11px] text-[#86868B] font-medium">
+                        ({adminUser === 'admin1' ? 'admin1' : 'admin'})
+                      </span>
+                    </div>
                   </div>
-                  <input
-                    ref={avatarInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarChange}
-                  />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-[#1D1D1F]">Công Ty TNHH CN An Ninh Huế</p>
-                  <p className="text-xs text-[#0071E3] font-medium mt-0.5">admin: Lập · admin1: Tước</p>
-                  <p className="text-[11px] text-[#86868B] mt-0.5">Hotline: 0967 611 112 (Lập) · 0796 785 151 (Tước)</p>
+
+                {/* Hotlines with 1-click Call & Zalo */}
+                <div className="pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-xs text-[#86868B] flex-wrap gap-2">
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-[#1D1D1F]">Lập:</span>
+                    <a href="tel:0967611112" className="text-[#0071E3] hover:underline font-medium">
+                      0967 611 112
+                    </a>
+                    <a
+                      href="https://zalo.me/0967611112"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-1 rounded-md text-blue-600 hover:bg-blue-50"
+                      title="Zalo Lập"
+                    >
+                      <MessageCircle className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <span className="text-slate-300">•</span>
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-[#1D1D1F]">Tước:</span>
+                    <a href="tel:0796785151" className="text-[#0071E3] hover:underline font-medium">
+                      0796 785 151
+                    </a>
+                    <a
+                      href="https://zalo.me/0796785151"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-1 rounded-md text-blue-600 hover:bg-blue-50"
+                      title="Zalo Tước"
+                    >
+                      <MessageCircle className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
               </div>
 
               {/* Change password form */}
               <form onSubmit={handleChangePassword} className="space-y-3.5">
-                <p className="text-xs font-semibold text-[#1D1D1F] uppercase tracking-wider">
-                  Đổi Mật Khẩu Quản Trị
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold text-[#1D1D1F] uppercase tracking-wider flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-[#0071E3]" />
+                    Đổi Mật Khẩu Quản Trị
+                  </p>
+                  <span className="text-[11px] text-[#86868B]">Tối thiểu 6 ký tự</span>
+                </div>
 
                 {passwordMessage && (
                   <div
                     className={cn(
-                      'p-3 rounded-xl text-xs flex items-center gap-2',
+                      'p-3 rounded-2xl text-xs flex items-center gap-2 border transition-all',
                       passwordMessage.type === 'success'
-                        ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
-                        : 'bg-rose-50 border border-rose-200 text-rose-700'
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                        : 'bg-rose-50 border-rose-200 text-rose-700'
                     )}
                   >
                     {passwordMessage.type === 'success' ? (
-                      <Check className="w-4 h-4 shrink-0" />
+                      <Check className="w-4 h-4 shrink-0 text-emerald-600" />
                     ) : (
-                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                     )}
                     <span>{passwordMessage.text}</span>
                   </div>
                 )}
 
+                {/* Current password */}
                 <div>
-                  <label className="block text-[11px] font-medium text-[#86868B] mb-1">Mật khẩu hiện tại</label>
-                  <input
-                    type="password"
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu đang dùng"
-                    className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2 text-xs text-[#1D1D1F] transition-all font-mono"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium text-[#86868B] mb-1">Mật khẩu mới</label>
+                  <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">
+                    Mật khẩu hiện tại <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86868B]" />
                     <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Mật khẩu mới"
-                      className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2 text-xs text-[#1D1D1F] transition-all font-mono"
+                      type={showOldPassword ? 'text' : 'password'}
+                      required
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      placeholder="Nhập mật khẩu đang dùng"
+                      className="w-full bg-[#F5F5F7] border border-slate-200 focus:bg-white focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 rounded-2xl pl-9 pr-9 py-2.5 text-xs text-[#1D1D1F] transition-all font-mono"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-[#86868B] mb-1">Nhập lại</label>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Xác nhận lại"
-                      className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 rounded-xl px-3.5 py-2 text-xs text-[#1D1D1F] transition-all font-mono"
-                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowOldPassword(!showOldPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868B] hover:text-[#1D1D1F]"
+                      title={showOldPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    >
+                      {showOldPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
                 </div>
 
-                <div className="pt-2 flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={changingPassword}
-                    className="flex-1 bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold text-xs py-2.5 rounded-xl shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all disabled:opacity-50"
-                  >
-                    {changingPassword ? 'Đang lưu...' : 'Cập Nhật Mật Khẩu'}
-                  </button>
+                {/* New password & confirm */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">
+                      Mật khẩu mới <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86868B]" />
+                      <input
+                        type={showNewPassword ? 'text' : 'password'}
+                        required
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Mật khẩu mới"
+                        className="w-full bg-[#F5F5F7] border border-slate-200 focus:bg-white focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 rounded-2xl pl-9 pr-9 py-2.5 text-xs text-[#1D1D1F] transition-all font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868B] hover:text-[#1D1D1F]"
+                        title={showNewPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                      >
+                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">
+                      Nhập lại mật khẩu <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86868B]" />
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        required
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Xác nhận lại"
+                        className="w-full bg-[#F5F5F7] border border-slate-200 focus:bg-white focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 rounded-2xl pl-9 pr-9 py-2.5 text-xs text-[#1D1D1F] transition-all font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868B] hover:text-[#1D1D1F]"
+                        title={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Password match feedback */}
+                {newPassword && confirmPassword && (
+                  <div className="flex items-center gap-1.5 text-[11px]">
+                    {newPassword === confirmPassword ? (
+                      <span className="text-emerald-600 flex items-center gap-1 font-medium">
+                        <Check className="w-3.5 h-3.5" /> Mật khẩu mới trùng khớp
+                      </span>
+                    ) : (
+                      <span className="text-rose-500 flex items-center gap-1 font-medium">
+                        <AlertCircle className="w-3.5 h-3.5" /> Mật khẩu nhập lại chưa khớp
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <div className="pt-2 flex items-center gap-2.5">
                   <button
                     type="button"
-                    onClick={() => setIsProfileOpen(false)}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-medium border border-slate-200"
+                    onClick={() => {
+                      setIsProfileOpen(false)
+                      setPasswordMessage(null)
+                    }}
+                    className="px-5 py-2.5 rounded-2xl bg-[#F5F5F7] text-[#86868B] hover:text-[#1D1D1F] hover:bg-slate-200/80 text-xs font-semibold border border-slate-200 transition-colors"
                   >
                     Đóng
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={changingPassword || (Boolean(newPassword && confirmPassword) && newPassword !== confirmPassword)}
+                    className="flex-1 bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold text-xs py-2.5 rounded-2xl shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {changingPassword ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
                   </button>
                 </div>
               </form>
