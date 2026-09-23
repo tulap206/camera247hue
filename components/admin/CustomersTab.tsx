@@ -34,6 +34,7 @@ import {
   Layers,
   Clock,
   ShieldCheck,
+  RefreshCw,
 } from 'lucide-react'
 import { formatVND, formatDateVN } from '@/lib/formatters'
 import type { Customer, InstallationOrder } from '@/lib/camera247-data'
@@ -46,6 +47,7 @@ interface CustomersTabProps {
   onSaveCustomer: (customer: Partial<Customer> & { id?: string }) => void
   onDeleteCustomer: (id: string) => void
   onOpenNewOrderWithCustomer?: (customer: Customer) => void
+  onRefreshData?: () => void
 }
 
 type FilterType = 'all' | 'individual' | 'business' | 'vip'
@@ -57,7 +59,9 @@ export function CustomersTab({
   onSaveCustomer,
   onDeleteCustomer,
   onOpenNewOrderWithCustomer,
+  onRefreshData,
 }: CustomersTabProps) {
+  const [isSyncing, setIsSyncing] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<FilterType>('all')
   const [districtFilter, setDistrictFilter] = useState<string>('all')
@@ -287,6 +291,26 @@ export function CustomersTab({
     return viewingCustomerOrders.filter((o) => o.status === 'warranty' || o.status === 'completed')
   }, [viewingCustomerOrders])
 
+  const handleSyncFromPosts = async () => {
+    if (!confirm('Hệ thống sẽ tự động quét toàn bộ bài viết công trình trong cơ sở dữ liệu để tạo khách hàng và đơn hàng tương ứng. Bạn có muốn tiếp tục?')) return
+    setIsSyncing(true)
+    try {
+      const res = await fetch('/api/admin/sync-posts', { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        alert(data.message || 'Đồng bộ thành công!')
+        if (onRefreshData) onRefreshData()
+        else window.location.reload()
+      } else {
+        alert(data.error || 'Lỗi đồng bộ')
+      }
+    } catch (e: any) {
+      alert('Lỗi kết nối máy chủ: ' + e.message)
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Apple Header Card */}
@@ -305,6 +329,15 @@ export function CustomersTab({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={handleSyncFromPosts}
+            disabled={isSyncing}
+            className="inline-flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-[#0071E3] px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-blue-200/80 transition-all shadow-2xs active:scale-[0.98] disabled:opacity-50"
+            title="Tự động đồng bộ và trích xuất khách hàng từ tất cả các bài viết công trình"
+          >
+            <RefreshCw className={cn("w-4 h-4 text-[#0071E3]", isSyncing && "animate-spin")} />
+            <span>{isSyncing ? 'Đang đồng bộ...' : 'Đồng Bộ Từ Bài Viết'}</span>
+          </button>
           <button
             onClick={handleExportCSV}
             className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-slate-200/80 transition-all shadow-2xs active:scale-[0.98]"

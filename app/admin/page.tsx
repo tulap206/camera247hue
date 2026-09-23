@@ -692,6 +692,7 @@ export default function AdminPage() {
                 setPrefilledCustomerForOrder(cust)
                 setCurrentTab('orders')
               }}
+              onRefreshData={() => fetchAllData(false)}
             />
           )}
 
@@ -702,6 +703,7 @@ export default function AdminPage() {
               onSaveOrder={handleSaveOrder}
               onDeleteOrder={handleDeleteOrder}
               initialNewOrderCustomer={prefilledCustomerForOrder}
+              onRefreshData={() => fetchAllData(false)}
             />
           )}
 
