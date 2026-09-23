@@ -178,239 +178,12 @@ export const ORDER_STATUS_CONFIG = {
   },
 } as const
 
-export const SAMPLE_CUSTOMERS: Customer[] = [
-  {
-    id: 'cust-huong-giang',
-    name: 'Khách sạn Hương Giang Resort & Spa',
-    phone: '0234 382 1222',
-    phone_secondary: '0913 421 888 (Quản lý vận hành)',
-    zalo: '0913421888',
-    email: 'contact@huonggianghotel.com.vn',
-    address: '51 Lê Lợi, P. Phú Hội, TP. Huế',
-    district: 'TP. Huế (Trung tâm)',
-    type: 'business',
-    tier: 'vip',
-    tax_code: '3300101890',
-    notes: 'Dự án trọn gói 32 Camera IP Hikvision 4MP ColorVu có màu 24/24 + Đầu ghi NVR 32 kênh 4K + Tủ Rack trung tâm 10U. Cần bảo dưỡng định kỳ 6 tháng/lần.',
-    total_orders: 1,
-    total_spent: 0,
-    created_at: '2026-01-10T08:30:00Z',
-  },
-  {
-    id: 'cust-hoang-dang-khoa',
-    name: 'Anh Hoàng Đăng Khoa (Biệt thự An Cựu City)',
-    phone: '0914 552 889',
-    zalo: '0914552889',
-    address: 'Khu Đô Thị An Cựu City, P. An Đông, TP. Huế',
-    district: 'TP. Huế (Trung tâm)',
-    type: 'individual',
-    tier: 'vip',
-    notes: 'Lắp khóa thông minh Kaadas K20 Pro Max 3D FaceID cho cửa chính đại sảnh gỗ lim + Khóa vân tay phòng ngủ Philips DDL603E.',
-    total_orders: 1,
-    total_spent: 0,
-    created_at: '2026-01-28T09:00:00Z',
-  },
-  {
-    id: 'cust-the-time-coffee',
-    name: 'The Time Coffee Lounge (18 Hùng Vương)',
-    phone: '0905 889 124',
-    zalo: '0905889124',
-    address: '18 Hùng Vương, P. Phú Nhuận, TP. Huế',
-    district: 'TP. Huế (Trung tâm)',
-    type: 'business',
-    tier: 'standard',
-    notes: 'Hạ tầng Router cân bằng tải DrayTek Vigor2927 + 4 Bộ phát Ruijie Wifi 6 chịu tải 200+ khách, phân tách VLAN quản lý & POS bán hàng.',
-    total_orders: 1,
-    total_spent: 0,
-    created_at: '2026-02-15T10:00:00Z',
-  },
-  {
-    id: 'cust-may-phu-bai',
-    name: 'Công ty May Xuất Khẩu Phú Bài',
-    phone: '0234 386 1999',
-    phone_secondary: '0905 321 654 (P. Hành chính Nhân sự)',
-    email: 'hr@mayphubai.vn',
-    address: 'Đường số 3, KCN Phú Bài, TX. Hương Thủy, TT. Huế',
-    district: 'KCN Phú Bài - Hương Thủy',
-    type: 'business',
-    tier: 'vip',
-    tax_code: '3301229871',
-    notes: 'Quy mô nhà xưởng 3.500m2: 16 Camera Dahua IP67 công nghiệp + 2 máy FaceID Hikvision + 300m cáp quang chuyên dụng kết nối xưởng 2.',
-    total_orders: 1,
-    total_spent: 0,
-    created_at: '2026-02-25T08:00:00Z',
-  },
-  {
-    id: 'cust-chi-lang',
-    name: 'Gia đình Chú Trần Hữu Nghĩa (Nhà phố Chi Lăng)',
-    phone: '0935 882 119',
-    zalo: '0935882119',
-    address: '142 Chi Lăng, P. Phú Cát, TP. Huế',
-    district: 'TP. Huế (Trung tâm)',
-    type: 'individual',
-    tier: 'standard',
-    notes: 'Bộ 4 mắt camera Dahua Full Color xem đêm có màu 24/24 + Đầu ghi 4 kênh + Ổ cứng WD Purple 1TB. Nẹp gen vuông chống nước thẩm mỹ.',
-    total_orders: 1,
-    total_spent: 0,
-    created_at: '2026-03-15T14:00:00Z',
-  },
-]
+export const SAMPLE_CUSTOMERS: Customer[] = []
 
-export const SAMPLE_ORDERS: InstallationOrder[] = [
-  {
-    id: 'ord-01',
-    order_code: 'C247-2026-001',
-    customer_id: 'cust-huong-giang',
-    customer_name: 'Khách sạn Hương Giang Resort & Spa',
-    customer_phone: '0234 382 1222',
-    customer_address: '51 Lê Lợi, P. Phú Hội, TP. Huế',
-    services: ['camera', 'it_network'],
-    equipment_list: '32 Camera IP Hikvision 4.0MP ColorVu + Đầu ghi NVR 32 kênh 4K chuẩn H.265+ + Ổ cứng WD Purple 8TB + Tủ Rack trung tâm 10U + Switch PoE 24 Port',
-    installation_date: '12/01/2026',
-    completion_date: '15/01/2026',
-    warranty_months: 24,
-    warranty_until: '15/01/2028',
-    total_amount: 0,
-    deposit_amount: 0,
-    status: 'warranty',
-    technician: 'Lập & Tước',
-    notes: 'Hệ thống thi công trong 3 ngày theo đúng bài viết công trình, đã bàn giao phòng an ninh & app ban giám đốc. Bảo hành 24 tháng đến 15/01/2028.',
-    created_at: '2026-01-10T08:30:00Z',
-  },
-  {
-    id: 'ord-02',
-    order_code: 'C247-2026-002',
-    customer_id: 'cust-hoang-dang-khoa',
-    customer_name: 'Anh Hoàng Đăng Khoa (Biệt thự An Cựu City)',
-    customer_phone: '0914 552 889',
-    customer_address: 'Khu Đô Thị An Cựu City, P. An Đông, TP. Huế',
-    services: ['smart_lock'],
-    equipment_list: '01 Khóa Kaadas K20 Pro Max 3D FaceID tích hợp camera chuông hình + 02 Khóa vân tay phòng ngủ Philips DDL603E',
-    installation_date: '01/02/2026',
-    completion_date: '02/02/2026',
-    warranty_months: 24,
-    warranty_until: '02/02/2028',
-    total_amount: 0,
-    deposit_amount: 0,
-    status: 'warranty',
-    technician: 'Lập',
-    notes: 'Đục khoét chuẩn xác trên nền gỗ lim, bàn giao thẻ từ, chìa cơ và thiết lập FaceID toàn bộ gia đình. Bảo hành 24 tháng đến 02/02/2028.',
-    created_at: '2026-01-28T09:00:00Z',
-  },
-  {
-    id: 'ord-03',
-    order_code: 'C247-2026-003',
-    customer_id: 'cust-the-time-coffee',
-    customer_name: 'The Time Coffee Lounge (18 Hùng Vương)',
-    customer_phone: '0905 889 124',
-    customer_address: '18 Hùng Vương, P. Phú Nhuận, TP. Huế',
-    services: ['wifi', 'it_network'],
-    equipment_list: '01 Router Cân Bằng Tải DrayTek Vigor2927 + 04 Bộ phát Wifi Ruijie Reyee RG-RAP2200(E) Wifi 6 + Switch Gigabit PoE',
-    installation_date: '19/02/2026',
-    completion_date: '20/02/2026',
-    warranty_months: 24,
-    warranty_until: '20/02/2028',
-    total_amount: 0,
-    deposit_amount: 0,
-    status: 'warranty',
-    technician: 'Tước',
-    notes: 'Gộp 2 đường truyền Internet, cấu hình Roaming không ngắt quãng và trang chào tiếp thị WiFi Marketing. Bảo hành 24 tháng đến 20/02/2028.',
-    created_at: '2026-02-15T10:00:00Z',
-  },
-  {
-    id: 'ord-04',
-    order_code: 'C247-2026-004',
-    customer_id: 'cust-may-phu-bai',
-    customer_name: 'Công ty May Xuất Khẩu Phú Bài',
-    customer_phone: '0234 386 1999',
-    customer_address: 'Đường số 3, KCN Phú Bài, TX. Hương Thủy, TT. Huế',
-    services: ['camera', 'time_attendance', 'it_network'],
-    equipment_list: '16 Camera Thân Dahua Full HD 2.0MP IP67 + 02 Máy Chấm Công FaceID AI Hikvision DS-K1T342MFX + 300m Cáp mạng quang + Module quang + NVR 16 kênh',
-    installation_date: '01/03/2026',
-    completion_date: '05/03/2026',
-    warranty_months: 24,
-    warranty_until: '05/03/2028',
-    total_amount: 0,
-    deposit_amount: 0,
-    status: 'warranty',
-    technician: 'Lập & Tước',
-    notes: 'Đã bàn giao phần mềm xuất bảng chấm công tự động cho phòng nhân sự. Bảo hành chính hãng 24 tháng đến 05/03/2028.',
-    created_at: '2026-02-25T08:00:00Z',
-  },
-  {
-    id: 'ord-05',
-    order_code: 'C247-2026-005',
-    customer_id: 'cust-chi-lang',
-    customer_name: 'Gia đình Chú Trần Hữu Nghĩa (Nhà phố Chi Lăng)',
-    customer_phone: '0935 882 119',
-    customer_address: '142 Chi Lăng, P. Phú Cát, TP. Huế',
-    services: ['camera'],
-    equipment_list: '04 Mắt Camera Dahua Full Color 2.0MP + 01 Đầu ghi 4 kênh H.265+ + Ổ cứng WD Purple 1TB + Bộ nguồn & Hộp kỹ thuật bảo vệ',
-    installation_date: '18/03/2026',
-    completion_date: '18/03/2026',
-    warranty_months: 24,
-    warranty_until: '18/03/2028',
-    total_amount: 0,
-    deposit_amount: 0,
-    status: 'warranty',
-    technician: 'Lập',
-    notes: 'Thi công trong 4 giờ làm việc. Cài đặt app DMSS xem trực tiếp và xem lại trên 4 điện thoại của gia đình. Bảo hành 24 tháng đến 18/03/2028.',
-    created_at: '2026-03-15T14:00:00Z',
-  },
-]
+export const SAMPLE_ORDERS: InstallationOrder[] = []
 
-export const SAMPLE_LOGS: AccessLog[] = [
-  {
-    id: 'log-01',
-    username: 'admin',
-    displayName: 'Quản trị viên (Lập)',
-    action: 'Đăng nhập',
-    module: 'Hệ thống & Đăng nhập',
-    details: 'Đăng nhập thành công vào bảng điều khiển quản trị [macOS Chrome]',
-    ip_address: '113.161.78.45',
-    timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-  },
-  {
-    id: 'log-02',
-    username: 'admin',
-    displayName: 'Quản trị viên (Lập)',
-    action: 'Cập nhật',
-    module: 'Đơn hàng',
-    details: 'Kích hoạt hồ sơ bảo hành 24 tháng đơn hàng #C247-2026-005 (Bộ 4 Camera Full Color Chú Trần Hữu Nghĩa - Chi Lăng)',
-    ip_address: '113.161.78.45',
-    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-  },
-  {
-    id: 'log-03',
-    username: 'admin1',
-    displayName: 'Quản trị viên (Tước)',
-    action: 'Cập nhật',
-    module: 'Khách hàng',
-    details: 'Nghiệm thu đồng bộ hồ sơ khách hàng Doanh nghiệp: Công ty May Xuất Khẩu Phú Bài (KCN Phú Bài)',
-    ip_address: '14.238.12.90',
-    timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-  },
-  {
-    id: 'log-04',
-    username: 'visitor',
-    displayName: 'Khách xem Web',
-    action: 'Xem',
-    module: 'Khách xem Web',
-    details: 'Khách hàng xem bài viết công trình: Lắp đặt hệ thống 32 Camera an ninh Khách sạn Hương Giang Resort & Spa',
-    ip_address: '42.118.23.104',
-    timestamp: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-  },
-  {
-    id: 'log-05',
-    username: 'admin',
-    displayName: 'Quản trị viên (Lập)',
-    action: 'Sao lưu',
-    module: 'Cài đặt & Sao lưu',
-    details: 'Tạo bản sao lưu đám mây (Cloud Snapshot) đồng bộ dữ liệu chuẩn theo 5 bài viết công trình thực tế',
-    ip_address: '113.161.78.45',
-    timestamp: new Date(Date.now() - 1000 * 60 * 300).toISOString(),
-  },
-]
+export const SAMPLE_LOGS: AccessLog[] = []
+
 
 export const SAMPLE_CATEGORIES: { id: string; name: string; slug: string; description: string; icon: string; created_at: string }[] = [
   {
@@ -829,68 +602,22 @@ export interface CloudBackup {
   created_at: string
 }
 
-export const SAMPLE_CLOUD_BACKUPS: CloudBackup[] = [
-  {
-    id: 'cb-01',
-    backup_name: 'Bản Sao Lưu Toàn Diện - Đồng Bộ 5 Bài Viết Công Trình Thực Tế',
-    version: '2.5',
-    created_by: 'admin',
-    creator_name: 'Quản trị viên (Lập)',
-    customers_count: 5,
-    orders_count: 5,
-    posts_count: 5,
-    categories_count: 5,
-    logs_count: 5,
-    file_size_bytes: 36450,
-    notes: 'Bản sao lưu chuẩn khớp chính xác 100% hồ sơ khách hàng và đơn hàng bảo hành theo 5 bài viết công trình tại Huế',
-    created_at: '2026-03-23T08:00:00Z',
-  },
-  {
-    id: 'cb-02',
-    backup_name: 'Snapshot Khách Sạn Hương Giang & Biệt Thự An Cựu City',
-    version: '2.5',
-    created_by: 'admin1',
-    creator_name: 'Quản trị viên (Tước)',
-    customers_count: 2,
-    orders_count: 2,
-    posts_count: 2,
-    categories_count: 5,
-    logs_count: 10,
-    file_size_bytes: 26800,
-    notes: 'Lưu trữ tiến độ thi công 32 camera IP ColorVu Hương Giang Resort & Khóa FaceID 3D An Cựu City',
-    created_at: '2026-03-15T14:30:00Z',
-  },
-  {
-    id: 'cb-03',
-    backup_name: 'Bản Sao Lưu Nhà Máy May Phú Bài & The Time Coffee Lounge',
-    version: '2.5',
-    created_by: 'admin',
-    creator_name: 'Quản trị viên (Lập)',
-    customers_count: 2,
-    orders_count: 2,
-    posts_count: 2,
-    categories_count: 5,
-    logs_count: 8,
-    file_size_bytes: 24200,
-    notes: 'Sao lưu hồ sơ kỹ thuật FaceID xưởng may KCN Phú Bài & Router cân bằng tải DrayTek 18 Hùng Vương',
-    created_at: '2026-03-05T09:15:00Z',
-  },
-]
+export const SAMPLE_CLOUD_BACKUPS: CloudBackup[] = []
 
 const LOCAL_STORAGE_KEY_CLOUD_BACKUPS = 'c247_cloud_backups_v4'
 
 export function getStoredCloudBackups(): CloudBackup[] {
-  if (typeof window === 'undefined') return SAMPLE_CLOUD_BACKUPS
+  if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY_CLOUD_BACKUPS)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      if (Array.isArray(parsed)) return parsed
     }
   } catch (e) {
     console.error('Error loading stored cloud backups', e)
   }
-  return SAMPLE_CLOUD_BACKUPS
+  return []
 }
 
 export function saveStoredCloudBackups(backups: CloudBackup[]) {
