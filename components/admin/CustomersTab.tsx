@@ -35,6 +35,9 @@ import {
   Clock,
   ShieldCheck,
   RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  RotateCcw,
 } from 'lucide-react'
 import { formatVND, formatDateVN } from '@/lib/formatters'
 import type { Customer, InstallationOrder } from '@/lib/camera247-data'
@@ -85,6 +88,7 @@ export function CustomersTab({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null)
+  const [isOrdersExpanded, setIsOrdersExpanded] = useState(false)
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 8
@@ -371,77 +375,97 @@ export function CustomersTab({
       </div>
 
       {/* Multi-layer Search & Segmented Filter Toolbar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-3.5 rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-        {/* Apple Segmented Control for Category */}
-        <div className="inline-flex p-1 bg-slate-100/90 rounded-2xl border border-slate-200/60 w-full sm:w-auto overflow-x-auto no-scrollbar gap-1 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              setTypeFilter('all')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap',
-              typeFilter === 'all'
-                ? 'bg-white text-[#1D1D1F] font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            Tất cả ({customers.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setTypeFilter('individual')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-              typeFilter === 'individual'
-                ? 'bg-white text-[#0071E3] font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            <User className="w-3.5 h-3.5" />
-            Cá nhân ({customerStats.individuals})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setTypeFilter('business')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-              typeFilter === 'business'
-                ? 'bg-white text-emerald-700 font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            <Building className="w-3.5 h-3.5" />
-            Doanh nghiệp ({customerStats.businesses})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setTypeFilter('vip')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-              typeFilter === 'vip'
-                ? 'bg-white text-amber-700 font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-            VIP ⭐ ({customerStats.vips})
-          </button>
+      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-3">
+        {/* Row 1: Segmented Type Filter Pills & Active Reset */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="inline-flex p-1 bg-slate-100 rounded-2xl border border-slate-200/60 overflow-x-auto no-scrollbar gap-1 max-w-full">
+            <button
+              type="button"
+              onClick={() => {
+                setTypeFilter('all')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap',
+                typeFilter === 'all'
+                  ? 'bg-white text-[#1D1D1F] font-semibold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              Tất cả ({customers.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTypeFilter('individual')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                typeFilter === 'individual'
+                  ? 'bg-white text-[#0071E3] font-semibold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              <User className="w-3.5 h-3.5" />
+              Cá nhân ({customerStats.individuals})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTypeFilter('business')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                typeFilter === 'business'
+                  ? 'bg-white text-emerald-700 font-semibold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              <Building className="w-3.5 h-3.5" />
+              Doanh nghiệp ({customerStats.businesses})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTypeFilter('vip')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                typeFilter === 'vip'
+                  ? 'bg-white text-amber-700 font-semibold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+              VIP ⭐ ({customerStats.vips})
+            </button>
+          </div>
+
+          {(searchQuery || typeFilter !== 'all' || districtFilter !== 'all' || sortBy !== 'newest') && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('')
+                setTypeFilter('all')
+                setDistrictFilter('all')
+                setSortBy('newest')
+                setCurrentPage(1)
+              }}
+              className="inline-flex items-center gap-1 text-xs text-[#0071E3] hover:underline self-end sm:self-auto font-medium px-2 py-1 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Đặt lại bộ lọc
+            </button>
+          )}
         </div>
 
-        {/* Search & Location/Sort Dropdowns */}
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap flex-1 lg:max-w-2xl">
-          <div className="relative flex-1 min-w-[180px]">
+        {/* Row 2: Search Input + Ward Select + Sort Select */}
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+          {/* Search Bar */}
+          <div className="relative sm:col-span-6 lg:col-span-6">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -450,42 +474,63 @@ export function CustomersTab({
                 setSearchQuery(e.target.value)
                 setCurrentPage(1)
               }}
-              placeholder="Tìm tên, SĐT, Zalo, MST, địa chỉ..."
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-3.5 py-2 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
+              placeholder="Tìm tên khách hàng, SĐT, Zalo, địa chỉ..."
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9.5 pr-8 py-2.5 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('')
+                  setCurrentPage(1)
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                title="Xóa tìm kiếm"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          {/* District Filter */}
-          <select
-            value={districtFilter}
-            onChange={(e) => {
-              setDistrictFilter(e.target.value)
-              setCurrentPage(1)
-            }}
-            className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0"
-          >
-            <option value="all">Tất cả khu vực tại Huế</option>
-            {HUE_DISTRICTS.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
+          {/* District / Ward Select (40 Phường / Xã) */}
+          <div className="relative sm:col-span-3 lg:col-span-3">
+            <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={districtFilter}
+              onChange={(e) => {
+                setDistrictFilter(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-7 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none cursor-pointer truncate"
+            >
+              <option value="all">Tất cả 40 Phường/Xã tại Huế</option>
+              {HUE_DISTRICTS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
 
           {/* Sort By */}
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value as any)
-              setCurrentPage(1)
-            }}
-            className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0"
-          >
-            <option value="newest">Mới tạo gần đây</option>
-            <option value="spent_desc">Chi tiêu cao nhất (LTV)</option>
-            <option value="orders_desc">Nhiều đơn thi công nhất</option>
-            <option value="name_asc">Tên theo thứ tự A - Z</option>
-          </select>
+          <div className="relative sm:col-span-3 lg:col-span-3">
+            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value as any)
+                setCurrentPage(1)
+              }}
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-7 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none cursor-pointer truncate"
+            >
+              <option value="newest">Mới tạo gần đây</option>
+              <option value="spent_desc">Chi tiêu cao nhất (LTV)</option>
+              <option value="orders_desc">Nhiều đơn thi công nhất</option>
+              <option value="name_asc">Tên theo thứ tự A - Z</option>
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
       </div>
 
@@ -498,7 +543,7 @@ export function CustomersTab({
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">
                 <th className="py-3.5 px-4 text-center w-12">STT</th>
-                <th className="py-3.5 px-4 min-w-[220px]">Khách Hàng & Phân Hạng</th>
+                <th className="py-3.5 px-4 min-w-[240px]">Khách Hàng & Phân Hạng</th>
                 <th className="py-3.5 px-4 min-w-[190px]">Liên Hệ Trực Tiếp</th>
                 <th className="py-3.5 px-4 min-w-[200px]">Địa Bàn & Địa Chỉ</th>
                 <th className="py-3.5 px-4 text-right whitespace-nowrap">Đơn Thi Công</th>
@@ -525,7 +570,10 @@ export function CustomersTab({
                     <tr
                       key={cust.id}
                       className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
-                      onClick={() => setViewingCustomer(cust)}
+                      onClick={() => {
+                        setViewingCustomer(cust)
+                        setIsOrdersExpanded(false)
+                      }}
                     >
                       {/* Index */}
                       <td className="py-4 px-4 text-center font-mono text-[#86868B] text-[11px]">
@@ -550,14 +598,14 @@ export function CustomersTab({
                             )}
                           </div>
 
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5 flex-wrap">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start gap-1.5 flex-wrap">
                               {/* Quick VIP Star Toggle Button */}
                               <button
                                 type="button"
                                 onClick={(e) => handleToggleVip(cust, e)}
                                 className={cn(
-                                  'p-1 rounded-lg transition-all active:scale-90 shrink-0 hover:scale-110',
+                                  'p-1 rounded-lg transition-all active:scale-90 shrink-0 hover:scale-110 mt-0.5',
                                   cust.tier === 'vip'
                                     ? 'text-amber-500 bg-amber-50/80 border border-amber-200 shadow-2xs'
                                     : 'text-slate-300 hover:text-amber-400 hover:bg-slate-100'
@@ -567,12 +615,12 @@ export function CustomersTab({
                                 <Star className={cn('w-4 h-4', cust.tier === 'vip' ? 'fill-amber-400 text-amber-500' : 'text-slate-300 hover:text-amber-400')} />
                               </button>
 
-                              <span className="font-bold text-[#1D1D1F] text-sm group-hover:text-[#0071E3] transition-colors line-clamp-1">
+                              <span className="font-bold text-[#1D1D1F] text-sm group-hover:text-[#0071E3] transition-colors break-words leading-snug">
                                 {cust.name}
                               </span>
 
                               {cust.tier === 'vip' && (
-                                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
+                                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-50 text-amber-800 border border-amber-300 shrink-0 mt-0.5">
                                   VIP
                                 </span>
                               )}
@@ -733,17 +781,20 @@ export function CustomersTab({
                 <div
                   key={`mobile-${cust.id}`}
                   className="p-4 space-y-3 hover:bg-slate-50/70 transition-colors cursor-pointer"
-                  onClick={() => setViewingCustomer(cust)}
+                  onClick={() => {
+                    setViewingCustomer(cust)
+                    setIsOrdersExpanded(false)
+                  }}
                 >
                   {/* Header: STT, Avatar, Name & VIP */}
                   <div className="flex items-start justify-between gap-2.5">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="w-6 h-6 rounded-lg bg-slate-100 text-[#86868B] font-mono text-[11px] font-bold flex items-center justify-center shrink-0">
+                    <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                      <span className="w-6 h-6 rounded-lg bg-slate-100 text-[#86868B] font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
                         {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
                       </span>
                       <div
                         className={cn(
-                          'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border',
+                          'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border mt-0.5',
                           cust.type === 'business'
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             : 'bg-blue-50 text-[#0071E3] border-blue-200'
@@ -755,14 +806,14 @@ export function CustomersTab({
                           <User className="w-4 h-4" />
                         )}
                       </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start gap-1.5 flex-wrap">
                           {/* Quick VIP Star Toggle Button Mobile */}
                           <button
                             type="button"
                             onClick={(e) => handleToggleVip(cust, e)}
                             className={cn(
-                              'p-1 rounded-lg transition-all active:scale-90 shrink-0 hover:scale-110',
+                              'p-1 rounded-lg transition-all active:scale-90 shrink-0 hover:scale-110 mt-0.5',
                               cust.tier === 'vip'
                                 ? 'text-amber-500 bg-amber-50/80 border border-amber-200 shadow-2xs'
                                 : 'text-slate-300 hover:text-amber-400 hover:bg-slate-100'
@@ -772,12 +823,12 @@ export function CustomersTab({
                             <Star className={cn('w-3.5 h-3.5', cust.tier === 'vip' ? 'fill-amber-400 text-amber-500' : 'text-slate-300 hover:text-amber-400')} />
                           </button>
 
-                          <h4 className="font-bold text-sm text-[#1D1D1F] line-clamp-1">
+                          <h4 className="font-bold text-sm text-[#1D1D1F] break-words leading-snug">
                             {cust.name}
                           </h4>
 
                           {cust.tier === 'vip' && (
-                            <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
+                            <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-amber-50 text-amber-800 border border-amber-300 shrink-0 mt-0.5">
                               VIP
                             </span>
                           )}
@@ -793,8 +844,9 @@ export function CustomersTab({
                       onClick={(e) => {
                         e.stopPropagation()
                         setViewingCustomer(cust)
+                        setIsOrdersExpanded(false)
                       }}
-                      className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-[#0071E3] hover:bg-blue-50 shrink-0"
+                      className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-[#0071E3] hover:bg-blue-50 shrink-0 mt-0.5"
                       title="Xem chi tiết"
                     >
                       <Eye className="w-4 h-4" />
@@ -1084,21 +1136,65 @@ export function CustomersTab({
                 )}
               </div>
 
-              {/* Linked Orders History */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
+              {/* Linked Orders History (Collapsible / Expandable - Default Collapsed) */}
+              <div className="space-y-3 pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between gap-2">
                   <h4 className="text-xs font-bold text-[#1D1D1F] uppercase tracking-wider flex items-center gap-2">
                     <ClipboardList className="w-4 h-4 text-[#0071E3]" />
-                    Lịch Sử Đơn Hàng & Hợp Đồng Thi Công ({viewingCustomerOrders.length})
+                    Lịch Sử Đơn Hàng & Hợp Đồng ({viewingCustomerOrders.length})
                   </h4>
+
+                  {viewingCustomerOrders.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsOrdersExpanded(!isOrdersExpanded)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-[#1D1D1F] transition-all"
+                    >
+                      {isOrdersExpanded ? (
+                        <>
+                          <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Thu gọn</span>
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-3.5 h-3.5 text-[#0071E3]" />
+                          <span className="text-[#0071E3]">Xem chi tiết ({viewingCustomerOrders.length})</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 {viewingCustomerOrders.length === 0 ? (
-                  <div className="p-8 text-center text-[#86868B] text-xs bg-slate-50/50 rounded-2xl border border-slate-200/60">
+                  <div className="p-6 text-center text-[#86868B] text-xs bg-slate-50/50 rounded-2xl border border-slate-200/60">
                     Khách hàng này chưa có đơn hàng nào trong hệ thống.
                   </div>
+                ) : !isOrdersExpanded ? (
+                  /* Collapsed Summary View */
+                  <div
+                    onClick={() => setIsOrdersExpanded(true)}
+                    className="p-3.5 bg-blue-50/60 border border-blue-200/70 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-blue-50 transition-colors group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-blue-100 text-[#0071E3] flex items-center justify-center shrink-0 font-bold text-xs">
+                        {viewingCustomerOrders.length}
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-[#1D1D1F]">
+                          Đang thu gọn {viewingCustomerOrders.length} đơn hàng thi công
+                        </p>
+                        <p className="text-[11px] text-[#86868B]">
+                          Bấm để xem chi tiết từng thiết bị, ngày hoàn thành & bảo hành
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-[#0071E3] group-hover:underline inline-flex items-center gap-1 shrink-0">
+                      Mở rộng <ChevronDown className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
                 ) : (
-                  <div className="space-y-3">
+                  /* Expanded Full Details View */
+                  <div className="space-y-3 animate-in fade-in duration-150">
                     {viewingCustomerOrders.map((ord) => {
                       const st = ORDER_STATUS_CONFIG[ord.status] || ORDER_STATUS_CONFIG.pending
                       return (

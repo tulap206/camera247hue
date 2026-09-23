@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       zalo,
       email,
       address,
-      district = 'TP. Huế (Trung tâm)',
+      district = 'Phường Vĩnh Ninh',
       type = 'individual',
       tier = 'standard',
       tax_code,

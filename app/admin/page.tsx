@@ -28,10 +28,44 @@ import {
   SAMPLE_CATEGORIES,
 } from '@/lib/camera247-data'
 
+const VALID_TABS: AdminTab[] = ['overview', 'customers', 'orders', 'posts', 'access-history', 'settings']
+
 export default function AdminPage() {
   const router = useRouter()
   const [currentTab, setCurrentTab] = useState<AdminTab>('overview')
   const [loading, setLoading] = useState(true)
+
+  const handleTabChange = useCallback((tab: AdminTab) => {
+    setCurrentTab(tab)
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('c247_admin_active_tab', tab)
+        const url = new URL(window.location.href)
+        url.searchParams.set('tab', tab)
+        window.history.replaceState(null, '', url.toString())
+      } catch {
+        // ignore
+      }
+    }
+  }, [])
+
+  // Restore active tab from URL query param or localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const tabParam = params.get('tab') as AdminTab
+      const storedTab = localStorage.getItem('c247_admin_active_tab') as AdminTab
+
+      if (tabParam && VALID_TABS.includes(tabParam)) {
+        setCurrentTab(tabParam)
+      } else if (storedTab && VALID_TABS.includes(storedTab)) {
+        setCurrentTab(storedTab)
+        const url = new URL(window.location.href)
+        url.searchParams.set('tab', storedTab)
+        window.history.replaceState(null, '', url.toString())
+      }
+    }
+  }, [])
 
   // Dynamic Auth State
   const [currentUser, setCurrentUser] = useState<'admin' | 'admin1'>('admin')
@@ -195,7 +229,7 @@ export default function AdminPage() {
   const handleConvertContactToCustomer = (contact: ContactMessage) => {
     const existing = customers.find((c) => c.phone === contact.phone)
     if (existing) {
-      setCurrentTab('customers')
+      handleTabChange('customers')
       return
     }
 
@@ -207,7 +241,7 @@ export default function AdminPage() {
       zalo: contact.phone,
       email: contact.email || '',
       address: 'TP. Huế (Theo yêu cầu website)',
-      district: 'TP. Huế (Trung tâm)',
+      district: 'Phường Vĩnh Ninh',
       type: 'individual',
       tier: 'potential',
       tax_code: '',
@@ -235,7 +269,7 @@ export default function AdminPage() {
       `Tạo khách hàng tiềm năng từ yêu cầu website: ${newCust.name} (${newCust.phone})`
     )
     setLogs(getStoredLogs())
-    setCurrentTab('customers')
+    handleTabChange('customers')
   }
 
   const handleConvertContactToOrder = (contact: ContactMessage) => {
@@ -250,7 +284,7 @@ export default function AdminPage() {
         zalo: contact.phone,
         email: contact.email || '',
         address: 'TP. Huế (Chờ khảo sát)',
-        district: 'TP. Huế (Trung tâm)',
+        district: 'Phường Vĩnh Ninh',
         type: 'individual',
         tier: 'potential',
         tax_code: '',
@@ -272,7 +306,7 @@ export default function AdminPage() {
 
     // 3. Set prefill customer and switch to orders tab
     setPrefilledCustomerForOrder(cust)
-    setCurrentTab('orders')
+    handleTabChange('orders')
   }
 
   // ========== CUSTOMER HANDLERS ==========
@@ -317,7 +351,7 @@ export default function AdminPage() {
           zalo: customerData.zalo || '',
           email: customerData.email || '',
           address: customerData.address || '',
-          district: customerData.district || 'TP. Huế (Trung tâm)',
+          district: customerData.district || 'Phường Vĩnh Ninh',
           type: customerData.type || 'individual',
           tier: customerData.tier || 'standard',
           tax_code: customerData.tax_code || '',
@@ -644,7 +678,7 @@ export default function AdminPage() {
       {/* Sidebar navigation */}
       <AdminSidebar
         currentTab={currentTab}
-        onTabChange={setCurrentTab}
+        onTabChange={handleTabChange}
         onLogout={handleLogout}
         onOpenSpotlight={() => setIsSpotlightOpen(true)}
         activeUser={currentUser}
@@ -668,13 +702,13 @@ export default function AdminPage() {
               posts={posts}
               logs={logs}
               contacts={contacts}
-              onNavigateTab={setCurrentTab}
+              onNavigateTab={handleTabChange}
               onOpenNewOrder={() => {
                 setPrefilledCustomerForOrder(null)
-                setCurrentTab('orders')
+                handleTabChange('orders')
               }}
-              onOpenNewCustomer={() => setCurrentTab('customers')}
-              onOpenNewPost={() => setCurrentTab('posts')}
+              onOpenNewCustomer={() => handleTabChange('customers')}
+              onOpenNewPost={() => handleTabChange('posts')}
               onToggleReadContact={handleToggleReadContact}
               onDeleteContact={handleDeleteContact}
               onConvertContactToCustomer={handleConvertContactToCustomer}
@@ -690,7 +724,7 @@ export default function AdminPage() {
               onDeleteCustomer={handleDeleteCustomer}
               onOpenNewOrderWithCustomer={(cust) => {
                 setPrefilledCustomerForOrder(cust)
-                setCurrentTab('orders')
+                handleTabChange('orders')
               }}
               onRefreshData={() => fetchAllData(false)}
             />
@@ -762,18 +796,18 @@ export default function AdminPage() {
         orders={orders}
         posts={posts}
         contacts={contacts}
-        onNavigateTab={setCurrentTab}
+        onNavigateTab={handleTabChange}
         onSelectCustomer={(cust) => {
-          setCurrentTab('customers')
+          handleTabChange('customers')
         }}
         onSelectOrder={(ord) => {
-          setCurrentTab('orders')
+          handleTabChange('orders')
         }}
         onSelectPost={(post) => {
-          setCurrentTab('posts')
+          handleTabChange('posts')
         }}
         onSelectContact={(contact) => {
-          setCurrentTab('overview')
+          handleTabChange('overview')
         }}
       />
     </div>
