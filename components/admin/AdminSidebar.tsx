@@ -21,6 +21,15 @@ import {
   Sparkles,
   Search,
   CalendarCheck,
+  Phone,
+  Mail,
+  MapPin,
+  Building2,
+  BadgeCheck,
+  Globe,
+  Lock,
+  Fingerprint,
+  Wifi,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -64,6 +73,7 @@ export function AdminSidebar({
 }: AdminSidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [adminUser, setAdminUser] = useState<'admin' | 'admin1'>(activeUser)
   const [avatarUrl, setAvatarUrl] = useState<string>('')
   const avatarInputRef = useRef<HTMLInputElement>(null)
@@ -295,14 +305,16 @@ export function AdminSidebar({
           <span>Đăng xuất hệ thống</span>
         </button>
 
-        {/* Apple Sub-footer version */}
+        {/* Apple Sub-footer: @ Camera 247 Huế - 2026 button */}
         <div className="pt-1.5 text-center select-none">
-          <p className="text-[10px] font-medium text-[#86868B]">
-            Camera 247 Huế · macOS Edition
-          </p>
-          <p className="text-[9.5px] text-[#A1A1A6] font-mono">
-            MST: 3301677400 · TP. Huế
-          </p>
+          <button
+            type="button"
+            onClick={() => setIsAboutModalOpen(true)}
+            className="w-full py-1 text-center text-[11px] font-medium text-[#86868B] hover:text-[#0071E3] transition-colors rounded-lg hover:bg-slate-200/50 flex items-center justify-center gap-1 cursor-pointer group"
+            title="Xem thông tin giới thiệu & liên hệ Camera 247 Huế"
+          >
+            <span className="group-hover:underline">@ Camera 247 Huế - 2026</span>
+          </button>
         </div>
       </div>
     </>
@@ -505,6 +517,155 @@ export function AdminSidebar({
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Company Introduction / About Modal */}
+      {isAboutModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[120] flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.18)] animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="relative p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white overflow-hidden shrink-0">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+              <button
+                onClick={() => setIsAboutModalOpen(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                title="Đóng"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-14 h-14 rounded-2xl bg-white p-1.5 flex items-center justify-center shadow-lg shrink-0">
+                  <img
+                    src="/images/logo/logo-diamond.png"
+                    alt="Logo Camera 247 Huế"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 mb-1">
+                    <BadgeCheck className="w-3 h-3 text-blue-400" /> Đơn Vị Hàng Đầu Tại Huế
+                  </span>
+                  <h3 className="text-lg font-bold tracking-tight text-white truncate">
+                    Camera 247 Huế
+                  </h3>
+                  <p className="text-xs text-slate-300 truncate">
+                    Công ty TNHH Công Nghệ An Ninh Huế
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-5 text-xs text-[#1D1D1F]">
+              {/* Introduction Text */}
+              <div className="space-y-1.5 leading-relaxed text-[#424245]">
+                <p>
+                  <strong>Camera 247 Huế</strong> là đơn vị chuyên sâu trong lĩnh vực tư vấn, phân phối và thi công trọn gói hệ thống <strong>Camera giám sát an ninh thông minh AI</strong>, <strong>Khóa cửa điện tử vân tay / FaceID</strong>, <strong>Hạ tầng Wifi Mesh chuyên dụng</strong>, <strong>Máy chấm công</strong> và <strong>Báo động chống trộm</strong> trên toàn địa bàn TP. Huế và tỉnh Thừa Thiên Huế.
+                </p>
+              </div>
+
+              {/* Core Services Grid */}
+              <div className="space-y-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#86868B] block">
+                  Dịch Vụ Trọng Tâm Triển Khai
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span className="font-semibold text-blue-950 text-[11.5px]">Camera AI Full Color</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-100 flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span className="font-semibold text-amber-950 text-[11.5px]">Khóa Vân Tay FaceID</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 flex items-center gap-2">
+                    <Wifi className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-semibold text-emerald-950 text-[11.5px]">Wifi Mesh Chịu Tải</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-purple-50/70 border border-purple-100 flex items-center gap-2">
+                    <Fingerprint className="w-4 h-4 text-purple-600 shrink-0" />
+                    <span className="font-semibold text-purple-950 text-[11.5px]">Máy Chấm Công AI</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Company Info & Contact */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2.5">
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[#86868B] text-[11px] block">Địa bàn phục vụ & Trụ sở:</span>
+                    <span className="font-semibold text-[#1D1D1F]">TP. Huế, Tỉnh Thừa Thiên Huế</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <Building2 className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[#86868B] text-[11px] block">Mã số thuế doanh nghiệp:</span>
+                    <span className="font-mono font-bold text-[#1D1D1F]">3301677400 · Sở KH&ĐT TP. Huế</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <Phone className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[#86868B] text-[11px] block">Hotline kỹ thuật & tư vấn 24/7:</span>
+                    <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                      <a href="tel:0967611112" className="font-bold text-[#0071E3] hover:underline">
+                        0967 611 112 (Mr. Lập)
+                      </a>
+                      <span className="text-slate-300">•</span>
+                      <a href="tel:0796785151" className="font-bold text-[#0071E3] hover:underline">
+                        0796 785 151 (Mr. Tước)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <Mail className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[#86868B] text-[11px] block">Thư điện tử hỗ trợ:</span>
+                    <span className="font-medium text-[#1D1D1F]">camera247hue@gmail.com</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quality Commitments */}
+              <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-xl space-y-1 text-emerald-950 text-[11.5px]">
+                <span className="font-bold flex items-center gap-1 text-emerald-800">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Cam Kết Chất Lượng Camera 247 Huế:
+                </span>
+                <p>• Khảo sát tận nơi miễn phí toàn TP. Huế trong 30 phút.</p>
+                <p>• Thiết bị chính hãng 100%, bảo hành 24 tháng 1 đổi 1 tận nơi.</p>
+                <p>• Thi công thẩm mỹ, hỗ trợ kỹ thuật trọn đời 24/7.</p>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3 shrink-0">
+              <a
+                href="/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-[#1D1D1F] hover:bg-slate-100 transition-colors shadow-2xs"
+              >
+                <Globe className="w-3.5 h-3.5 text-[#0071E3]" />
+                <span>Xem Landing Page</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setIsAboutModalOpen(false)}
+                className="px-5 py-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+              >
+                Đóng
+              </button>
             </div>
           </div>
         </div>
