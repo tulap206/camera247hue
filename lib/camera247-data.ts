@@ -362,7 +362,7 @@ export const SAMPLE_LOGS: AccessLog[] = [
   {
     id: 'log-01',
     username: 'admin',
-    displayName: 'Quản trị viên (Tước)',
+    displayName: 'Quản trị viên (Lập)',
     action: 'Đăng nhập',
     module: 'Hệ thống & Đăng nhập',
     details: 'Đăng nhập thành công từ IP 113.161.78.45 [Thiết bị: macOS Chrome]',
@@ -372,7 +372,7 @@ export const SAMPLE_LOGS: AccessLog[] = [
   {
     id: 'log-02',
     username: 'admin',
-    displayName: 'Quản trị viên (Tước)',
+    displayName: 'Quản trị viên (Lập)',
     action: 'Cập nhật',
     module: 'Đơn hàng',
     details: 'Cập nhật tiến độ đơn hàng #C247-2026-004 (Nhà hàng Cơm Niêu Phố Cổ) → Đang thi công',
@@ -382,7 +382,7 @@ export const SAMPLE_LOGS: AccessLog[] = [
   {
     id: 'log-03',
     username: 'admin1',
-    displayName: 'Kỹ thuật viên (Lập)',
+    displayName: 'Quản trị viên (Tước)',
     action: 'Thêm mới',
     module: 'Khách hàng',
     details: 'Tạo hồ sơ khách hàng mới: Bác Trần Văn Thịnh (89 Thái Phiên, Tây Lộc)',
@@ -402,10 +402,10 @@ export const SAMPLE_LOGS: AccessLog[] = [
   {
     id: 'log-05',
     username: 'admin',
-    displayName: 'Quản trị viên (Tước)',
+    displayName: 'Quản trị viên (Lập)',
     action: 'Sao lưu',
     module: 'Cài đặt & Sao lưu',
-    details: 'Tạo bản sao lưu dữ liệu toàn hệ thống JSON thành công',
+    details: 'Tạo bản sao lưu dữ liệu đám mây (Cloud Snapshot) thành công lên Supabase Database',
     ip_address: '113.161.78.45',
     timestamp: new Date(Date.now() - 1000 * 60 * 300).toISOString(),
   },
@@ -769,7 +769,7 @@ export function addAuditLog(
   const newLog: AccessLog = {
     id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
     username: username || 'admin',
-    displayName: displayName || (username === 'admin1' ? 'Kỹ thuật viên (Lập)' : 'Quản trị viên (Tước)'),
+    displayName: displayName || (username === 'admin1' ? 'Quản trị viên (Tước)' : 'Quản trị viên (Lập)'),
     action,
     module,
     details,
@@ -799,5 +799,96 @@ export function resetAllToDefaultSamples() {
     console.error('Error resetting all to default samples', e)
   }
 }
+
+export interface CloudBackup {
+  id: string
+  backup_name: string
+  version: string
+  created_by: string
+  creator_name: string
+  customers_count: number
+  orders_count: number
+  posts_count: number
+  categories_count: number
+  logs_count: number
+  file_size_bytes?: number
+  notes?: string
+  payload?: any
+  created_at: string
+}
+
+export const SAMPLE_CLOUD_BACKUPS: CloudBackup[] = [
+  {
+    id: 'cb-01',
+    backup_name: 'Bản Sao Lưu Toàn Diện Hệ Thống - Q1/2026',
+    version: '2.5',
+    created_by: 'admin',
+    creator_name: 'Quản trị viên (Lập)',
+    customers_count: 5,
+    orders_count: 5,
+    posts_count: 5,
+    categories_count: 5,
+    logs_count: 5,
+    file_size_bytes: 34820,
+    notes: 'Bản sao lưu mốc chuẩn 5 mẫu cho toàn bộ khách hàng, công trình và bài viết tại Huế',
+    created_at: '2026-03-23T08:00:00Z',
+  },
+  {
+    id: 'cb-02',
+    backup_name: 'Snapshot Trước Khi Nghiệm Thu Khách Sạn Hương Giang',
+    version: '2.5',
+    created_by: 'admin1',
+    creator_name: 'Quản trị viên (Tước)',
+    customers_count: 4,
+    orders_count: 4,
+    posts_count: 3,
+    categories_count: 5,
+    logs_count: 12,
+    file_size_bytes: 28400,
+    notes: 'Lưu trữ tiến độ thi công 32 camera IP ColorVu Hương Giang Resort',
+    created_at: '2026-03-15T14:30:00Z',
+  },
+  {
+    id: 'cb-03',
+    backup_name: 'Bản Sao Lưu Dữ Liệu Khách Hàng Doanh Nghiệp KCN Phú Bài',
+    version: '2.5',
+    created_by: 'admin',
+    creator_name: 'Quản trị viên (Lập)',
+    customers_count: 3,
+    orders_count: 3,
+    posts_count: 2,
+    categories_count: 5,
+    logs_count: 8,
+    file_size_bytes: 19800,
+    notes: 'Sao lưu hợp đồng & hồ sơ kỹ thuật Nhà máy May Phú Bài',
+    created_at: '2026-03-05T09:15:00Z',
+  },
+]
+
+const LOCAL_STORAGE_KEY_CLOUD_BACKUPS = 'c247_cloud_backups_v3'
+
+export function getStoredCloudBackups(): CloudBackup[] {
+  if (typeof window === 'undefined') return SAMPLE_CLOUD_BACKUPS
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY_CLOUD_BACKUPS)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch (e) {
+    console.error('Error loading stored cloud backups', e)
+  }
+  return SAMPLE_CLOUD_BACKUPS
+}
+
+export function saveStoredCloudBackups(backups: CloudBackup[]) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY_CLOUD_BACKUPS, JSON.stringify(backups))
+  } catch (e) {
+    console.error('Error saving stored cloud backups', e)
+  }
+}
+
 
 

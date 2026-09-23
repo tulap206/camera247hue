@@ -96,7 +96,7 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     try {
-      addAuditLog('admin', 'Quản trị viên (Tước)', 'Đăng xuất', 'Hệ thống & Đăng nhập', 'Đăng xuất khỏi bảng điều khiển quản trị')
+      addAuditLog('admin', 'Quản trị viên (Lập)', 'Đăng xuất', 'Hệ thống & Đăng nhập', 'Đăng xuất khỏi bảng điều khiển quản trị')
       await fetch('/api/auth', { method: 'DELETE', credentials: 'same-origin' })
     } catch {
       // ignore
@@ -117,7 +117,7 @@ export default function AdminPage() {
         )
         addAuditLog(
           'admin',
-          'Quản trị viên (Tước)',
+          'Quản trị viên (Lập)',
           'Chỉnh sửa',
           'Khách hàng',
           `Cập nhật thông tin khách hàng: ${customerData.name} (${customerData.phone})`
@@ -145,7 +145,7 @@ export default function AdminPage() {
         next = [newCust, ...prev]
         addAuditLog(
           'admin',
-          'Quản trị viên (Tước)',
+          'Quản trị viên (Lập)',
           'Thêm mới',
           'Khách hàng',
           `Thêm khách hàng mới: ${newCust.name} (${newCust.phone}) tại ${newCust.address}`
@@ -164,7 +164,7 @@ export default function AdminPage() {
       if (target) {
         addAuditLog(
           'admin',
-          'Quản trị viên (Tước)',
+          'Quản trị viên (Lập)',
           'Xóa',
           'Khách hàng',
           `Xóa hồ sơ khách hàng: ${target.name} (${target.phone})`
@@ -189,7 +189,7 @@ export default function AdminPage() {
         )
         addAuditLog(
           'admin',
-          'Quản trị viên (Tước)',
+          'Quản trị viên (Lập)',
           'Cập nhật',
           'Đơn hàng',
           `Cập nhật đơn thi công ${orderData.order_code || orderData.id} (${orderData.customer_name}) → Trạng thái: ${orderData.status}`
@@ -221,7 +221,7 @@ export default function AdminPage() {
         next = [newOrder, ...prev]
         addAuditLog(
           'admin',
-          'Quản trị viên (Tước)',
+          'Quản trị viên (Lập)',
           'Thêm mới',
           'Đơn hàng',
           `Tạo đơn hàng thi công mới #${newOrder.order_code} cho khách ${newOrder.customer_name} - Trị giá: ${newOrder.total_amount}đ`
@@ -240,7 +240,7 @@ export default function AdminPage() {
       if (target) {
         addAuditLog(
           'admin',
-          'Quản trị viên (Tước)',
+          'Quản trị viên (Lập)',
           'Xóa',
           'Đơn hàng',
           `Xóa đơn hàng #${target.order_code} (${target.customer_name})`
@@ -265,7 +265,7 @@ export default function AdminPage() {
         fetchAllData(false)
         addAuditLog(
           'admin',
-          'Quản trị viên (Tước)',
+          'Quản trị viên (Lập)',
           isEditing ? 'Chỉnh sửa' : 'Thêm mới',
           'Bài viết',
           `${isEditing ? 'Cập nhật' : 'Xuất bản'} bài viết công trình: ${postData.title}`
@@ -287,7 +287,7 @@ export default function AdminPage() {
         fetchAllData(false)
         addAuditLog(
           'admin',
-          'Quản trị viên (Tước)',
+          'Quản trị viên (Lập)',
           'Xóa',
           'Bài viết',
           `Xóa bài viết công trình: ${post?.title || id}`
@@ -311,7 +311,7 @@ export default function AdminPage() {
         fetchAllData(false)
         addAuditLog(
           'admin',
-          'Quản trị viên (Tước)',
+          'Quản trị viên (Lập)',
           'Chỉnh sửa',
           'Bài viết',
           `${nextPub ? 'Hiển thị' : 'Ẩn'} bài viết: ${post.title}`
@@ -333,7 +333,7 @@ export default function AdminPage() {
       if (res.ok) {
         const newCat = await res.json()
         fetchAllData(false)
-        addAuditLog('admin', 'Quản trị viên (Tước)', 'Thêm mới', 'Bài viết', `Tạo danh mục công trình mới: ${name}`)
+        addAuditLog('admin', 'Quản trị viên (Lập)', 'Thêm mới', 'Bài viết', `Tạo danh mục công trình mới: ${name}`)
         setLogs(getStoredLogs())
         return newCat
       }
@@ -352,7 +352,7 @@ export default function AdminPage() {
       })
       if (res.ok) {
         fetchAllData(false)
-        addAuditLog('admin', 'Quản trị viên (Tước)', 'Chỉnh sửa', 'Bài viết', `Đổi tên danh mục công trình thành: ${name}`)
+        addAuditLog('admin', 'Quản trị viên (Lập)', 'Chỉnh sửa', 'Bài viết', `Đổi tên danh mục công trình thành: ${name}`)
         setLogs(getStoredLogs())
         return true
       }
@@ -367,7 +367,7 @@ export default function AdminPage() {
       const res = await fetch(`/api/categories?id=${id}`, { method: 'DELETE' })
       if (res.ok) {
         fetchAllData(false)
-        addAuditLog('admin', 'Quản trị viên (Tước)', 'Xóa', 'Bài viết', `Xóa danh mục công trình`)
+        addAuditLog('admin', 'Quản trị viên (Lập)', 'Xóa', 'Bài viết', `Xóa danh mục công trình`)
         setLogs(getStoredLogs())
         return true
       }
@@ -397,7 +397,7 @@ export default function AdminPage() {
       setLogs(importedData.logs)
       saveStoredLogs(importedData.logs)
     }
-    addAuditLog('admin', 'Quản trị viên (Tước)', 'Khôi phục', 'Cài đặt & Sao lưu', 'Khôi phục dữ liệu toàn hệ thống từ tệp JSON sao lưu')
+    addAuditLog('admin', 'Quản trị viên (Lập)', 'Khôi phục', 'Cài đặt & Sao lưu', 'Khôi phục dữ liệu toàn hệ thống từ tệp JSON sao lưu')
   }
 
   // Badge counts
