@@ -687,7 +687,23 @@ export function AdminSidebar({
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 overflow-y-auto space-y-5 text-xs text-[#1D1D1F]">
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs text-[#1D1D1F]">
+              {/* Showroom Storefront Hero Image from Landing Page */}
+              <div className="relative rounded-2xl overflow-hidden border border-slate-200/80 shadow-2xs group">
+                <img
+                  src="/images/storefront-sign.jpg"
+                  alt="Showroom Camera 247 Huế - 40 Tùng Thiện Vương"
+                  className="w-full h-44 sm:h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-white">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-[11px] font-semibold border border-white/20">
+                    <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span>Showroom: 40 Tùng Thiện Vương, Vỹ Dạ, TP. Huế</span>
+                  </span>
+                </div>
+              </div>
+
               {/* Introduction Text */}
               <div className="space-y-1.5 leading-relaxed text-[#424245]">
                 <p>
@@ -721,12 +737,12 @@ export function AdminSidebar({
               </div>
 
               {/* Company Info & Contact */}
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2.5">
+              <div className="p-4 bg-[#F5F5F7]/80 rounded-2xl border border-slate-200/80 space-y-2.5">
                 <div className="flex items-start gap-2.5">
                   <MapPin className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-[#86868B] text-[11px] block">Địa bàn phục vụ & Trụ sở:</span>
-                    <span className="font-semibold text-[#1D1D1F]">TP. Huế, Tỉnh Thừa Thiên Huế</span>
+                    <span className="text-[#86868B] text-[11px] block">Trụ sở & Showroom:</span>
+                    <span className="font-semibold text-[#1D1D1F]">40 Tùng Thiện Vương, P. Vỹ Dạ, TP. Huế</span>
                   </div>
                 </div>
 
@@ -762,25 +778,15 @@ export function AdminSidebar({
                   </div>
                 </div>
               </div>
-
-              {/* Quality Commitments */}
-              <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-xl space-y-1 text-emerald-950 text-[11.5px]">
-                <span className="font-bold flex items-center gap-1 text-emerald-800">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Cam Kết Chất Lượng Camera 247 Huế:
-                </span>
-                <p>• Khảo sát tận nơi miễn phí toàn TP. Huế trong 30 phút.</p>
-                <p>• Thiết bị chính hãng 100%, bảo hành 24 tháng 1 đổi 1 tận nơi.</p>
-                <p>• Thi công thẩm mỹ, hỗ trợ kỹ thuật trọn đời 24/7.</p>
-              </div>
             </div>
 
             {/* Footer Actions */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3 shrink-0">
+            <div className="p-4 border-t border-slate-100 bg-[#F5F5F7]/60 flex items-center justify-between gap-3 shrink-0">
               <a
                 href="/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-[#1D1D1F] hover:bg-slate-100 transition-colors shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white border border-slate-200 text-xs font-semibold text-[#1D1D1F] hover:bg-slate-100 transition-colors shadow-2xs"
               >
                 <Globe className="w-3.5 h-3.5 text-[#0071E3]" />
                 <span>Xem Landing Page</span>
@@ -789,7 +795,7 @@ export function AdminSidebar({
               <button
                 type="button"
                 onClick={() => setIsAboutModalOpen(false)}
-                className="px-5 py-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+                className="px-6 py-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-2xl text-xs font-bold transition-all shadow-xs active:scale-[0.98]"
               >
                 Đóng
               </button>
