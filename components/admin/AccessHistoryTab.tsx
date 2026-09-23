@@ -411,10 +411,12 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
         </div>
       </div>
 
-      {/* Logs Table Card */}
+      {/* Logs Table / Mobile Card List */}
       <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View (hidden on mobile) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
+
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">
                 <th className="py-3.5 px-4 text-center w-12">STT</th>
@@ -522,6 +524,76 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Touch-Optimized Card List (md:hidden) */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {paginatedLogs.length === 0 ? (
+            <div className="py-12 px-4 text-center space-y-2">
+              <History className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="text-sm font-bold text-[#1D1D1F]">Không có nhật ký nào phù hợp</p>
+              <p className="text-xs text-[#86868B]">Thử làm mới hoặc thay đổi các tiêu chí lọc ở trên.</p>
+            </div>
+          ) : (
+            paginatedLogs.map((log, idx) => {
+              const actStyle = ACTION_CONFIG[log.action] || {
+                color: 'text-slate-700',
+                bg: 'bg-slate-100',
+                border: 'border-slate-200',
+              }
+
+              return (
+                <div
+                  key={`mobile-${log.id}`}
+                  className="p-4 space-y-2.5 hover:bg-slate-50/70 transition-colors cursor-pointer"
+                  onClick={() => setSelectedLog(log)}
+                >
+                  {/* Top: STT, Action badge, Module & Time */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="w-5 h-5 rounded-md bg-slate-100 text-[#86868B] font-mono text-[10.5px] font-bold flex items-center justify-center shrink-0">
+                        {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                      </span>
+                      <span
+                        className={cn(
+                          'text-[10.5px] font-bold px-2 py-0.5 rounded-full border',
+                          actStyle.bg,
+                          actStyle.color,
+                          actStyle.border
+                        )}
+                      >
+                        {log.action}
+                      </span>
+                      <span className="text-[10.5px] font-medium bg-slate-100 text-[#1D1D1F] px-2 py-0.5 rounded-lg border border-slate-200/60">
+                        {log.module}
+                      </span>
+                    </div>
+
+                    <span className="text-[10.5px] text-[#86868B] font-mono shrink-0">
+                      {formatDateTimeVN(log.timestamp).split(' ')[1]}
+                    </span>
+                  </div>
+
+                  {/* User & Details */}
+                  <div className="bg-slate-50/80 rounded-2xl p-2.5 border border-slate-200/60 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-[#1D1D1F]">
+                        {log.displayName || log.username} <span className="text-[#86868B] font-mono font-normal">(@{log.username})</span>
+                      </span>
+                      <span className="text-[10px] text-[#86868B] font-mono">
+                        {log.ip_address ? `IP: ${log.ip_address}` : ''}
+                      </span>
+                    </div>
+
+                    <p className="text-[#1D1D1F] text-xs leading-relaxed font-normal">
+                      {log.details}
+                    </p>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
 
         {/* Pagination Bar with Page Numbers */}
         <PaginationControl

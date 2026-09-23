@@ -829,10 +829,12 @@ export function PostsTab({
           })}
         </div>
       ) : (
-        /* DETAILED TABLE VIEW */
+        /* DETAILED TABLE VIEW / MOBILE CARD LIST */
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Desktop Table View (hidden on mobile) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
+
               <thead className="bg-slate-50/80 border-b border-slate-200/60 text-[#86868B] font-semibold uppercase tracking-wider text-[10.5px]">
                 <tr>
                   <th className="py-3.5 px-4 text-center w-12 whitespace-nowrap">STT</th>
@@ -1012,6 +1014,141 @@ export function PostsTab({
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Touch-Optimized Post Card List (md:hidden) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {paginatedPosts.length === 0 ? (
+              <div className="py-12 px-4 text-center space-y-2">
+                <FileText className="w-10 h-10 text-slate-300 mx-auto" />
+                <p className="text-sm font-semibold text-[#1D1D1F]">Không tìm thấy bài viết nào</p>
+              </div>
+            ) : (
+              paginatedPosts.map((post, idx) => {
+                const catName =
+                  categories.find((c) => c.id === post.category_id)?.name ||
+                  post.category?.name ||
+                  'Chưa phân loại'
+
+                return (
+                  <div key={`mobile-post-${post.id}`} className="p-4 space-y-3 hover:bg-slate-50/70 transition-colors">
+                    {/* Top: Thumbnail & Title */}
+                    <div className="flex items-start gap-3">
+                      <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200/80 overflow-hidden shrink-0 relative shadow-2xs">
+                        {post.cover_image ? (
+                          <img
+                            src={post.cover_image}
+                            alt={post.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-slate-400">
+                            <ImageIcon className="w-5 h-5" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="w-5 h-5 rounded-md bg-slate-100 text-[#86868B] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
+                            {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                          </span>
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-slate-100 text-[#1D1D1F] border border-slate-200/60">
+                            {catName}
+                          </span>
+                          {post.featured && (
+                            <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                              <Star className="w-2.5 h-2.5 fill-amber-400" /> Nổi bật
+                            </span>
+                          )}
+                        </div>
+
+                        <h4
+                          onClick={() => openEditPostForm(post)}
+                          className="font-bold text-sm text-[#1D1D1F] hover:text-[#0071E3] transition-colors line-clamp-2 mt-1 cursor-pointer leading-snug"
+                        >
+                          {post.title}
+                        </h4>
+                      </div>
+                    </div>
+
+                    {/* Meta info & Client */}
+                    <div className="bg-slate-50/80 rounded-2xl p-2.5 border border-slate-200/60 space-y-1.5 text-xs text-[#86868B]">
+                      {post.client_name && (
+                        <div className="flex items-center gap-1 text-[#1D1D1F] font-semibold text-[11.5px]">
+                          <Building2 className="w-3.5 h-3.5 text-[#0071E3] shrink-0" />
+                          <span className="truncate">{post.client_name}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between text-[11px] gap-2 pt-0.5">
+                        <span className="truncate flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                          {post.location || 'Huế'}
+                        </span>
+                        <span className="shrink-0 flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-400" />
+                          {post.completed_at || '—'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Bar */}
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <button
+                        onClick={() => onTogglePublish(post)}
+                        className={cn(
+                          'px-2.5 py-1 rounded-xl text-xs font-semibold border transition-all inline-flex items-center gap-1.5 shadow-2xs',
+                          post.published
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-slate-100 text-slate-600 border-slate-200'
+                        )}
+                      >
+                        <span className={cn('w-1.5 h-1.5 rounded-full', post.published ? 'bg-emerald-500' : 'bg-slate-400')} />
+                        {post.published ? 'Đang hiện' : 'Đang ẩn'}
+                      </button>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleCopyLink(post.slug)}
+                          className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-[#0071E3] hover:bg-blue-50 border border-slate-200"
+                          title="Sao chép liên kết"
+                        >
+                          {copiedSlug === post.slug ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+                        </button>
+                        <a
+                          href={`/cong-trinh/${post.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-[#0071E3] hover:bg-blue-50 border border-slate-200"
+                          title="Xem web"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                        <button
+                          onClick={() => openEditPostForm(post)}
+                          className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-amber-700 hover:bg-amber-50 border border-slate-200"
+                          title="Sửa"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`Xác nhận xóa bài viết "${post.title}"?`)) {
+                              onDeletePost(post.id)
+                            }
+                          }}
+                          className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200"
+                          title="Xóa"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+
 
           {/* Pagination Bar for Table View */}
           <PaginationControl

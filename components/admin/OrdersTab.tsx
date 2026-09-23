@@ -627,10 +627,12 @@ export function OrdersTab({
         </div>
       </div>
 
-      {/* Orders Table */}
+      {/* Orders Table / Mobile Card List */}
       <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View (hidden on mobile) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
+
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">
                 <th className="py-3.5 px-4 text-center w-12 whitespace-nowrap">STT</th>
@@ -856,6 +858,156 @@ export function OrdersTab({
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Touch-Optimized Card List (md:hidden) */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {paginatedOrders.length === 0 ? (
+            <div className="py-12 px-4 text-center space-y-2">
+              <ClipboardList className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="text-sm font-semibold text-[#1D1D1F]">Không tìm thấy đơn hàng phù hợp</p>
+              <p className="text-xs text-[#86868B]">Thử đổi điều kiện tìm kiếm hoặc bấm Tạo đơn thi công mới.</p>
+            </div>
+          ) : (
+            paginatedOrders.map((ord, idx) => {
+              const st = ORDER_STATUS_CONFIG[ord.status] || ORDER_STATUS_CONFIG.pending
+              const warrantyInfo = isWarrantyActive(ord.warranty_until)
+
+              return (
+                <div
+                  key={`mobile-${ord.id}`}
+                  className="p-4 space-y-3 hover:bg-slate-50/70 transition-colors cursor-pointer"
+                  onClick={() => setViewingOrder(ord)}
+                >
+                  {/* Header: STT, Order Code, Status badge & Detail btn */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                      <span className="w-6 h-6 rounded-lg bg-slate-100 text-[#86868B] font-mono text-[11px] font-bold flex items-center justify-center shrink-0">
+                        {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                      </span>
+                      <span className="font-mono font-bold text-sm text-[#0071E3]">
+                        #{ord.order_code}
+                      </span>
+                      <span
+                        className={cn(
+                          'inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border',
+                          st.badgeClass
+                        )}
+                      >
+                        <span className={cn('w-1.5 h-1.5 rounded-full', st.dotClass)} />
+                        {st.label}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setViewingOrder(ord)
+                      }}
+                      className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-[#0071E3] hover:bg-blue-50 shrink-0"
+                      title="Xem chi tiết"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Customer Information */}
+                  <div className="bg-slate-50/80 rounded-2xl p-3 border border-slate-200/60 space-y-2 text-xs">
+                    <div className="flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                      <h4 className="font-bold text-sm text-[#1D1D1F] line-clamp-1">
+                        {ord.customer_name}
+                      </h4>
+                      {ord.customer_phone ? (
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <a
+                            href={`tel:${ord.customer_phone.replace(/\s+/g, '')}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white border border-slate-200/80 font-mono font-bold text-[#1D1D1F] text-xs shadow-2xs"
+                          >
+                            <Phone className="w-3 h-3 text-[#0071E3]" />
+                            {ord.customer_phone}
+                          </a>
+                          <a
+                            href={`https://zalo.me/${ord.customer_phone.replace(/\s+/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-2 py-1 rounded-xl bg-blue-50 border border-blue-200 text-[#0071E3] text-[10.5px] font-bold shadow-2xs"
+                          >
+                            Zalo
+                          </a>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 italic text-[11px]">Chưa có SĐT</span>
+                      )}
+                    </div>
+
+                    <p className="text-[11.5px] text-[#86868B] line-clamp-2">
+                      📍 {ord.customer_address}
+                    </p>
+
+                    {/* Services Pills */}
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {(ord.services || []).map((sId) => {
+                        const sDef = CAMERA247_SERVICES.find((s) => s.id === sId)
+                        if (!sDef) return null
+                        return (
+                          <span
+                            key={sId}
+                            className="text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-white border border-slate-200/80 text-[#1D1D1F]"
+                          >
+                            {sDef.name.split('/')[0].trim()}
+                          </span>
+                        )
+                      })}
+                    </div>
+
+                    {/* Equipment summary */}
+                    <p className="text-[11.5px] text-[#424245] line-clamp-2 leading-relaxed">
+                      {ord.equipment_list}
+                    </p>
+
+                    {/* Technician & Warranty info */}
+                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/50 text-[#86868B]">
+                      <span>
+                        KTV: <strong className="text-[#1D1D1F]">{ord.technician || 'Lập & Tước'}</strong>
+                      </span>
+                      <span className={cn(warrantyInfo.active ? 'text-indigo-700 font-semibold font-mono' : 'text-slate-400')}>
+                        BH: {ord.warranty_months}T {ord.warranty_until ? `(Đến ${ord.warranty_until})` : ''}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Row: Total & Action Buttons */}
+                  <div className="flex items-center justify-between gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                    <div className="text-xs font-mono">
+                      <span className="text-[#86868B] text-[11px]">Trị giá: </span>
+                      <span className="font-bold text-[#1D1D1F]">{formatVND(ord.total_amount)}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(ord)}
+                        className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-amber-700 hover:bg-amber-50 border border-slate-200"
+                        title="Chỉnh sửa đơn"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setOrderToDelete(ord)}
+                        className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200"
+                        title="Xóa đơn"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
 
         {/* Pagination Bar with Page Numbers */}
         <PaginationControl

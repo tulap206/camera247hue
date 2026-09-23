@@ -535,10 +535,12 @@ export function CustomersTab({
         </div>
       </div>
 
-      {/* Enhanced Apple Customer Table */}
+      {/* Enhanced Apple Customer Table / Card List */}
       <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View (hidden on mobile) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
+
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">
                 <th className="py-3.5 px-4 text-center w-12">STT</th>
@@ -745,6 +747,169 @@ export function CustomersTab({
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Touch-Optimized Card List (md:hidden) */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {paginatedCustomers.length === 0 ? (
+            <div className="py-12 px-4 text-center space-y-2">
+              <Users className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="text-sm font-semibold text-[#1D1D1F]">Không tìm thấy khách hàng phù hợp</p>
+              <p className="text-xs text-[#86868B]">Thử thay đổi từ khóa tìm kiếm hoặc bấm Thêm khách hàng mới.</p>
+            </div>
+          ) : (
+            paginatedCustomers.map((cust, idx) => {
+              const custOrders = orders.filter(
+                (o) => o.customer_id === cust.id || o.customer_phone === cust.phone
+              )
+              const totalSpent = custOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
+
+              return (
+                <div
+                  key={`mobile-${cust.id}`}
+                  className="p-4 space-y-3 hover:bg-slate-50/70 transition-colors cursor-pointer"
+                  onClick={() => setViewingCustomer(cust)}
+                >
+                  {/* Header: STT, Avatar, Name & VIP */}
+                  <div className="flex items-start justify-between gap-2.5">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="w-6 h-6 rounded-lg bg-slate-100 text-[#86868B] font-mono text-[11px] font-bold flex items-center justify-center shrink-0">
+                        {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                      </span>
+                      <div
+                        className={cn(
+                          'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border',
+                          cust.type === 'business'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-blue-50 text-[#0071E3] border-blue-200'
+                        )}
+                      >
+                        {cust.type === 'business' ? (
+                          <Building className="w-4 h-4" />
+                        ) : (
+                          <User className="w-4 h-4" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="font-bold text-sm text-[#1D1D1F] line-clamp-1">
+                            {cust.name}
+                          </h4>
+                          {cust.tier === 'vip' && (
+                            <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
+                              <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" /> VIP
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[11px] text-[#86868B] block mt-0.5">
+                          📍 {cust.district || 'TP. Huế'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setViewingCustomer(cust)
+                      }}
+                      className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-[#0071E3] hover:bg-blue-50 shrink-0"
+                      title="Xem chi tiết"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Contact & Address Details */}
+                  <div className="bg-slate-50/80 rounded-2xl p-2.5 border border-slate-200/60 space-y-2 text-xs">
+                    {/* Phone & Zalo */}
+                    <div className="flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                      {cust.phone ? (
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <a
+                            href={`tel:${cust.phone.replace(/\s+/g, '')}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white border border-slate-200/80 font-mono font-bold text-[#1D1D1F] hover:text-[#0071E3] shadow-2xs text-xs"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-[#0071E3]" />
+                            {cust.phone}
+                          </a>
+                          {cust.zalo && (
+                            <a
+                              href={`https://zalo.me/${cust.zalo.replace(/\s+/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-[#0071E3] text-[11px] font-bold shadow-2xs"
+                            >
+                              💬 Zalo
+                            </a>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 italic text-[11px] inline-flex items-center gap-1">
+                          <Phone className="w-3.5 h-3.5 text-slate-300" /> Chưa có SĐT
+                        </span>
+                      )}
+
+                      <div className="text-right font-mono text-xs">
+                        <span className="text-[#86868B] text-[11px]">Đơn: </span>
+                        <strong className="text-[#1D1D1F]">{custOrders.length}</strong>
+                      </div>
+                    </div>
+
+                    {/* Address snippet */}
+                    {cust.address && (
+                      <p className="text-[11.5px] text-[#86868B] line-clamp-2 leading-relaxed">
+                        {cust.address}
+                      </p>
+                    )}
+
+                    {cust.tax_code && (
+                      <p className="text-[10.5px] text-[#86868B] font-mono">
+                        MST: <span className="text-[#1D1D1F] font-semibold">{cust.tax_code}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Bottom Row: Stats & Action Buttons */}
+                  <div className="flex items-center justify-between gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                    <div className="text-xs font-mono">
+                      <span className="text-[#86868B] text-[11px]">Tổng chi: </span>
+                      <span className="font-bold text-emerald-700">{formatVND(totalSpent)}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      {onOpenNewOrderWithCustomer && (
+                        <button
+                          type="button"
+                          onClick={() => onOpenNewOrderWithCustomer(cust)}
+                          className="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold flex items-center gap-1 shadow-2xs"
+                        >
+                          <Wrench className="w-3 h-3" /> +Đơn
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(cust)}
+                        className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-amber-700 hover:bg-amber-50 border border-slate-200"
+                        title="Sửa"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCustomerToDelete(cust)}
+                        className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200"
+                        title="Xóa"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
 
         {/* Pagination Bar with Page Numbers */}
         <PaginationControl
