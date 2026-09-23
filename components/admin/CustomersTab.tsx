@@ -350,11 +350,18 @@ export function CustomersTab({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 w-full sm:w-auto self-start sm:self-auto">
+          <button
+            onClick={openCreateModal}
+            className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all active:scale-[0.98]"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Thêm Khách Hàng Mới</span>
+          </button>
           <button
             onClick={handleSyncFromPosts}
             disabled={isSyncing}
-            className="inline-flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-[#0071E3] px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-blue-200/80 transition-all shadow-2xs active:scale-[0.98] disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-[#0071E3] px-3.5 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-blue-200/80 transition-all shadow-2xs active:scale-[0.98] disabled:opacity-50"
             title="Tự động đồng bộ và trích xuất khách hàng từ tất cả các bài viết công trình"
           >
             <RefreshCw className={cn("w-4 h-4 text-[#0071E3]", isSyncing && "animate-spin")} />
@@ -362,75 +369,68 @@ export function CustomersTab({
           </button>
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-slate-200/80 transition-all shadow-2xs active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-3.5 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-slate-200/80 transition-all shadow-2xs active:scale-[0.98]"
             title="Tải về danh sách khách hàng định dạng CSV"
           >
             <Download className="w-4 h-4 text-[#86868B]" />
             <span>Xuất Danh Bạ (.CSV)</span>
           </button>
-          <button
-            onClick={openCreateModal}
-            className="inline-flex items-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all active:scale-[0.98]"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Thêm Khách Hàng Mới</span>
-          </button>
         </div>
       </div>
 
-      {/* 4 KPI Metric Cards (Apple Squircle) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0071E3] border border-blue-200/60 flex items-center justify-center shrink-0">
-            <Users className="w-6 h-6" />
+      {/* 4 KPI Metric Cards - Responsive 2x2 Grid on Mobile, 4 Cols on Desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center gap-3 sm:gap-4">
+          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 text-[#0071E3] border border-blue-200/60 flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <span className="text-[11px] text-[#86868B] uppercase font-bold tracking-wider block">
+            <span className="text-[10px] sm:text-[11px] text-[#86868B] uppercase font-bold tracking-wider block truncate">
               Tổng Khách Hàng
             </span>
-            <span className="text-2xl font-bold text-[#1D1D1F] font-mono tabular-nums">
+            <span className="text-lg sm:text-2xl font-bold text-[#1D1D1F] font-mono tabular-nums">
               {customerStats.total}
             </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0">
-            <Building className="w-6 h-6" />
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center gap-3 sm:gap-4">
+          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0">
+            <Building className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <span className="text-[11px] text-[#86868B] uppercase font-bold tracking-wider block">
-              Doanh Nghiệp / Khách Sạn
+            <span className="text-[10px] sm:text-[11px] text-[#86868B] uppercase font-bold tracking-wider block truncate">
+              Doanh Nghiệp / KS
             </span>
-            <span className="text-2xl font-bold text-emerald-700 font-mono tabular-nums">
+            <span className="text-lg sm:text-2xl font-bold text-emerald-700 font-mono tabular-nums">
               {customerStats.businesses}
             </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0">
-            <Star className="w-6 h-6 fill-amber-400 text-amber-500" />
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center gap-3 sm:gap-4">
+          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0">
+            <Star className="w-5 h-5 sm:w-6 sm:h-6 fill-amber-400 text-amber-500" />
           </div>
           <div className="min-w-0">
-            <span className="text-[11px] text-[#86868B] uppercase font-bold tracking-wider block">
+            <span className="text-[10px] sm:text-[11px] text-[#86868B] uppercase font-bold tracking-wider block truncate">
               Khách Hàng VIP ⭐
             </span>
-            <span className="text-2xl font-bold text-amber-700 font-mono tabular-nums">
+            <span className="text-lg sm:text-2xl font-bold text-amber-700 font-mono tabular-nums">
               {customerStats.vips}
             </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-700 border border-indigo-200/60 flex items-center justify-center shrink-0">
-            <DollarSign className="w-6 h-6" />
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center gap-3 sm:gap-4">
+          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-indigo-50 text-indigo-700 border border-indigo-200/60 flex items-center justify-center shrink-0">
+            <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <span className="text-[11px] text-[#86868B] uppercase font-bold tracking-wider block">
+            <span className="text-[10px] sm:text-[11px] text-[#86868B] uppercase font-bold tracking-wider block truncate">
               Doanh Thu TB / Khách
             </span>
-            <span className="text-lg sm:text-xl font-bold text-indigo-700 font-mono tabular-nums">
+            <span className="text-sm sm:text-xl font-bold text-indigo-700 font-mono tabular-nums truncate block">
               {formatVND(customerStats.averageSpent)}
             </span>
           </div>
@@ -440,7 +440,7 @@ export function CustomersTab({
       {/* Multi-layer Search & Segmented Filter Toolbar */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-3.5 rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
         {/* Apple Segmented Control for Category */}
-        <div className="inline-flex p-1 bg-slate-100/90 rounded-2xl border border-slate-200/60 self-start lg:self-auto max-w-full overflow-x-auto">
+        <div className="inline-flex p-1 bg-slate-100/90 rounded-2xl border border-slate-200/60 w-full sm:w-auto overflow-x-auto no-scrollbar gap-1 shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -1022,13 +1022,27 @@ export function CustomersTab({
             <div className="p-6 overflow-y-auto space-y-6">
               {/* Quick Action Button Bar */}
               <div className="flex items-center gap-2 flex-wrap">
-                <a
-                  href={`tel:${viewingCustomer.phone.replace(/\s+/g, '')}`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-blue-50 text-[#0071E3] border border-blue-200/80 font-semibold text-xs hover:bg-[#0071E3] hover:text-white transition-all shadow-2xs"
-                >
-                  <PhoneCall className="w-3.5 h-3.5" />
-                  Gọi: {viewingCustomer.phone}
-                </a>
+                {viewingCustomer.phone ? (
+                  <a
+                    href={`tel:${viewingCustomer.phone.replace(/\s+/g, '')}`}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-blue-50 text-[#0071E3] border border-blue-200/80 font-semibold text-xs hover:bg-[#0071E3] hover:text-white transition-all shadow-2xs"
+                  >
+                    <PhoneCall className="w-3.5 h-3.5" />
+                    Gọi: {viewingCustomer.phone}
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => {
+                      const cust = viewingCustomer
+                      setViewingCustomer(null)
+                      openEditModal(cust)
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-slate-100 text-[#86868B] hover:text-[#0071E3] border border-slate-200 font-medium text-xs hover:bg-blue-50 transition-all"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    + Thêm Số Điện Thoại
+                  </button>
+                )}
 
                 {viewingCustomer.zalo && (
                   <a
@@ -1043,7 +1057,7 @@ export function CustomersTab({
                 )}
 
                 <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(viewingCustomer.address + ', Huế')}`}
+                  href={`https://maps.google.com/?q=${encodeURIComponent((viewingCustomer.address || 'TP. Huế') + ', Thừa Thiên Huế')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-slate-100 text-[#1D1D1F] border border-slate-200/80 font-medium text-xs hover:bg-slate-200 transition-all shadow-2xs"
@@ -1058,7 +1072,7 @@ export function CustomersTab({
                       onOpenNewOrderWithCustomer(viewingCustomer)
                       setViewingCustomer(null)
                     }}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#0071E3] text-white font-semibold text-xs hover:bg-[#0077ED] transition-all shadow-[0_2px_8px_rgba(0,113,227,0.25)] ml-auto"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#0071E3] text-white font-semibold text-xs hover:bg-[#0077ED] transition-all shadow-[0_2px_8px_rgba(0,113,227,0.25)] sm:ml-auto"
                   >
                     <Wrench className="w-3.5 h-3.5" />
                     Tạo Đơn Hàng Mới
