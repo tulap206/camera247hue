@@ -6,10 +6,8 @@ import {
   Database,
   Download,
   Shield,
-  Key,
   CheckCircle2,
   AlertCircle,
-  Lock,
   RefreshCw,
   Check,
   Users,
@@ -20,13 +18,12 @@ import {
   CloudDownload,
   Trash2,
   X,
-  Eye,
-  EyeOff,
-  User,
   Sparkles,
   Search,
-  KeyRound,
-  ShieldCheck
+  FileText,
+  ClipboardList,
+  ShieldCheck,
+  Server
 } from 'lucide-react'
 import type { Customer, InstallationOrder, AccessLog, CloudBackup } from '@/lib/camera247-data'
 import {
@@ -75,17 +72,6 @@ export function SettingsBackupTab({
   const [newBackupName, setNewBackupName] = useState('')
   const [newBackupNotes, setNewBackupNotes] = useState('')
   const [creatorUser, setCreatorUser] = useState<'admin' | 'admin1'>('admin')
-
-  // Password change form state
-  const [targetUsername, setTargetUsername] = useState<'admin' | 'admin1'>('admin')
-  const [oldPassword, setOldPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [showOldPassword, setShowOldPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [passwordLoading, setPasswordLoading] = useState(false)
 
   // Load Cloud Backups on mount
   useEffect(() => {
@@ -231,50 +217,6 @@ export function SettingsBackupTab({
     URL.revokeObjectURL(url)
   }
 
-  // Handle password submit
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setPasswordMsg(null)
-
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      setPasswordMsg({ type: 'error', text: 'Vui lòng nhập đầy đủ các thông tin mật khẩu.' })
-      return
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordMsg({ type: 'error', text: 'Mật khẩu mới và xác nhận mật khẩu không khớp.' })
-      return
-    }
-    if (newPassword.length < 6) {
-      setPasswordMsg({ type: 'error', text: 'Mật khẩu mới phải có tối thiểu 6 ký tự.' })
-      return
-    }
-
-    setPasswordLoading(true)
-    try {
-      const res = await fetch('/api/auth/change-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ oldPassword, newPassword, username: targetUsername }),
-      })
-      const data = await res.json()
-      if (res.ok && data.ok) {
-        setPasswordMsg({
-          type: 'success',
-          text: `Đổi mật khẩu cho tài khoản @${targetUsername} (${targetUsername === 'admin' ? 'Lập' : 'Tước'}) thành công!`,
-        })
-        setOldPassword('')
-        setNewPassword('')
-        setConfirmPassword('')
-      } else {
-        setPasswordMsg({ type: 'error', text: data.error || 'Mật khẩu hiện tại không chính xác.' })
-      }
-    } catch {
-      setPasswordMsg({ type: 'error', text: 'Lỗi kết nối máy chủ.' })
-    } finally {
-      setPasswordLoading(false)
-    }
-  }
-
   // Filtered backups by search
   const filteredBackups = useMemo(() => {
     if (!searchBackupQuery.trim()) return cloudBackups
@@ -287,33 +229,57 @@ export function SettingsBackupTab({
     )
   }, [cloudBackups, searchBackupQuery])
 
+  // Total size of backups
+  const totalSizeBytes = useMemo(() => {
+    return cloudBackups.reduce((acc, b) => acc + (b.file_size_bytes || 0), 0)
+  }, [cloudBackups])
+
+  // Latest backup date
+  const latestBackup = cloudBackups.length > 0 ? cloudBackups[0] : null
+
   return (
     <div className="space-y-6">
-      {/* Clean Apple Header */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Header Banner - Apple Light Style */}
+      <div className="bg-white/80 backdrop-blur-md rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center shrink-0 border border-[#0071E3]/20">
-            <Settings className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0071E3] flex items-center justify-center shrink-0 border border-blue-100 shadow-2xs">
+            <Cloud className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#1D1D1F] tracking-tight">
-              Cài Đặt & Sao Lưu
-            </h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-[#1D1D1F] tracking-tight">
+                Cài Đặt & Sao Lưu Đám Mây
+              </h1>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Đồng bộ an toàn
+              </span>
+            </div>
             <p className="text-xs sm:text-sm text-[#86868B] mt-0.5">
-              Quản lý sao lưu dữ liệu đám mây và bảo mật tài khoản quản trị hệ thống
+              Quản lý, đóng gói và khôi phục toàn vẹn dữ liệu hệ thống Camera 247 Huế
             </p>
           </div>
         </div>
 
-        <div>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={fetchCloudBackups}
+            disabled={loadingCloud}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-2xl border border-slate-200 shadow-2xs active:scale-[0.98] transition-all"
+            title="Tải lại danh sách"
+          >
+            <RefreshCw className={cn('w-4 h-4 text-slate-500', loadingCloud && 'animate-spin text-[#0071E3]')} />
+            <span className="hidden sm:inline">Làm mới</span>
+          </button>
+
           <button
             onClick={() => {
               const nowStr = new Date().toLocaleDateString('vi-VN')
-              setNewBackupName(`Bản Sao Lưu Hệ Thống - ${nowStr}`)
+              setNewBackupName(`Bản Sao Lưu Toàn Hệ Thống - ${nowStr}`)
               setCreatorUser(activeUser)
               setShowCreateModal(true)
             }}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white text-xs sm:text-sm font-semibold rounded-2xl shadow-[0_2px_8px_rgba(0,113,227,0.25)] active:scale-[0.98] transition-all"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white text-xs sm:text-sm font-semibold rounded-2xl shadow-[0_2px_8px_rgba(0,113,227,0.25)] active:scale-[0.98] transition-all"
           >
             <CloudUpload className="w-4 h-4" />
             <span>Tạo Bản Sao Lưu Mới</span>
@@ -321,334 +287,257 @@ export function SettingsBackupTab({
         </div>
       </div>
 
-      {/* 2-Column Responsive Layout: Backups List & Security Form */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* LEFT COLUMN: Cloud Snapshots List (8 cols) */}
-        <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-4">
-          {/* Header of Backup Section */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-100">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center">
-                <Cloud className="w-4 h-4" />
-              </div>
-              <h2 className="text-base font-bold text-[#1D1D1F]">
-                Bản Sao Lưu Đám Mây
-              </h2>
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-[#0071E3]">
-                {cloudBackups.length}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Search Backup */}
-              {cloudBackups.length > 2 && (
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#86868B]" />
-                  <input
-                    type="text"
-                    value={searchBackupQuery}
-                    onChange={(e) => setSearchBackupQuery(e.target.value)}
-                    placeholder="Tìm bản lưu..."
-                    className="pl-8 pr-2.5 py-1.5 text-xs rounded-xl bg-[#F5F5F7] border border-slate-200 text-[#1D1D1F] placeholder-[#86868B] focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3]"
-                  />
-                </div>
-              )}
-
-              <button
-                onClick={fetchCloudBackups}
-                disabled={loadingCloud}
-                className="p-2 rounded-xl bg-[#F5F5F7] hover:bg-slate-200/80 text-[#86868B] hover:text-[#1D1D1F] transition-colors"
-                title="Làm mới danh sách"
-              >
-                <RefreshCw className={cn('w-3.5 h-3.5', loadingCloud && 'animate-spin text-[#0071E3]')} />
-              </button>
+      {/* 4 Metric Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1 */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 border border-slate-200/80 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Bản sao lưu</span>
+            <div className="w-7 h-7 rounded-xl bg-blue-50 text-[#0071E3] flex items-center justify-center">
+              <Database className="w-3.5 h-3.5" />
             </div>
           </div>
-
-          {/* Backup List */}
-          <div className="space-y-3">
-            {filteredBackups.length === 0 ? (
-              <div className="py-12 text-center space-y-3">
-                <Cloud className="w-12 h-12 mx-auto text-slate-300" />
-                <div>
-                  <h3 className="text-sm font-bold text-[#1D1D1F]">
-                    {searchBackupQuery ? 'Không tìm thấy bản sao lưu' : 'Chưa có bản sao lưu đám mây'}
-                  </h3>
-                  <p className="text-xs text-[#86868B] max-w-sm mx-auto mt-1">
-                    {searchBackupQuery
-                      ? 'Thử đổi từ khóa tìm kiếm bản sao lưu.'
-                      : 'Tạo bản sao lưu để đảm bảo an toàn cho dữ liệu khách hàng, đơn hàng và bài viết.'}
-                  </p>
-                </div>
-                {!searchBackupQuery && (
-                  <button
-                    onClick={() => {
-                      setNewBackupName(`Bản Sao Lưu Hệ Thống - ${new Date().toLocaleDateString('vi-VN')}`)
-                      setShowCreateModal(true)
-                    }}
-                    className="px-4 py-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-2xl text-xs font-semibold shadow-xs transition-all"
-                  >
-                    + Tạo bản sao lưu đầu tiên
-                  </button>
-                )}
-              </div>
-            ) : (
-              filteredBackups.map((backup) => (
-                <div
-                  key={backup.id}
-                  className="p-4 rounded-2xl border border-slate-200/80 hover:border-blue-300 bg-[#F5F5F7]/50 hover:bg-white transition-all space-y-2.5 group shadow-2xs"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    {/* Title & Creator */}
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-bold text-sm text-[#1D1D1F] group-hover:text-[#0071E3] transition-colors truncate">
-                          {backup.backup_name}
-                        </h4>
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-[#0071E3] border border-blue-200/60">
-                          v{backup.version || '2.5'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-[11px] text-[#86868B] mt-0.5">
-                        <span className="flex items-center gap-1 font-mono">
-                          <Clock className="w-3 h-3 text-[#0071E3]" />
-                          {formatDateTimeVN(backup.created_at)}
-                        </span>
-                        <span>•</span>
-                        <span>Người lưu: <strong>{backup.creator_name}</strong></span>
-                      </div>
-                    </div>
-
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
-                      <button
-                        onClick={() => handleRestoreCloudBackup(backup)}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow-2xs active:scale-95 transition-all"
-                        title="Khôi phục dữ liệu từ bản sao lưu này"
-                      >
-                        <CloudDownload className="w-3.5 h-3.5" />
-                        <span>Khôi phục</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleDownloadCloudBackupJson(backup)}
-                        className="p-1.5 text-[#86868B] hover:text-[#0071E3] hover:bg-blue-50 rounded-xl border border-slate-200 transition-all"
-                        title="Tải tệp sao lưu .json về máy tính"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={() => handleDeleteCloudBackup(backup.id, backup.backup_name)}
-                        className="p-1.5 text-[#86868B] hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-200 transition-all"
-                        title="Xóa bản sao lưu này"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Summary Chips */}
-                  <div className="flex items-center gap-2 flex-wrap text-[11px] text-[#1D1D1F] pt-1 border-t border-slate-200/60">
-                    <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium">
-                      👥 {backup.customers_count} Khách hàng
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium">
-                      📦 {backup.orders_count} Đơn hàng
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium">
-                      📝 {backup.posts_count} Bài viết
-                    </span>
-                    {backup.file_size_bytes ? (
-                      <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-mono text-[10px] text-[#86868B]">
-                        💾 {(backup.file_size_bytes / 1024).toFixed(1)} KB
-                      </span>
-                    ) : null}
-                  </div>
-
-                  {/* Notes if any */}
-                  {backup.notes && (
-                    <p className="text-xs text-[#86868B] italic bg-white p-2 rounded-xl border border-slate-200/60">
-                      &ldquo;{backup.notes}&rdquo;
-                    </p>
-                  )}
-                </div>
-              ))
-            )}
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold text-slate-900">{cloudBackups.length}</span>
+            <span className="text-xs text-slate-500">bản ghi</span>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Account Security & Password Management (4 cols) */}
-        <div className="lg:col-span-4 bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-4">
-          <div className="flex items-center gap-2.5 pb-3.5 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4" />
+        {/* Card 2 */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 border border-slate-200/80 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Dữ liệu hiện tại</span>
+            <div className="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+              <HardDrive className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold text-slate-900">
+              {customers.length + orders.length + posts.length}
+            </span>
+            <span className="text-xs text-slate-500">mục dữ liệu</span>
+          </div>
+        </div>
+
+        {/* Card 3 */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 border border-slate-200/80 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Sao lưu gần nhất</span>
+            <div className="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Clock className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="text-sm font-bold text-slate-900 truncate block">
+              {latestBackup ? formatDateTimeVN(latestBackup.created_at) : 'Chưa có bản lưu'}
+            </span>
+            <span className="text-[11px] text-slate-500">
+              {latestBackup ? latestBackup.creator_name : 'Hệ thống'}
+            </span>
+          </div>
+        </div>
+
+        {/* Card 4 */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 border border-slate-200/80 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Trạng thái đám mây</span>
+            <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Server className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="text-sm font-bold text-emerald-600 flex items-center gap-1">
+              <CheckCircle2 className="w-4 h-4" />
+              Sẵn Sàng
+            </span>
+            <span className="text-[11px] text-slate-500">
+              {totalSizeBytes > 0 ? `(${(totalSizeBytes / 1024).toFixed(1)} KB)` : ''}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Cloud Backups Management Card */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-4">
+        {/* Header & Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-blue-50 text-[#0071E3] flex items-center justify-center">
+              <Database className="w-4.5 h-4.5" />
             </div>
             <div>
               <h2 className="text-base font-bold text-[#1D1D1F]">
-                Bảo Mật Tài Khoản
+                Danh Sách Bản Sao Lưu Hệ Thống
               </h2>
               <p className="text-xs text-[#86868B]">
-                Đổi mật khẩu quản trị viên
+                Các bản snapshot được đóng gói đầy đủ dữ liệu khách hàng, đơn hàng, bài viết & nhật ký
               </p>
             </div>
           </div>
 
-          <form onSubmit={handlePasswordSubmit} className="space-y-3.5">
-            {passwordMsg && (
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            {/* Search Input */}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchBackupQuery}
+                onChange={(e) => setSearchBackupQuery(e.target.value)}
+                placeholder="Tìm theo tên, người tạo..."
+                className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3] transition-all"
+              />
+              {searchBackupQuery && (
+                <button
+                  onClick={() => setSearchBackupQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* List of Backups */}
+        <div className="space-y-3.5">
+          {filteredBackups.length === 0 ? (
+            <div className="py-14 text-center space-y-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                <Cloud className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">
+                  {searchBackupQuery ? 'Không tìm thấy bản sao lưu phù hợp' : 'Chưa có bản sao lưu nào'}
+                </h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+                  {searchBackupQuery
+                    ? 'Thử thay đổi từ khóa tìm kiếm hoặc kiểm tra lại tên bản sao lưu.'
+                    : 'Hãy tạo bản sao lưu định kỳ để bảo vệ dữ liệu khách hàng, đơn hàng và bài viết của bạn.'}
+                </p>
+              </div>
+              {!searchBackupQuery && (
+                <button
+                  onClick={() => {
+                    setNewBackupName(`Bản Sao Lưu Toàn Hệ Thống - ${new Date().toLocaleDateString('vi-VN')}`)
+                    setShowCreateModal(true)
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-2xl text-xs font-semibold shadow-xs transition-all active:scale-95"
+                >
+                  <CloudUpload className="w-3.5 h-3.5" />
+                  <span>Tạo bản sao lưu ngay</span>
+                </button>
+              )}
+            </div>
+          ) : (
+            filteredBackups.map((backup) => (
               <div
-                className={cn(
-                  'p-3 rounded-2xl text-xs flex items-center gap-2 border font-medium transition-all',
-                  passwordMsg.type === 'success'
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                    : 'bg-rose-50 border-rose-200 text-rose-700'
-                )}
+                key={backup.id}
+                className="p-4 sm:p-5 rounded-2xl border border-slate-200/80 hover:border-blue-300 bg-white hover:bg-slate-50/50 transition-all space-y-3 group shadow-2xs"
               >
-                {passwordMsg.type === 'success' ? (
-                  <Check className="w-4 h-4 shrink-0 text-emerald-600" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  {/* Title & Meta */}
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-[#0071E3] transition-colors">
+                        {backup.backup_name}
+                      </h4>
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-[#0071E3] border border-blue-200/60">
+                        v{backup.version || '2.5'}
+                      </span>
+                      {backup.file_size_bytes ? (
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                          💾 {(backup.file_size_bytes / 1024).toFixed(1)} KB
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                      <span className="flex items-center gap-1 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-[#0071E3]" />
+                        {formatDateTimeVN(backup.created_at)}
+                      </span>
+                      <span>•</span>
+                      <span>Người tạo: <strong className="text-slate-700">{backup.creator_name}</strong></span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
+                    <button
+                      onClick={() => handleRestoreCloudBackup(backup)}
+                      className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow-2xs active:scale-95 transition-all"
+                      title="Khôi phục dữ liệu từ bản sao lưu này"
+                    >
+                      <CloudDownload className="w-3.5 h-3.5" />
+                      <span>Khôi phục</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleDownloadCloudBackupJson(backup)}
+                      className="flex items-center gap-1 px-3 py-2 text-slate-700 hover:text-[#0071E3] hover:bg-blue-50 rounded-xl border border-slate-200 bg-white text-xs font-semibold transition-all shadow-2xs"
+                      title="Tải tệp sao lưu .json về máy tính"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Tải về</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteCloudBackup(backup.id, backup.backup_name)}
+                      className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-200 bg-white transition-all shadow-2xs"
+                      title="Xóa bản sao lưu này"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Data Entities Badges */}
+                <div className="flex items-center gap-2 flex-wrap text-xs text-slate-700 pt-2 border-t border-slate-100">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200/80 font-medium">
+                    <Users className="w-3 h-3 text-[#0071E3]" />
+                    <span><strong>{backup.customers_count}</strong> Khách hàng</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200/80 font-medium">
+                    <ClipboardList className="w-3 h-3 text-emerald-600" />
+                    <span><strong>{backup.orders_count}</strong> Đơn thi công</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200/80 font-medium">
+                    <FileText className="w-3 h-3 text-purple-600" />
+                    <span><strong>{backup.posts_count}</strong> Bài viết</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200/80 font-medium">
+                    <Clock className="w-3 h-3 text-amber-600" />
+                    <span><strong>{backup.logs_count}</strong> Nhật ký</span>
+                  </span>
+                </div>
+
+                {/* Notes if any */}
+                {backup.notes && (
+                  <p className="text-xs text-slate-500 italic bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+                    &ldquo;{backup.notes}&rdquo;
+                  </p>
                 )}
-                <span>{passwordMsg.text}</span>
               </div>
-            )}
-
-            {/* Target Account Select Buttons */}
-            <div>
-              <label className="block text-xs font-semibold text-[#1D1D1F] mb-1.5">
-                Chọn tài khoản
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setTargetUsername('admin')}
-                  className={cn(
-                    'p-2 rounded-2xl border text-xs font-semibold flex flex-col items-center justify-center gap-0.5 transition-all',
-                    targetUsername === 'admin'
-                      ? 'border-[#0071E3] bg-blue-50 text-[#0071E3] shadow-xs'
-                      : 'border-slate-200 bg-[#F5F5F7] text-[#1D1D1F] hover:bg-slate-200/80'
-                  )}
-                >
-                  <span className="font-bold">@admin</span>
-                  <span className="text-[10px] text-[#86868B] font-normal">Quản trị viên (Lập)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTargetUsername('admin1')}
-                  className={cn(
-                    'p-2 rounded-2xl border text-xs font-semibold flex flex-col items-center justify-center gap-0.5 transition-all',
-                    targetUsername === 'admin1'
-                      ? 'border-[#0071E3] bg-blue-50 text-[#0071E3] shadow-xs'
-                      : 'border-slate-200 bg-[#F5F5F7] text-[#1D1D1F] hover:bg-slate-200/80'
-                  )}
-                >
-                  <span className="font-bold">@admin1</span>
-                  <span className="text-[10px] text-[#86868B] font-normal">Quản trị viên (Tước)</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Current Password */}
-            <div>
-              <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">
-                Mật khẩu hiện tại <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86868B]" />
-                <input
-                  type={showOldPassword ? 'text' : 'password'}
-                  required
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu đang dùng"
-                  className="w-full pl-9 pr-9 py-2 text-xs rounded-2xl bg-[#F5F5F7] border border-slate-200 text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3] font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowOldPassword(!showOldPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868B] hover:text-[#1D1D1F]"
-                >
-                  {showOldPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
-              </div>
-            </div>
-
-            {/* New Password */}
-            <div>
-              <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">
-                Mật khẩu mới <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86868B]" />
-                <input
-                  type={showNewPassword ? 'text' : 'password'}
-                  required
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Tối thiểu 6 ký tự"
-                  className="w-full pl-9 pr-9 py-2 text-xs rounded-2xl bg-[#F5F5F7] border border-slate-200 text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3] font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868B] hover:text-[#1D1D1F]"
-                >
-                  {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Confirm New Password */}
-            <div>
-              <label className="block text-[11px] font-semibold text-[#1D1D1F] mb-1">
-                Xác nhận mật khẩu mới <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86868B]" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Nhập lại mật khẩu mới"
-                  className="w-full pl-9 pr-9 py-2 text-xs rounded-2xl bg-[#F5F5F7] border border-slate-200 text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3] font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868B] hover:text-[#1D1D1F]"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={passwordLoading}
-              className="w-full py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold text-xs rounded-2xl shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all active:scale-[0.98] disabled:opacity-50"
-            >
-              {passwordLoading ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
-            </button>
-          </form>
+            ))
+          )}
         </div>
       </div>
 
       {/* MODAL: TẠO BẢN SAO LƯU ĐÁM MÂY MỚI */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200/80 w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-[#F5F5F7]/60">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#0071E3] flex items-center justify-center border border-blue-100">
                   <CloudUpload className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#1D1D1F]">
+                  <h3 className="text-base font-bold text-slate-900">
                     Tạo Bản Sao Lưu Đám Mây
                   </h3>
-                  <p className="text-xs text-[#86868B]">
-                    Đóng gói snapshot dữ liệu hệ thống an toàn
+                  <p className="text-xs text-slate-500">
+                    Đóng gói snapshot dữ liệu hệ thống Camera 247 Huế
                   </p>
                 </div>
               </div>
@@ -662,7 +551,7 @@ export function SettingsBackupTab({
 
             <form onSubmit={handleCreateCloudBackup} className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
               <div>
-                <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">
+                <label className="block text-xs font-semibold text-slate-800 mb-1">
                   Tên bản sao lưu <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -671,18 +560,18 @@ export function SettingsBackupTab({
                   value={newBackupName}
                   onChange={(e) => setNewBackupName(e.target.value)}
                   placeholder="Ví dụ: Bản sao lưu hoàn thiện tháng 3/2026..."
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-2xl bg-[#F5F5F7] border border-slate-200 text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3] font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3] font-semibold transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">
+                <label className="block text-xs font-semibold text-slate-800 mb-1">
                   Người thực hiện sao lưu
                 </label>
                 <select
                   value={creatorUser}
                   onChange={(e) => setCreatorUser(e.target.value as any)}
-                  className="w-full px-3 py-2 text-xs rounded-2xl bg-[#F5F5F7] border border-slate-200 text-[#1D1D1F] focus:outline-none"
+                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3] transition-all font-medium"
                 >
                   <option value="admin">Quản trị viên (Lập) · @admin</option>
                   <option value="admin1">Quản trị viên (Tước) · @admin1</option>
@@ -690,7 +579,7 @@ export function SettingsBackupTab({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#1D1D1F] mb-1">
+                <label className="block text-xs font-semibold text-slate-800 mb-1">
                   Ghi chú nội dung (Tùy chọn)
                 </label>
                 <textarea
@@ -698,31 +587,34 @@ export function SettingsBackupTab({
                   value={newBackupNotes}
                   onChange={(e) => setNewBackupNotes(e.target.value)}
                   placeholder="Ghi chú thêm về thời điểm hoặc lý do sao lưu..."
-                  className="w-full px-3 py-2 text-xs rounded-2xl bg-[#F5F5F7] border border-slate-200 text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3] resize-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 focus:border-[#0071E3] resize-none transition-all"
                 />
               </div>
 
               {/* Data summary box */}
               <div className="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-2xl text-xs text-blue-900 space-y-1">
-                <span className="font-bold block">📦 Dữ liệu đóng gói bao gồm:</span>
-                <p>
+                <span className="font-bold block flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#0071E3]" />
+                  Dữ liệu đóng gói bao gồm:
+                </span>
+                <p className="text-slate-600 text-[11px] leading-relaxed">
                   • <strong>{customers.length}</strong> khách hàng • <strong>{orders.length}</strong> đơn thi công •{' '}
                   <strong>{posts.length}</strong> bài viết • <strong>{logs.length}</strong> bản ghi nhật ký.
                 </p>
               </div>
 
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-2xl text-xs font-semibold text-[#86868B] hover:bg-[#F5F5F7] transition-colors"
+                  className="px-4 py-2 rounded-2xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={creatingCloudBackup}
-                  className="px-5 py-2 rounded-2xl text-xs font-semibold bg-[#0071E3] hover:bg-[#0077ED] text-white shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-2xl text-xs font-semibold bg-[#0071E3] hover:bg-[#0077ED] text-white shadow-xs transition-all active:scale-[0.98] disabled:opacity-50"
                 >
                   {creatingCloudBackup ? 'Đang lưu...' : 'Lưu Lên Đám Mây'}
                 </button>
