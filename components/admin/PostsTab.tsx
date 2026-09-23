@@ -362,23 +362,29 @@ export function PostsTab({
   // Filter posts
   const filteredPosts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
-    return posts.filter((p) => {
-      const matchSearch =
-        !q ||
-        p.title.toLowerCase().includes(q) ||
-        p.slug.toLowerCase().includes(q) ||
-        (p.location && p.location.toLowerCase().includes(q)) ||
-        (p.client_name && p.client_name.toLowerCase().includes(q))
+    return posts
+      .filter((p) => {
+        const matchSearch =
+          !q ||
+          p.title.toLowerCase().includes(q) ||
+          p.slug.toLowerCase().includes(q) ||
+          (p.location && p.location.toLowerCase().includes(q)) ||
+          (p.client_name && p.client_name.toLowerCase().includes(q))
 
-      const matchCat = categoryFilter === 'all' || p.category_id === categoryFilter
+        const matchCat = categoryFilter === 'all' || p.category_id === categoryFilter
 
-      let matchStatus = true
-      if (statusFilter === 'published') matchStatus = p.published
-      else if (statusFilter === 'hidden') matchStatus = !p.published
-      else if (statusFilter === 'featured') matchStatus = p.featured
+        let matchStatus = true
+        if (statusFilter === 'published') matchStatus = p.published
+        else if (statusFilter === 'hidden') matchStatus = !p.published
+        else if (statusFilter === 'featured') matchStatus = p.featured
 
-      return matchSearch && matchCat && matchStatus
-    })
+        return matchSearch && matchCat && matchStatus
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at || a.completed_at || 0).getTime()
+        const dateB = new Date(b.created_at || b.completed_at || 0).getTime()
+        return dateB - dateA
+      })
   }, [posts, searchQuery, categoryFilter, statusFilter])
 
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / ITEMS_PER_PAGE))

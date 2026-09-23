@@ -38,6 +38,37 @@ import type { Customer, InstallationOrder, AccessLog } from '@/lib/camera247-dat
 import { CAMERA247_SERVICES, ORDER_STATUS_CONFIG } from '@/lib/camera247-data'
 import type { AdminTab } from './AdminSidebar'
 import type { Post, ContactMessage } from '@/lib/supabase'
+import { cn } from '@/lib/utils'
+
+const SERVICE_STYLE_MAP: Record<string, { dotBg: string; barBg: string }> = {
+  camera: { dotBg: 'bg-[#0071E3]', barBg: 'bg-[#0071E3]' },
+  smart_lock: { dotBg: 'bg-amber-500', barBg: 'bg-amber-500' },
+  wifi: { dotBg: 'bg-emerald-500', barBg: 'bg-emerald-500' },
+  alarm: { dotBg: 'bg-rose-500', barBg: 'bg-rose-500' },
+  time_attendance: { dotBg: 'bg-purple-500', barBg: 'bg-purple-500' },
+  it_network: { dotBg: 'bg-cyan-500', barBg: 'bg-cyan-500' },
+}
+
+function parseOrderDate(dateStr?: string, fallbackIso?: string): Date | null {
+  if (dateStr) {
+    const parts = dateStr.split('/')
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10)
+      const month = parseInt(parts[1], 10) - 1
+      const year = parseInt(parts[2], 10)
+      if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+        return new Date(year, month, day)
+      }
+    }
+    const d = new Date(dateStr)
+    if (!isNaN(d.getTime())) return d
+  }
+  if (fallbackIso) {
+    const d = new Date(fallbackIso)
+    if (!isNaN(d.getTime())) return d
+  }
+  return null
+}
 
 interface OverviewTabProps {
   orders: InstallationOrder[]
@@ -70,7 +101,6 @@ export function OverviewTab({
   onConvertContactToCustomer,
   onConvertContactToOrder,
 }: OverviewTabProps) {
-  const [selectedLead, setSelectedLead] = useState<ContactMessage | null>(null)
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false)
 
   // Compute Key Performance Indicators
@@ -80,7 +110,10 @@ export function OverviewTab({
     const pendingOrders = orders.filter((o) => o.status === 'pending' || o.status === 'survey')
     const warrantyOrders = orders.filter((o) => o.status === 'warranty')
 
-    const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
+    const totalRevenue = orders.reduce((sum, o) => {
+      if (o.status !== 'cancelled') return sum + (o.total_amount || 0)
+      return sum
+    }, 0)
     const totalDeposited = orders.reduce((sum, o) => sum + (o.deposit_amount || 0), 0)
     const unreadLeadsCount = contacts.filter((c) => !c.read).length
 
@@ -98,7 +131,7 @@ export function OverviewTab({
   }, [orders, customers, posts, contacts])
 
   // 12-Month Revenue Breakdown (Apple Screen Time / Health style)
-  const monthlyData = useMemo(() => {
+  const { monthlyData, q1Revenue } = useMemo(() => {
     const months = [
       'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
       'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
@@ -109,21 +142,27 @@ export function OverviewTab({
 
     orders.forEach((o) => {
       if (o.status !== 'cancelled') {
-        const d = o.installation_date ? new Date(o.installation_date) : new Date(o.created_at)
-        if (!isNaN(d.getTime())) {
+        const d = parseOrderDate(o.installation_date, o.created_at)
+        if (d && !isNaN(d.getTime())) {
           const m = d.getMonth()
-          revenueMap[m] = (revenueMap[m] || 0) + (o.total_amount || 0)
+          if (m >= 0 && m <= 11) {
+            revenueMap[m] = (revenueMap[m] || 0) + (o.total_amount || 0)
+          }
         }
       }
     })
 
     const max = Math.max(...Object.values(revenueMap), 1)
-    return months.map((m, idx) => ({
+    const mData = months.map((m, idx) => ({
       name: m,
       short: `T${idx + 1}`,
       value: revenueMap[idx] || 0,
       percent: Math.round(((revenueMap[idx] || 0) / max) * 100),
     }))
+
+    const q1 = (revenueMap[0] || 0) + (revenueMap[1] || 0) + (revenueMap[2] || 0)
+
+    return { monthlyData: mData, q1Revenue: q1 }
   }, [orders])
 
   // Services distribution
@@ -437,11 +476,11 @@ export function OverviewTab({
 
                 <div className="w-full bg-slate-100 rounded-t-xl relative flex items-end justify-center overflow-hidden h-full max-w-[34px]">
                   <div
-                    style={{ height: `${Math.max(item.percent, 4)}%` }}
-                    className={`w-full rounded-t-xl transition-all duration-300 ${
+                    style={{ height: `${item.value > 0 ? Math.max(item.percent, 8) : 0}%` }}
+                    className={`w-full rounded-t-xl transition-all duration-500 ${
                       item.value > 0
-                        ? 'bg-gradient-to-t from-[#0071E3] to-[#47A1FF] group-hover:brightness-105'
-                        : 'bg-slate-200/70'
+                        ? 'bg-gradient-to-t from-[#0071E3] to-[#47A1FF] group-hover:brightness-110 shadow-xs'
+                        : 'bg-transparent'
                     }`}
                   />
                 </div>
@@ -453,7 +492,7 @@ export function OverviewTab({
           </div>
 
           <div className="flex items-center justify-between text-xs text-[#86868B] mt-4 pt-1">
-            <span>Tổng quý 1/2026: <strong className="text-[#1D1D1F]">154.700.000 đ</strong></span>
+            <span>Tổng quý 1/2026: <strong className="text-[#1D1D1F]">{formatVND(q1Revenue)}</strong></span>
             <span className="text-[11px] text-[#0071E3] font-semibold">Camera 247 Huế · Hoàn thành chỉ tiêu Q1</span>
           </div>
         </div>
@@ -470,25 +509,28 @@ export function OverviewTab({
             </p>
 
             <div className="space-y-3.5">
-              {serviceDistribution.map((serv) => (
-                <div key={serv.id} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-[#1D1D1F] flex items-center gap-2 truncate">
-                      <span className={`w-2 h-2 rounded-full ${serv.color.replace('text-', 'bg-')}`} />
-                      {serv.name}
-                    </span>
-                    <span className="text-[#86868B] shrink-0 font-semibold font-tabular">
-                      {serv.count} đơn ({serv.percent}%)
-                    </span>
+              {serviceDistribution.map((serv) => {
+                const styles = SERVICE_STYLE_MAP[serv.id] || { dotBg: 'bg-[#0071E3]', barBg: 'bg-[#0071E3]' }
+                return (
+                  <div key={serv.id} className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-[#1D1D1F] flex items-center gap-2 truncate">
+                        <span className={cn('w-2.5 h-2.5 rounded-full shrink-0', styles.dotBg)} />
+                        {serv.name}
+                      </span>
+                      <span className="text-[#86868B] shrink-0 font-semibold font-tabular">
+                        {serv.count} đơn ({serv.percent}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className={cn('h-full rounded-full transition-all duration-500', styles.barBg)}
+                        style={{ width: serv.count > 0 ? `${Math.max(serv.percent, 4)}%` : '0%' }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${serv.color.replace('text-', 'bg-')}`}
-                      style={{ width: `${Math.max(serv.percent, 4)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 

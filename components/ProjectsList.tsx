@@ -52,6 +52,7 @@ export default function ProjectsList({
         .from('posts')
         .select('*, category:categories(*)', { count: 'exact' })
         .eq('published', true)
+        .order('completed_at', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false })
 
       if (activeCategory) {
@@ -88,6 +89,11 @@ export default function ProjectsList({
           p.excerpt?.toLowerCase().includes(search.toLowerCase())
         )
       }
+      filtered.sort(
+        (a, b) =>
+          new Date(b.completed_at || b.created_at || 0).getTime() -
+          new Date(a.completed_at || a.created_at || 0).getTime()
+      )
       fetchedData = filtered
       fetchedCount = filtered.length
     }

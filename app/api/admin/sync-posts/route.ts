@@ -75,6 +75,37 @@ const KNOWN_PHONES_MAP: Record<string, { phone: string; zalo: string; isVip?: bo
   'cư xá nhã uyên': { phone: '0234 3858 599', zalo: '', isVip: false, addr: '8/138 Nguyễn Sinh Cung, TP. Huế' },
 }
 
+function estimateOrderAmount(title: string, clientName: string, services: string[]): number {
+  const text = `${title} ${clientName}`.toLowerCase()
+
+  if (text.includes('hương giang') || text.includes('32 camera')) return 68500000
+  if (text.includes('vinpearl')) return 75000000
+  if (text.includes('vincom')) return 45000000
+  if (text.includes('nhà xưởng may') || (text.includes('phú bài') && text.includes('xưởng'))) return 52000000
+  if (text.includes('aeon mall')) return 38000000
+  if (text.includes('quý trần')) return 32000000
+  if (text.includes('serena')) return 28000000
+  if (text.includes('sala')) return 26000000
+  if (text.includes('quận 1 beer')) return 24500000
+  if (text.includes('the time')) return 18500000
+  if (text.includes('tĩnh garden')) return 16500000
+  if (text.includes('the king garden')) return 19000000
+  if (text.includes('billiards') || text.includes('pool')) return 15500000
+  if (text.includes('cậu ấm') || text.includes('mai anh') || text.includes('king toys') || text.includes('airphones')) return 11500000
+  if (text.includes('an cựu') || text.includes('faceid') || text.includes('biệt thự')) return 12800000
+  if (text.includes('ecogarden') || text.includes('royal park')) return 8500000
+  if (text.includes('cư xá') || text.includes('homestay')) return 9200000
+  if (text.includes('mầm non')) return 10500000
+  if (text.includes('nhà dân') || text.includes('hộ gia đình')) {
+    if (services.includes('smart_lock') || services.includes('wifi')) return 7800000
+    return 4800000
+  }
+  if (text.includes('khóa cửa') || text.includes('vân tay')) return 6500000
+  if (text.includes('bảo trì')) return 2500000
+
+  return 5500000
+}
+
 export async function POST(request: Request) {
   const denied = requireAdmin()
   if (denied) return denied
@@ -138,6 +169,18 @@ export async function POST(request: Request) {
 
       const isVip = Boolean(knownInfo.isVip || p.featured)
 
+      // Services
+      const services: string[] = []
+      const textToScan = `${p.title} ${p.excerpt || ''} ${p.content || ''}`
+      if (/camera|giám sát|cctv/i.test(textToScan)) services.push('camera')
+      if (/khóa|faceid|vân tay/i.test(textToScan)) services.push('smart_lock')
+      if (/wifi|mạng|router/i.test(textToScan)) services.push('wifi')
+      if (/chấm công|vào ra/i.test(textToScan)) services.push('time_attendance')
+      if (/báo động|chống trộm/i.test(textToScan)) services.push('alarm')
+      if (services.length === 0) services.push('camera')
+
+      const contractAmount = estimateOrderAmount(p.title, clientName, services)
+
       const custRecord = {
         name: safeText(clientName, 255),
         phone: phone ? safeText(phone, 50) : '',
@@ -152,7 +195,7 @@ export async function POST(request: Request) {
         idcard: null,
         notes: safeText(`Khách hàng từ bài viết công trình: ${p.title}`, 1000),
         total_orders: 1,
-        total_spent: 0,
+        total_spent: contractAmount,
         created_at: p.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
@@ -179,16 +222,6 @@ export async function POST(request: Request) {
       warrantyDate.setFullYear(warrantyDate.getFullYear() + 2)
       const warrantyUntilStr = warrantyDate.toLocaleDateString('vi-VN')
 
-      // Services
-      const services: string[] = []
-      const textToScan = `${p.title} ${p.excerpt || ''} ${p.content || ''}`
-      if (/camera|giám sát|cctv/i.test(textToScan)) services.push('camera')
-      if (/khóa|faceid|vân tay/i.test(textToScan)) services.push('smart_lock')
-      if (/wifi|mạng|router/i.test(textToScan)) services.push('wifi')
-      if (/chấm công|vào ra/i.test(textToScan)) services.push('time_attendance')
-      if (/báo động|chống trộm/i.test(textToScan)) services.push('alarm')
-      if (services.length === 0) services.push('camera')
-
       const equipment = p.excerpt
         ? p.excerpt
         : `Hạng mục thi công thiết bị an ninh công trình ${p.title}`
@@ -205,8 +238,8 @@ export async function POST(request: Request) {
         completion_date: completedDateStr,
         warranty_months: 24,
         warranty_until: warrantyUntilStr,
-        total_amount: 0,
-        deposit_amount: 0,
+        total_amount: contractAmount,
+        deposit_amount: Math.round(contractAmount * 0.3),
         status: 'warranty',
         technician: 'Phan Lê Tự Lập & Phạm Bá Tước',
         notes: safeText(`Công trình: ${p.title} (${p.slug})`, 1000),
