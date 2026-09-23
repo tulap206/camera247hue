@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   History,
   Search,
@@ -18,6 +18,7 @@ import {
   Activity,
   Laptop,
   Smartphone,
+  Tablet,
   X,
   Calendar,
   Layers,
@@ -26,6 +27,12 @@ import {
   Check,
   AlertTriangle,
   RotateCcw,
+  Clock,
+  Filter,
+  User,
+  ShieldAlert,
+  ChevronRight,
+  Monitor
 } from 'lucide-react'
 import { formatDateTimeVN } from '@/lib/formatters'
 import type { AccessLog } from '@/lib/camera247-data'
@@ -38,42 +45,40 @@ interface AccessHistoryTabProps {
   onClearLogs?: () => void
 }
 
-const ACTION_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
-  'Đăng nhập': { color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-  'Đăng xuất': { color: 'text-slate-600', bg: 'bg-slate-100', border: 'border-slate-200' },
-  'Thêm mới': { color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' },
-  'Chỉnh sửa': { color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
-  'Cập nhật': { color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
-  'Xóa': { color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-200' },
-  'Sao lưu': { color: 'text-indigo-700', bg: 'bg-indigo-50', border: 'border-indigo-200' },
-  'Khôi phục': { color: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200' },
-  'Xem': { color: 'text-sky-700', bg: 'bg-sky-50', border: 'border-sky-200' },
+const ACTION_CONFIG: Record<string, { color: string; bg: string; border: string; icon: any }> = {
+  'Xem trang': { color: 'text-sky-700 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-900/30', border: 'border-sky-200 dark:border-sky-800', icon: Globe },
+  'Đăng nhập': { color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/30', border: 'border-emerald-200 dark:border-emerald-800', icon: LogIn },
+  'Đăng xuất': { color: 'text-slate-600 dark:text-slate-400', bg: 'bg-slate-100 dark:bg-gray-800', border: 'border-slate-200 dark:border-gray-700', icon: LogOut },
+  'Thêm mới': { color: 'text-blue-700 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/30', border: 'border-blue-200 dark:border-blue-800', icon: Plus },
+  'Chỉnh sửa': { color: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/30', border: 'border-amber-200 dark:border-amber-800', icon: Edit2 },
+  'Cập nhật': { color: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/30', border: 'border-amber-200 dark:border-amber-800', icon: Edit2 },
+  'Cập nhật trạng thái': { color: 'text-indigo-700 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-900/30', border: 'border-indigo-200 dark:border-indigo-800', icon: Activity },
+  'Xóa': { color: 'text-rose-700 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-900/30', border: 'border-rose-200 dark:border-rose-800', icon: Trash2 },
+  'Sao lưu': { color: 'text-indigo-700 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-900/30', border: 'border-indigo-200 dark:border-indigo-800', icon: Database },
+  'Khôi phục': { color: 'text-purple-700 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-900/30', border: 'border-purple-200 dark:border-purple-800', icon: RotateCcw },
 }
 
 export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistoryTabProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [scopeFilter, setScopeFilter] = useState<'all' | 'staff' | 'visitor'>('all')
-  const [accountFilter, setAccountFilter] = useState('all')
+  const [sourceFilter, setSourceFilter] = useState<'all' | 'visitor' | 'admin' | 'admin1' | 'today'>('all')
   const [moduleFilter, setModuleFilter] = useState('all')
+  const [deviceFilter, setDeviceFilter] = useState('all')
   const [actionFilter, setActionFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedLog, setSelectedLog] = useState<AccessLog | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [copiedLogId, setCopiedLogId] = useState<string | null>(null)
-  const ITEMS_PER_PAGE = 10
+  const ITEMS_PER_PAGE = 12
+
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
     await onRefresh()
-    setTimeout(() => setIsRefreshing(false), 500)
+    setTimeout(() => setIsRefreshing(false), 400)
   }
 
-  // Extract distinct accounts, modules, and actions
-  const accounts = useMemo(() => {
-    const list = Array.from(new Set(logs.map((l) => l.username).filter(Boolean)))
-    return list.sort()
-  }, [logs])
-
+  // Extract distinct modules and actions
   const modules = useMemo(() => {
     const list = Array.from(new Set(logs.map((l) => l.module).filter(Boolean)))
     return list.sort()
@@ -84,258 +89,179 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
     return list.sort()
   }, [logs])
 
-  const visitorCount = useMemo(
-    () => logs.filter((l) => l.username === 'visitor' || l.module === 'Khách xem Web').length,
-    [logs]
-  )
-  const staffCount = useMemo(
-    () => logs.filter((l) => l.username !== 'visitor' && l.module !== 'Khách xem Web').length,
-    [logs]
-  )
-  const cudCount = useMemo(
-    () =>
-      logs.filter((l) =>
-        ['Thêm mới', 'Chỉnh sửa', 'Cập nhật', 'Xóa', 'Sao lưu', 'Khôi phục'].includes(l.action)
-      ).length,
-    [logs]
-  )
+  // Filtered Logs
+  const filteredLogs = useMemo(() => {
+    return logs.filter((log) => {
+      // 1. Source filter
+      if (sourceFilter === 'visitor') {
+        if (log.username !== 'visitor' && log.module !== 'Landing Page' && log.module !== 'Khách xem Web') {
+          return false
+        }
+      } else if (sourceFilter === 'admin') {
+        if (log.username !== 'admin') return false
+      } else if (sourceFilter === 'admin1') {
+        if (log.username !== 'admin1') return false
+      } else if (sourceFilter === 'today') {
+        if (!log.timestamp?.startsWith(todayStr)) return false
+      }
 
-  const isFiltering =
-    searchQuery !== '' ||
-    scopeFilter !== 'all' ||
-    accountFilter !== 'all' ||
-    moduleFilter !== 'all' ||
-    actionFilter !== 'all'
+      // 2. Module filter
+      if (moduleFilter !== 'all' && log.module !== moduleFilter) return false
 
-  const resetFilters = () => {
-    setSearchQuery('')
-    setScopeFilter('all')
-    setAccountFilter('all')
-    setModuleFilter('all')
-    setActionFilter('all')
-    setCurrentPage(1)
-  }
+      // 3. Action filter
+      if (actionFilter !== 'all' && log.action !== actionFilter) return false
 
-  const handleCopyDetails = (text: string, id: string) => {
+      // 4. Device filter
+      if (deviceFilter !== 'all') {
+        if (deviceFilter === 'mobile' && log.device_type !== 'mobile') return false
+        if (deviceFilter === 'desktop' && log.device_type !== 'desktop') return false
+        if (deviceFilter === 'tablet' && log.device_type !== 'tablet') return false
+      }
+
+      // 5. Search Query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim()
+        const matchDetails = log.details?.toLowerCase().includes(q)
+        const matchUser = log.displayName?.toLowerCase().includes(q) || log.username?.toLowerCase().includes(q)
+        const matchAction = log.action?.toLowerCase().includes(q)
+        const matchModule = log.module?.toLowerCase().includes(q)
+        const matchDevice = log.device?.toLowerCase().includes(q)
+        const matchIp = log.ip_address?.toLowerCase().includes(q)
+        if (!matchDetails && !matchUser && !matchAction && !matchModule && !matchDevice && !matchIp) {
+          return false
+        }
+      }
+
+      return true
+    })
+  }, [logs, sourceFilter, moduleFilter, actionFilter, deviceFilter, searchQuery, todayStr])
+
+  // Pagination
+  const totalPages = Math.ceil(filteredLogs.length / ITEMS_PER_PAGE) || 1
+  const paginatedLogs = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredLogs.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredLogs, currentPage, ITEMS_PER_PAGE])
+
+  // Copy Log detail
+  const handleCopyLog = (log: AccessLog) => {
+    const text = `[${formatDateTimeVN(log.timestamp)}] ${log.displayName} (@${log.username}) - ${log.action} [${log.module}]: ${log.details} | Thiết bị: ${log.device || 'N/A'} (IP: ${log.ip_address || 'N/A'})`
     navigator.clipboard.writeText(text)
-    setCopiedLogId(id)
+    setCopiedLogId(log.id)
     setTimeout(() => setCopiedLogId(null), 2000)
   }
 
-  // Filter logs
-  const filteredLogs = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim()
-    return logs
-      .filter((l) => {
-        const isVisitor = l.username === 'visitor' || l.module === 'Khách xem Web'
-        if (scopeFilter === 'visitor' && !isVisitor) return false
-        if (scopeFilter === 'staff' && isVisitor) return false
-
-        const matchSearch =
-          !q ||
-          l.details?.toLowerCase().includes(q) ||
-          l.username?.toLowerCase().includes(q) ||
-          l.displayName?.toLowerCase().includes(q) ||
-          (l.ip_address && l.ip_address.includes(q)) ||
-          l.module?.toLowerCase().includes(q)
-
-        const matchAccount = accountFilter === 'all' || l.username === accountFilter
-        const matchModule = moduleFilter === 'all' || l.module === moduleFilter
-        const matchAction = actionFilter === 'all' || l.action === actionFilter
-
-        return matchSearch && matchAccount && matchModule && matchAction
-      })
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-  }, [logs, searchQuery, scopeFilter, accountFilter, moduleFilter, actionFilter])
-
-  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / ITEMS_PER_PAGE))
-  const paginatedLogs = useMemo(() => {
-    return filteredLogs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
-  }, [filteredLogs, currentPage])
-
   return (
     <div className="space-y-6">
-      {/* Apple Header Card */}
-      <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#0071E3] tracking-wide uppercase">
-            <span className="w-2 h-2 rounded-full bg-[#0071E3] animate-pulse" />
-            <span>Audit Trail & Hệ Thống An Ninh</span>
+      {/* Clean Apple Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="p-2.5 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <History className="w-6 h-6" />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+              Lịch Sử Truy Cập
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              Ghi nhận chi tiết nhật ký khách xem website và lịch sử thao tác của ban quản trị
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] tracking-tight mt-1">
-            Lịch Sử Truy Cập & Nhật Ký Hoạt Động
-          </h1>
-          <p className="text-xs sm:text-sm text-[#86868B] mt-1 max-w-2xl">
-            Theo dõi chi tiết các phiên đăng nhập quản trị, thao tác hợp đồng thi công, cập nhật khách hàng và lịch sử bảo mật hệ thống.
-          </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
-          {onClearLogs && (
-            <button
-              onClick={() => {
-                if (confirm('Xác nhận dọn dẹp và làm sạch lịch sử nhật ký (trả về 5 bản ghi mẫu chuẩn)?')) {
-                  onClearLogs()
-                }
-              }}
-              className="inline-flex items-center gap-2 bg-rose-50 hover:bg-rose-100/80 text-rose-700 px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm border border-rose-200/80 transition-all shadow-2xs active:scale-[0.98]"
-              title="Dọn dẹp nhật ký cũ"
-            >
-              <Trash2 className="w-4 h-4 text-rose-600" />
-              <span>Dọn Nhật Ký</span>
-            </button>
-          )}
-
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_8px_rgba(0,113,227,0.25)] transition-all active:scale-[0.98] disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/60 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition-all active:scale-95"
+            title="Làm mới danh sách nhật ký"
           >
-            <RefreshCw className={cn('w-4 h-4', isRefreshing && 'animate-spin')} />
-            <span>Làm Mới</span>
+            <RefreshCw className={cn('w-3.5 h-3.5 text-blue-600', isRefreshing && 'animate-spin')} />
+            <span>Làm mới</span>
           </button>
-        </div>
-      </div>
 
-      {/* 4 Apple Security KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1 */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-          <div className="flex items-center justify-between text-[#86868B] text-xs font-semibold uppercase tracking-wider">
-            <span>Tổng Nhật Ký</span>
-            <div className="w-8 h-8 rounded-2xl bg-blue-50 text-[#0071E3] flex items-center justify-center border border-blue-200/50">
-              <History className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] tabular-nums tracking-tight">
-              {logs.length}
-            </div>
-            <p className="text-xs text-[#86868B] mt-1 font-medium">Bản ghi kiểm toán an ninh</p>
-          </div>
-        </div>
-
-        {/* Card 2 */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-          <div className="flex items-center justify-between text-[#86868B] text-xs font-semibold uppercase tracking-wider">
-            <span>Ban Quản Trị</span>
-            <div className="w-8 h-8 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200/50">
-              <Users className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="text-2xl sm:text-3xl font-bold text-indigo-600 tabular-nums tracking-tight">
-              {staffCount}
-            </div>
-            <p className="text-xs text-[#86868B] mt-1 font-medium">Thao tác từ @admin & @admin1</p>
-          </div>
-        </div>
-
-        {/* Card 3 */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-          <div className="flex items-center justify-between text-[#86868B] text-xs font-semibold uppercase tracking-wider">
-            <span>Khách Xem Web</span>
-            <div className="w-8 h-8 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-200/50">
-              <Globe className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="text-2xl sm:text-3xl font-bold text-sky-600 tabular-nums tracking-tight">
-              {visitorCount}
-            </div>
-            <p className="text-xs text-[#86868B] mt-1 font-medium">Khách truy cập & để lại liên hệ</p>
-          </div>
-        </div>
-
-        {/* Card 4 */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-          <div className="flex items-center justify-between text-[#86868B] text-xs font-semibold uppercase tracking-wider">
-            <span>Thao Tác Dữ Liệu</span>
-            <div className="w-8 h-8 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/50">
-              <Shield className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="text-2xl sm:text-3xl font-bold text-amber-600 tabular-nums tracking-tight">
-              {cudCount}
-            </div>
-            <p className="text-xs text-[#86868B] mt-1 font-medium">Thêm / Sửa / Xóa / Sao lưu dữ liệu</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Smart 2-Tier Filter Toolbar */}
-      <div className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-3.5">
-        {/* Tier 1: Segmented Scope Pills + Reset Filter */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/60 overflow-x-auto max-w-full">
+          {onClearLogs && logs.length > 0 && (
             <button
-              type="button"
               onClick={() => {
-                setScopeFilter('all')
-                setCurrentPage(1)
+                if (confirm('Bạn có chắc chắn muốn xóa toàn bộ nhật ký truy cập hiện tại?')) {
+                  onClearLogs()
+                }
               }}
-              className={cn(
-                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-                scopeFilter === 'all'
-                  ? 'bg-white text-[#1D1D1F] font-bold shadow-xs'
-                  : 'text-[#86868B] hover:text-[#1D1D1F]'
-              )}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-gray-800 border border-rose-200 dark:border-rose-900/40 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 text-xs font-semibold rounded-xl shadow-xs transition-all active:scale-95"
+              title="Xóa toàn bộ lịch sử"
             >
-              <History className="w-3.5 h-3.5" />
-              Tất cả ({logs.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setScopeFilter('staff')
-                setCurrentPage(1)
-              }}
-              className={cn(
-                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-                scopeFilter === 'staff'
-                  ? 'bg-white text-[#0071E3] font-bold shadow-xs'
-                  : 'text-[#86868B] hover:text-[#1D1D1F]'
-              )}
-            >
-              <Users className="w-3.5 h-3.5" />
-              Ban Quản Trị ({staffCount})
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setScopeFilter('visitor')
-                setCurrentPage(1)
-              }}
-              className={cn(
-                'px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-                scopeFilter === 'visitor'
-                  ? 'bg-white text-sky-700 font-bold shadow-xs'
-                  : 'text-[#86868B] hover:text-[#1D1D1F]'
-              )}
-            >
-              <Globe className="w-3.5 h-3.5" />
-              Khách Xem Web ({visitorCount})
-            </button>
-          </div>
-
-          {isFiltering && (
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-all active:scale-95 self-end sm:self-auto"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Đặt lại lọc</span>
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Xóa lịch sử</span>
             </button>
           )}
         </div>
+      </div>
 
-        {/* Tier 2: Search, Account, Module & Action Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-          {/* Search Box (5 cols) */}
-          <div className="sm:col-span-5 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* 2-Tier Smart Filter Bar */}
+      <div className="bg-white dark:bg-gray-800/90 rounded-2xl p-4 border border-gray-200/80 dark:border-gray-700/60 shadow-sm space-y-3">
+        {/* Tier 1: Quick Source Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+          <span className="text-gray-400 font-semibold px-2 flex items-center gap-1 shrink-0">
+            <Filter className="w-3.5 h-3.5" /> Lọc nhanh:
+          </span>
+          {[
+            { id: 'all' as const, label: 'Tất cả nhật ký', count: logs.length },
+            {
+              id: 'visitor' as const,
+              label: 'Khách xem Web',
+              count: logs.filter(
+                (l) => l.username === 'visitor' || l.module === 'Landing Page' || l.module === 'Khách xem Web'
+              ).length,
+            },
+            {
+              id: 'admin' as const,
+              label: 'Admin (Lập)',
+              count: logs.filter((l) => l.username === 'admin').length,
+            },
+            {
+              id: 'admin1' as const,
+              label: 'Admin (Tước)',
+              count: logs.filter((l) => l.username === 'admin1').length,
+            },
+            {
+              id: 'today' as const,
+              label: 'Hôm nay',
+              count: logs.filter((l) => l.timestamp?.startsWith(todayStr)).length,
+            },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                setSourceFilter(item.id)
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3 py-1.5 rounded-full font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                sourceFilter === item.id
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+                  : 'bg-gray-100 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              )}
+            >
+              <span>{item.label}</span>
+              <span
+                className={cn(
+                  'px-1.5 py-0.2 rounded-full text-[10px] font-bold',
+                  sourceFilter === item.id
+                    ? 'bg-white/20 text-white'
+                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                )}
+              >
+                {item.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Tier 2: Search, Module, Device, Action Controls */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-2 border-t border-gray-100 dark:border-gray-700/50">
+          {/* Search Box */}
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
@@ -343,47 +269,28 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
                 setSearchQuery(e.target.value)
                 setCurrentPage(1)
               }}
-              placeholder="Tìm nội dung, tài khoản, IP thiết bị..."
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-9 py-2.5 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
+              placeholder="Tìm nội dung, IP, người dùng..."
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-200 transition-colors"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Account Filter (2 cols) */}
-          <div className="sm:col-span-2 relative">
-            <select
-              value={accountFilter}
-              onChange={(e) => {
-                setAccountFilter(e.target.value)
-                setCurrentPage(1)
-              }}
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all font-medium"
-            >
-              <option value="all">Tất cả tài khoản</option>
-              {accounts.map((acc) => (
-                <option key={acc} value={acc}>
-                  @{acc}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Module Filter (2 cols) */}
-          <div className="sm:col-span-2 relative">
+          {/* Module Filter */}
+          <div>
             <select
               value={moduleFilter}
               onChange={(e) => {
                 setModuleFilter(e.target.value)
                 setCurrentPage(1)
               }}
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all font-medium"
+              className="w-full px-3 py-2 text-xs rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             >
               <option value="all">Tất cả phân hệ</option>
               {modules.map((m) => (
@@ -394,15 +301,32 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
             </select>
           </div>
 
-          {/* Action Filter (3 cols) */}
-          <div className="sm:col-span-3 relative">
+          {/* Device Filter */}
+          <div>
+            <select
+              value={deviceFilter}
+              onChange={(e) => {
+                setDeviceFilter(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full px-3 py-2 text-xs rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            >
+              <option value="all">Tất cả thiết bị</option>
+              <option value="desktop">💻 Máy tính (Desktop / Laptop)</option>
+              <option value="mobile">📱 Điện thoại (Mobile)</option>
+              <option value="tablet">📟 Máy tính bảng (Tablet)</option>
+            </select>
+          </div>
+
+          {/* Action Filter */}
+          <div>
             <select
               value={actionFilter}
               onChange={(e) => {
                 setActionFilter(e.target.value)
                 setCurrentPage(1)
               }}
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all font-medium"
+              className="w-full px-3 py-2 text-xs rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             >
               <option value="all">Tất cả hành động</option>
               {actions.map((a) => (
@@ -415,110 +339,161 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
         </div>
       </div>
 
-      {/* Logs Table / Mobile Card List */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
-        {/* Desktop Table View (hidden on mobile) */}
+      {/* Main Logs Table & Cards */}
+      <div className="bg-white dark:bg-gray-800/90 rounded-2xl border border-gray-200/80 dark:border-gray-700/60 shadow-sm overflow-hidden">
+        {/* Table View (Desktop) */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">
-                <th className="py-3.5 px-4 text-center w-12">STT</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">Thời Gian</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">Tài Khoản</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">Hành Động</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">Phân Hệ</th>
-                <th className="py-3.5 px-4 min-w-[280px]">Chi Tiết Hoạt Động</th>
-                <th className="py-3.5 px-4 whitespace-nowrap">IP Thiết Bị</th>
-                <th className="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">Chi Tiết</th>
+          <table className="w-full text-left text-xs">
+            <thead className="bg-gray-50/80 dark:bg-gray-900/40 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-100 dark:border-gray-800">
+              <tr>
+                <th className="py-3 px-4 w-44">Thời Gian</th>
+                <th className="py-3 px-4 w-52">Người Thực Hiện</th>
+                <th className="py-3 px-4 w-40">Hành Động / Phân Hệ</th>
+                <th className="py-3 px-4">Nội Dung Chi Tiết</th>
+                <th className="py-3 px-4 w-56">Thiết Bị & Địa Chỉ IP</th>
+                <th className="py-3 px-3 text-right w-16">Chi Tiết</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs text-[#1D1D1F]">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {paginatedLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center space-y-2">
-                    <History className="w-10 h-10 text-slate-300 mx-auto" />
-                    <p className="text-sm font-bold text-[#1D1D1F]">Không có nhật ký nào phù hợp</p>
-                    <p className="text-xs text-[#86868B]">Thử làm mới hoặc thay đổi các tiêu chí lọc ở trên.</p>
+                  <td colSpan={6} className="py-12 text-center text-gray-500 dark:text-gray-400">
+                    <History className="w-10 h-10 mx-auto text-gray-300 dark:text-gray-600 mb-2" />
+                    <p className="font-semibold text-sm text-gray-900 dark:text-white">
+                      Không tìm thấy bản ghi nhật ký phù hợp
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Thử thay đổi từ khóa hoặc thiết lập lại bộ lọc.
+                    </p>
                   </td>
                 </tr>
               ) : (
-                paginatedLogs.map((log, idx) => {
-                  const actStyle = ACTION_CONFIG[log.action] || {
-                    color: 'text-slate-700',
-                    bg: 'bg-slate-100',
-                    border: 'border-slate-200',
+                paginatedLogs.map((log) => {
+                  const actionCfg = ACTION_CONFIG[log.action] || {
+                    color: 'text-gray-700 dark:text-gray-300',
+                    bg: 'bg-gray-100 dark:bg-gray-800',
+                    border: 'border-gray-200 dark:border-gray-700',
+                    icon: Activity,
                   }
+                  const ActionIcon = actionCfg.icon
+                  const isVisitor =
+                    log.username === 'visitor' ||
+                    log.module === 'Landing Page' ||
+                    log.module === 'Khách xem Web'
+
+                  const isMobile =
+                    log.device_type === 'mobile' ||
+                    /iPhone|Android|Mobile/i.test(log.device || '')
+                  const isTablet =
+                    log.device_type === 'tablet' || /iPad|Tablet/i.test(log.device || '')
+
                   return (
                     <tr
                       key={log.id}
-                      className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
                       onClick={() => setSelectedLog(log)}
+                      className="hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-colors cursor-pointer group"
                     >
-                      {/* STT */}
-                      <td className="py-3.5 px-4 text-center font-mono text-[#86868B] text-[11px]">
-                        {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                      {/* Timestamp */}
+                      <td className="py-3 px-4 font-mono text-[11px] text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <span>{formatDateTimeVN(log.timestamp)}</span>
+                        </div>
                       </td>
 
-                      {/* Time */}
-                      <td className="py-3.5 px-4 whitespace-nowrap font-mono text-[#86868B] text-[11px]">
-                        {formatDateTimeVN(log.timestamp)}
+                      {/* User / Source */}
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={cn(
+                              'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0',
+                              isVisitor
+                                ? 'bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300'
+                                : log.username === 'admin1'
+                                ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300'
+                                : 'bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300'
+                            )}
+                          >
+                            {isVisitor ? (
+                              <Globe className="w-3.5 h-3.5" />
+                            ) : log.username === 'admin1' ? (
+                              'T'
+                            ) : (
+                              'L'
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-gray-900 dark:text-white truncate">
+                              {log.displayName || (isVisitor ? 'Khách xem Web' : 'Quản trị viên')}
+                            </p>
+                            <p className="text-[10px] text-gray-400 font-mono">
+                              @{log.username || 'admin'}
+                            </p>
+                          </div>
+                        </div>
                       </td>
 
-                      {/* User */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className="font-bold text-[#1D1D1F] block">
-                          {log.displayName || log.username}
-                        </span>
-                        <span className="text-[10px] text-[#86868B] font-mono">
-                          @{log.username}
-                        </span>
-                      </td>
-
-                      {/* Action */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span
-                          className={cn(
-                            'inline-flex items-center text-[10.5px] font-bold px-2.5 py-0.5 rounded-full border',
-                            actStyle.bg,
-                            actStyle.color,
-                            actStyle.border
-                          )}
-                        >
-                          {log.action}
-                        </span>
-                      </td>
-
-                      {/* Module */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className="text-[11px] text-[#1D1D1F] font-semibold bg-slate-100 px-2.5 py-1 rounded-xl border border-slate-200/60">
-                          {log.module}
-                        </span>
+                      {/* Action & Module */}
+                      <td className="py-3 px-4">
+                        <div className="space-y-1">
+                          <span
+                            className={cn(
+                              'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-bold border',
+                              actionCfg.bg,
+                              actionCfg.color,
+                              actionCfg.border
+                            )}
+                          >
+                            <ActionIcon className="w-3 h-3 shrink-0" />
+                            <span>{log.action}</span>
+                          </span>
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">
+                            {log.module}
+                          </p>
+                        </div>
                       </td>
 
                       {/* Details */}
-                      <td className="py-3.5 px-4">
-                        <p className="text-[#1D1D1F] font-medium break-words leading-relaxed">
-                          {log.details}
-                        </p>
+                      <td className="py-3 px-4 font-medium text-gray-800 dark:text-gray-200">
+                        <p className="line-clamp-2 leading-relaxed">{log.details}</p>
                       </td>
 
-                      {/* IP */}
-                      <td className="py-3.5 px-4 whitespace-nowrap font-mono text-[11px] text-[#86868B]">
-                        {log.ip_address || '113.161.78.45'}
+                      {/* Device & IP */}
+                      <td className="py-3 px-4 text-xs">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300 font-medium truncate">
+                            {isMobile ? (
+                              <Smartphone className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                            ) : isTablet ? (
+                              <Tablet className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                            ) : (
+                              <Monitor className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                            )}
+                            <span className="truncate text-[11px]">
+                              {log.device || (isMobile ? 'Mobile' : 'Desktop')}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-gray-400 font-mono">
+                            IP: {log.ip_address || '113.161.78.45'}
+                          </p>
+                        </div>
                       </td>
 
-                      {/* Action */}
-                      <td className="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">
+                      {/* Actions */}
+                      <td className="py-3 px-3 text-right">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
-                            setSelectedLog(log)
+                            handleCopyLog(log)
                           }}
-                          className="p-1.5 rounded-xl text-slate-400 group-hover:text-[#0071E3] hover:bg-blue-50 transition-all border border-transparent hover:border-blue-200 shadow-2xs"
-                          title="Xem chi tiết nhật ký"
+                          className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          title="Sao chép bản ghi"
                         >
-                          <Eye className="w-4 h-4" />
+                          {copiedLogId === log.id ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
                         </button>
                       </td>
                     </tr>
@@ -529,68 +504,82 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
           </table>
         </div>
 
-        {/* Mobile Touch-Optimized Card List (md:hidden) */}
-        <div className="md:hidden divide-y divide-slate-100">
+        {/* Mobile Card List View */}
+        <div className="block md:hidden divide-y divide-gray-100 dark:divide-gray-800">
           {paginatedLogs.length === 0 ? (
-            <div className="py-12 px-4 text-center space-y-2">
-              <History className="w-10 h-10 text-slate-300 mx-auto" />
-              <p className="text-sm font-bold text-[#1D1D1F]">Không có nhật ký nào phù hợp</p>
-              <p className="text-xs text-[#86868B]">Thử làm mới hoặc thay đổi các tiêu chí lọc ở trên.</p>
+            <div className="py-10 text-center text-gray-500 dark:text-gray-400 p-4">
+              <History className="w-10 h-10 mx-auto text-gray-300 dark:text-gray-600 mb-2" />
+              <p className="font-semibold text-sm text-gray-900 dark:text-white">
+                Không có bản ghi nhật ký phù hợp
+              </p>
             </div>
           ) : (
-            paginatedLogs.map((log, idx) => {
-              const actStyle = ACTION_CONFIG[log.action] || {
-                color: 'text-slate-700',
-                bg: 'bg-slate-100',
-                border: 'border-slate-200',
+            paginatedLogs.map((log) => {
+              const actionCfg = ACTION_CONFIG[log.action] || {
+                color: 'text-gray-700 dark:text-gray-300',
+                bg: 'bg-gray-100 dark:bg-gray-800',
+                border: 'border-gray-200 dark:border-gray-700',
+                icon: Activity,
               }
+              const isVisitor =
+                log.username === 'visitor' ||
+                log.module === 'Landing Page' ||
+                log.module === 'Khách xem Web'
+
+              const isMobile =
+                log.device_type === 'mobile' || /iPhone|Android|Mobile/i.test(log.device || '')
 
               return (
                 <div
-                  key={`mobile-${log.id}`}
-                  className="p-4 space-y-2.5 hover:bg-slate-50/70 transition-colors cursor-pointer"
+                  key={log.id}
                   onClick={() => setSelectedLog(log)}
+                  className="p-3.5 space-y-2 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors"
                 >
-                  {/* Top: STT, Action badge, Module & Time */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="w-5 h-5 rounded-md bg-slate-100 text-[#86868B] font-mono text-[10.5px] font-bold flex items-center justify-center shrink-0">
-                        {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
-                      </span>
-                      <span
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div
                         className={cn(
-                          'text-[10.5px] font-bold px-2 py-0.5 rounded-full border',
-                          actStyle.bg,
-                          actStyle.color,
-                          actStyle.border
+                          'w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0',
+                          isVisitor
+                            ? 'bg-sky-100 text-sky-700'
+                            : log.username === 'admin1'
+                            ? 'bg-indigo-100 text-indigo-700'
+                            : 'bg-blue-100 text-blue-700'
                         )}
                       >
-                        {log.action}
-                      </span>
-                      <span className="text-[10.5px] font-medium bg-slate-100 text-[#1D1D1F] px-2 py-0.5 rounded-lg border border-slate-200/60">
-                        {log.module}
+                        {isVisitor ? <Globe className="w-3 h-3" /> : log.username === 'admin1' ? 'T' : 'L'}
+                      </div>
+                      <span className="font-semibold text-xs text-gray-900 dark:text-white truncate">
+                        {log.displayName || (isVisitor ? 'Khách xem Web' : 'Admin')}
                       </span>
                     </div>
 
-                    <span className="text-[10.5px] text-[#86868B] font-mono shrink-0">
-                      {formatDateTimeVN(log.timestamp).split(' ')[1]}
+                    <span
+                      className={cn(
+                        'px-2 py-0.5 rounded text-[10px] font-bold border shrink-0',
+                        actionCfg.bg,
+                        actionCfg.color,
+                        actionCfg.border
+                      )}
+                    >
+                      {log.action}
                     </span>
                   </div>
 
-                  {/* User & Details */}
-                  <div className="bg-slate-50/80 rounded-2xl p-2.5 border border-slate-200/60 space-y-1.5 text-xs">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-[#1D1D1F]">
-                        {log.displayName || log.username} <span className="text-[#86868B] font-mono font-normal">(@{log.username})</span>
-                      </span>
-                      <span className="text-[10px] text-[#86868B] font-mono">
-                        {log.ip_address ? `IP: ${log.ip_address}` : ''}
-                      </span>
-                    </div>
+                  <p className="text-xs text-gray-800 dark:text-gray-200 font-medium line-clamp-2">
+                    {log.details}
+                  </p>
 
-                    <p className="text-[#1D1D1F] text-xs leading-relaxed font-normal">
-                      {log.details}
-                    </p>
+                  <div className="flex items-center justify-between text-[10.5px] text-gray-500 dark:text-gray-400 pt-1 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-1">
+                      {isMobile ? (
+                        <Smartphone className="w-3 h-3 text-amber-500" />
+                      ) : (
+                        <Monitor className="w-3 h-3 text-blue-500" />
+                      )}
+                      <span className="truncate max-w-[140px]">{log.device || 'Thiết bị'}</span>
+                    </div>
+                    <span className="font-mono">{formatDateTimeVN(log.timestamp)}</span>
                   </div>
                 </div>
               )
@@ -598,97 +587,99 @@ export function AccessHistoryTab({ logs, onRefresh, onClearLogs }: AccessHistory
           )}
         </div>
 
-
-        {/* Pagination Bar with Page Numbers */}
-        <PaginationControl
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={filteredLogs.length}
-          itemsPerPage={ITEMS_PER_PAGE}
-          itemLabel="bản ghi"
-          onPageChange={(page) => setCurrentPage(page)}
-          className="rounded-t-none border-x-0 border-b-0 border-t bg-slate-50/50"
-        />
-
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="p-3 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30">
+            <PaginationControl
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredLogs.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemLabel="nhật ký"
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Log Detail Sheet Modal (Apple Sheet Style) */}
+      {/* DETAIL LOG MODAL */}
       {selectedLog && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-2xl bg-blue-50 text-[#0071E3] flex items-center justify-center border border-blue-200/60 shadow-2xs">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[120] flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                   <Activity className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#1D1D1F]">Chi Tiết Nhật Ký Hoạt Động</h3>
-                  <p className="text-xs text-[#86868B] font-mono">Mã log: {selectedLog.id}</p>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">Chi Tiết Nhật Ký</h3>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 font-mono">ID: {selectedLog.id}</p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedLog(null)}
-                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                className="p-1.5 rounded-full text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-6 space-y-4 text-xs">
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2.5">
-                <div className="flex justify-between items-center">
-                  <span className="text-[#86868B]">Thời gian ghi nhận:</span>
-                  <span className="font-mono text-[#1D1D1F] font-bold">{formatDateTimeVN(selectedLog.timestamp)}</span>
+            <div className="p-6 space-y-3.5 text-xs text-gray-700 dark:text-gray-300">
+              <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Thời gian:</span>
+                  <span className="font-mono font-bold text-gray-900 dark:text-white">
+                    {formatDateTimeVN(selectedLog.timestamp)}
+                  </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#86868B]">Tài khoản thao tác:</span>
-                  <span className="text-[#0071E3] font-bold">{selectedLog.displayName} (@{selectedLog.username})</span>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Người thực hiện:</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {selectedLog.displayName} (@{selectedLog.username})
+                  </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#86868B]">Hành động thực hiện:</span>
-                  <span className="font-bold text-[#1D1D1F]">{selectedLog.action}</span>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Phân hệ:</span>
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">{selectedLog.module}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#86868B]">Phân hệ liên quan:</span>
-                  <span className="font-bold text-[#1D1D1F]">{selectedLog.module}</span>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Hành động:</span>
+                  <span className="font-bold text-gray-900 dark:text-white">{selectedLog.action}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#86868B]">Địa chỉ IP thiết bị:</span>
-                  <span className="font-mono text-[#1D1D1F] font-semibold">{selectedLog.ip_address || '113.161.78.45'}</span>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Thiết bị:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {selectedLog.device || 'Máy tính / Trình duyệt'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Địa chỉ IP:</span>
+                  <span className="font-mono text-gray-900 dark:text-white">{selectedLog.ip_address || '113.161.78.45'}</span>
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] text-[#86868B] font-bold uppercase tracking-wider">
-                    Nội dung chi tiết thao tác:
-                  </span>
-                  <button
-                    onClick={() => handleCopyDetails(selectedLog.details, selectedLog.id)}
-                    className="text-[11px] font-semibold text-[#0071E3] hover:underline inline-flex items-center gap-1"
-                  >
-                    {copiedLogId === selectedLog.id ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" /> Đã sao chép
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" /> Sao chép
-                      </>
-                    )}
-                  </button>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-[#1D1D1F] font-mono text-xs leading-relaxed whitespace-pre-wrap">
+                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                  Nội Dung Thao Tác
+                </span>
+                <p className="p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 leading-relaxed text-gray-900 dark:text-white font-medium">
                   {selectedLog.details}
-                </div>
+                </p>
               </div>
 
-              <div className="pt-2 flex justify-end">
+              <div className="pt-2 flex gap-2">
                 <button
+                  type="button"
+                  onClick={() => handleCopyLog(selectedLog)}
+                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>{copiedLogId === selectedLog.id ? 'Đã sao chép!' : 'Sao chép thông tin'}</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setSelectedLog(null)}
-                  className="px-6 py-2.5 bg-slate-100 text-[#1D1D1F] hover:bg-slate-200 rounded-2xl text-xs font-bold border border-slate-200 transition-all active:scale-95"
+                  className="px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-semibold hover:bg-gray-200"
                 >
                   Đóng
                 </button>

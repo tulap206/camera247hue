@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingContact from '@/components/FloatingContact'
 import ProjectsList from '@/components/ProjectsList'
+import VisitorTracker from '@/components/VisitorTracker'
 import { supabase } from '@/lib/supabase'
 import type { Category } from '@/lib/supabase'
 
@@ -28,6 +29,7 @@ export default async function ProjectsPage({
 
   return (
     <main>
+      <VisitorTracker pageName="Danh mục Công trình đã thi công" module="Landing Page" />
       <Navbar />
       <div className="nav-offset">
         <div className="bg-white border-b border-brand-border">

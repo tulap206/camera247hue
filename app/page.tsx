@@ -7,6 +7,7 @@ import ProjectsPreview from '@/components/ProjectsPreview'
 import ContactSection from '@/components/ContactSection'
 import Footer from '@/components/Footer'
 import FloatingContact from '@/components/FloatingContact'
+import VisitorTracker from '@/components/VisitorTracker'
 import { supabase } from '@/lib/supabase'
 import { SAMPLE_POSTS } from '@/lib/camera247-data'
 
@@ -33,6 +34,7 @@ export default async function HomePage() {
 
   return (
     <main className="relative overflow-x-clip">
+      <VisitorTracker pageName="Trang chủ Landing Page" module="Landing Page" />
       <Navbar />
       <HeroSection />
       <PartnersSection />

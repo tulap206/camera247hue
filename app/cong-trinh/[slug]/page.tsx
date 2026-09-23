@@ -10,6 +10,7 @@ import { sanitizeHtml } from '@/lib/sanitizeHtml'
 import { MapPin, Calendar, ChevronLeft, Building, Camera, Phone } from 'lucide-react'
 import ProjectHeroBanner from '@/components/ProjectHeroBanner'
 import ProjectImageGallery from '@/components/ProjectImageGallery'
+import VisitorTracker from '@/components/VisitorTracker'
 
 export const revalidate = 60
 
@@ -86,6 +87,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
   return (
     <main>
+      <VisitorTracker pageName={`Công trình: ${post.title}`} module="Landing Page" />
       <Navbar />
       <div className="nav-offset">
         {/* Interactive Hero Banner with Lightbox Zoom */}

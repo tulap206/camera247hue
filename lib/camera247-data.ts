@@ -189,9 +189,11 @@ export interface AccessLog {
   id: string
   username: string
   displayName: string
-  action: string // 'Đăng nhập', 'Đăng xuất', 'Thêm mới', 'Chỉnh sửa', 'Xóa', 'Sao lưu', 'Khôi phục'
-  module: string // 'Đơn hàng', 'Khách hàng', 'Bài viết', 'Hệ thống & Đăng nhập', 'Cài đặt & Sao lưu', 'Khách xem Web'
+  action: string // 'Đăng nhập', 'Đăng xuất', 'Thêm mới', 'Chỉnh sửa', 'Xóa', 'Sao lưu', 'Khôi phục', 'Xem trang'
+  module: string // 'Đơn hàng', 'Khách hàng', 'Bài viết', 'Hệ thống & Đăng nhập', 'Cài đặt & Sao lưu', 'Landing Page', 'Khách xem Web'
   details: string
+  device?: string
+  device_type?: 'mobile' | 'desktop' | 'tablet'
   ip_address?: string
   timestamp: string
 }
@@ -656,26 +658,74 @@ export function saveStoredLogs(logs: AccessLog[]) {
   }
 }
 
+export function getDeviceInfo(): { device: string; device_type: 'mobile' | 'desktop' | 'tablet' } {
+  if (typeof window === 'undefined' || !navigator) {
+    return { device: 'Máy tính · macOS (Desktop)', device_type: 'desktop' }
+  }
+  const ua = navigator.userAgent || ''
+  let deviceType: 'mobile' | 'desktop' | 'tablet' = 'desktop'
+  if (/tablet|ipad|playbook|silk/i.test(ua)) {
+    deviceType = 'tablet'
+  } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle/i.test(ua)) {
+    deviceType = 'mobile'
+  }
+
+  // Detect OS
+  let os = 'Thiết bị'
+  if (/Mac OS X/i.test(ua) && !/iPhone|iPad/i.test(ua)) os = 'MacBook / macOS'
+  else if (/iPhone/i.test(ua)) os = 'iPhone / iOS'
+  else if (/iPad/i.test(ua)) os = 'iPad / iPadOS'
+  else if (/Android/i.test(ua)) os = 'Smartphone / Android'
+  else if (/Windows NT 10/i.test(ua)) os = 'PC / Windows 11'
+  else if (/Windows/i.test(ua)) os = 'PC / Windows'
+  else if (/Linux/i.test(ua)) os = 'Thiết bị Linux'
+
+  // Detect Browser
+  let browser = ''
+  if (/Edg/i.test(ua)) browser = 'Edge'
+  else if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Chrome'
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari'
+  else if (/Firefox/i.test(ua)) browser = 'Firefox'
+  else if (/Zalo/i.test(ua)) browser = 'Zalo App'
+
+  return {
+    device: browser ? `${os} (${browser})` : os,
+    device_type: deviceType,
+  }
+}
+
 export function addAuditLog(
   username: string,
   displayName: string,
   action: string,
   module: string,
-  details: string
+  details: string,
+  customDevice?: string,
+  customDeviceType?: 'mobile' | 'desktop' | 'tablet'
 ) {
   if (typeof window === 'undefined') return
   const current = getStoredLogs()
+  const { device, device_type } = getDeviceInfo()
+
   const newLog: AccessLog = {
     id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
     username: username || 'admin',
-    displayName: displayName || (username === 'admin1' ? 'Quản trị viên (Tước)' : 'Quản trị viên (Lập)'),
+    displayName:
+      displayName ||
+      (username === 'admin1'
+        ? 'Quản trị viên (Tước)'
+        : username === 'visitor'
+        ? 'Khách xem Web'
+        : 'Quản trị viên (Lập)'),
     action,
     module,
     details,
+    device: customDevice || device,
+    device_type: customDeviceType || device_type,
     ip_address: '113.161.78.45',
     timestamp: new Date().toISOString(),
   }
-  const updated = [newLog, ...current].slice(0, 200)
+  const updated = [newLog, ...current].slice(0, 300)
   saveStoredLogs(updated)
 
   // Asynchronously send to Supabase logs API
