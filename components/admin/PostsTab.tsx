@@ -20,7 +20,6 @@ import {
   EyeOff,
   LayoutGrid,
   List,
-  Download,
   Copy,
   Check,
   Tag,
@@ -29,9 +28,11 @@ import {
   Layers,
   Globe,
   Share2,
+  RotateCcw,
+  ArrowUpDown,
 } from 'lucide-react'
 import type { Post, Category } from '@/lib/supabase'
-import { POST_TEMPLATES } from '@/lib/camera247-data'
+import { POST_TEMPLATES, HUE_WARDS } from '@/lib/camera247-data'
 import { cn } from '@/lib/utils'
 import PaginationControl from './PaginationControl'
 
@@ -124,12 +125,23 @@ export function PostsTab({
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'hidden' | 'featured'>('all')
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'featured_first' | 'title_az'>('newest')
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table')
   const [editingPost, setEditingPost] = useState<Post | null | undefined>(undefined) // undefined = closed, null = create new
   const [showCatManager, setShowCatManager] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null)
   const ITEMS_PER_PAGE = viewMode === 'grid' ? 6 : 10
+
+  const isFiltering = searchQuery !== '' || categoryFilter !== 'all' || statusFilter !== 'all' || sortBy !== 'newest'
+
+  const resetFilters = () => {
+    setSearchQuery('')
+    setCategoryFilter('all')
+    setStatusFilter('all')
+    setSortBy('newest')
+    setCurrentPage(1)
+  }
 
   // Post form state
   const [form, setForm] = useState({
@@ -312,62 +324,24 @@ export function PostsTab({
     setTimeout(() => setCopiedSlug(null), 2000)
   }
 
-  // Export CSV with UTF-8 BOM
-  const handleExportCSV = () => {
-    if (posts.length === 0) {
-      alert('Chưa có bài viết nào để xuất!')
-      return
+  const formatDisplayDate = (dateStr?: string) => {
+    if (!dateStr) return '—'
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      const [y, m, d] = dateStr.split('-')
+      return `${d}/${m}/${y}`
     }
-
-    const headers = [
-      'ID',
-      'Tiêu Đề Bài Viết',
-      'Slug URL',
-      'Danh Mục',
-      'Địa Điểm',
-      'Khách Hàng / Đơn Vị',
-      'Ngày Hoàn Thành',
-      'Nổi Bật',
-      'Trạng Thái',
-      'Số Lượng Ảnh Album',
-    ]
-
-    const rows = posts.map((p) => {
-      const catName = categories.find((c) => c.id === p.category_id)?.name || p.category?.name || 'Chưa phân loại'
-      return [
-        `"${p.id}"`,
-        `"${(p.title || '').replace(/"/g, '""')}"`,
-        `"${p.slug || ''}"`,
-        `"${catName.replace(/"/g, '""')}"`,
-        `"${(p.location || '').replace(/"/g, '""')}"`,
-        `"${(p.client_name || '').replace(/"/g, '""')}"`,
-        `"${p.completed_at || ''}"`,
-        p.featured ? '"Nổi bật"' : '"Thường"',
-        p.published ? '"Đã xuất bản"' : '"Đang ẩn"',
-        p.images?.length || 0,
-      ].join(',')
-    })
-
-    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n')
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', `Camera247_DanhMuc_CongTrinh_${new Date().toISOString().split('T')[0]}.csv`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    return dateStr
   }
 
-  // Filter posts
+  // Filter & sort posts
   const filteredPosts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
     return posts
       .filter((p) => {
         const matchSearch =
           !q ||
-          p.title.toLowerCase().includes(q) ||
-          p.slug.toLowerCase().includes(q) ||
+          p.title?.toLowerCase().includes(q) ||
+          p.slug?.toLowerCase().includes(q) ||
           (p.location && p.location.toLowerCase().includes(q)) ||
           (p.client_name && p.client_name.toLowerCase().includes(q))
 
@@ -381,11 +355,25 @@ export function PostsTab({
         return matchSearch && matchCat && matchStatus
       })
       .sort((a, b) => {
+        if (sortBy === 'featured_first') {
+          if (a.featured !== b.featured) {
+            return a.featured ? -1 : 1
+          }
+        }
+        if (sortBy === 'title_az') {
+          return (a.title || '').localeCompare(b.title || '', 'vi')
+        }
+        if (sortBy === 'oldest') {
+          const dateA = new Date(a.created_at || a.completed_at || 0).getTime()
+          const dateB = new Date(b.created_at || b.completed_at || 0).getTime()
+          return dateA - dateB
+        }
+        // Default newest
         const dateA = new Date(a.created_at || a.completed_at || 0).getTime()
         const dateB = new Date(b.created_at || b.completed_at || 0).getTime()
         return dateB - dateA
       })
-  }, [posts, searchQuery, categoryFilter, statusFilter])
+  }, [posts, searchQuery, categoryFilter, statusFilter, sortBy])
 
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / ITEMS_PER_PAGE))
   const paginatedPosts = useMemo(() => {
@@ -420,14 +408,6 @@ export function PostsTab({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
-          <button
-            onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-slate-200/80 transition-all shadow-2xs active:scale-[0.98]"
-            title="Xuất mục lục bài viết ra file Excel / CSV"
-          >
-            <Download className="w-4 h-4 text-[#86868B]" />
-            <span>Xuất Excel</span>
-          </button>
           <button
             onClick={() => setShowCatManager(true)}
             className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm border border-slate-200/80 transition-all shadow-2xs active:scale-[0.98]"
@@ -514,78 +494,118 @@ export function PostsTab({
         </div>
       </div>
 
-      {/* Segmented Controls & Search Toolbar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-3.5 rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-        {/* Apple Segmented Control for Status */}
-        <div className="inline-flex p-1 bg-slate-100/90 rounded-2xl border border-slate-200/60 self-start lg:self-auto max-w-full overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => {
-              setStatusFilter('all')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap',
-              statusFilter === 'all'
-                ? 'bg-white text-[#1D1D1F] font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
+      {/* Smart 2-Tier Filter Toolbar */}
+      <div className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-3.5">
+        {/* Tier 1: Segmented Status Pills + View Mode + Reset Filter */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/60 overflow-x-auto max-w-full">
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('all')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap',
+                statusFilter === 'all'
+                  ? 'bg-white text-[#1D1D1F] font-bold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              Tất cả ({posts.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('published')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                statusFilter === 'published'
+                  ? 'bg-white text-emerald-700 font-bold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Đã đăng ({publishedCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('featured')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                statusFilter === 'featured'
+                  ? 'bg-white text-amber-700 font-bold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
+              Nổi bật ({featuredCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('hidden')
+                setCurrentPage(1)
+              }}
+              className={cn(
+                'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
+                statusFilter === 'hidden'
+                  ? 'bg-white text-slate-700 font-bold shadow-xs'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              )}
+            >
+              <EyeOff className="w-3 h-3 text-slate-400" />
+              Đang ẩn ({hiddenCount})
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+            {isFiltering && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-all active:scale-95"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Đặt lại lọc</span>
+              </button>
             )}
-          >
-            Tất cả ({posts.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setStatusFilter('published')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-              statusFilter === 'published'
-                ? 'bg-white text-emerald-700 font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            Đã đăng ({publishedCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setStatusFilter('featured')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-              statusFilter === 'featured'
-                ? 'bg-white text-amber-700 font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
-            Nổi bật ({featuredCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setStatusFilter('hidden')
-              setCurrentPage(1)
-            }}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-              statusFilter === 'hidden'
-                ? 'bg-white text-[#1D1D1F] font-semibold shadow-xs'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
-            )}
-          >
-            <EyeOff className="w-3 h-3 text-slate-400" />
-            Đang ẩn ({hiddenCount})
-          </button>
+
+            {/* Finder View Mode Toggle */}
+            <div className="flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200/60 shrink-0">
+              <button
+                onClick={() => setViewMode('table')}
+                className={cn(
+                  'p-1.5 rounded-xl transition-all',
+                  viewMode === 'table' ? 'bg-white text-[#0071E3] shadow-xs' : 'text-[#86868B] hover:text-[#1D1D1F]'
+                )}
+                title="Chế độ Bảng Danh Sách (Mặc định)"
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={cn(
+                  'p-1.5 rounded-xl transition-all',
+                  viewMode === 'grid' ? 'bg-white text-[#0071E3] shadow-xs' : 'text-[#86868B] hover:text-[#1D1D1F]'
+                )}
+                title="Chế độ Lưới (Thẻ Dự Án)"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Search, Category Filter & View Mode Toggle */}
-        <div className="flex items-center gap-2 flex-1 lg:max-w-xl">
-          <div className="relative flex-1">
+        {/* Tier 2: Search, Category Filter & Sorting Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+          {/* Search Box (6 cols) */}
+          <div className="sm:col-span-6 relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -594,49 +614,55 @@ export function PostsTab({
                 setSearchQuery(e.target.value)
                 setCurrentPage(1)
               }}
-              placeholder="Tìm tiêu đề, địa điểm tại Huế, khách hàng..."
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-3.5 py-2 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
+              placeholder="Tìm theo tiêu đề, địa điểm tại Huế, khách hàng..."
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-9 py-2.5 text-xs sm:text-sm text-[#1D1D1F] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-200 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          <select
-            value={categoryFilter}
-            onChange={(e) => {
-              setCategoryFilter(e.target.value)
-              setCurrentPage(1)
-            }}
-            className="bg-slate-50 border border-slate-200/80 rounded-2xl px-3 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all shrink-0 max-w-[150px] sm:max-w-none"
-          >
-            <option value="all">Tất cả danh mục</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          {/* Category Filter (3 cols) */}
+          <div className="sm:col-span-3 relative">
+            <Tag className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={categoryFilter}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-8 pr-3 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
+            >
+              <option value="all">Tất cả danh mục</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          {/* Finder View Mode Toggle */}
-          <div className="flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200/60 shrink-0">
-            <button
-              onClick={() => setViewMode('table')}
-              className={cn(
-                'p-1.5 rounded-xl transition-all',
-                viewMode === 'table' ? 'bg-white text-[#0071E3] shadow-xs' : 'text-[#86868B] hover:text-[#1D1D1F]'
-              )}
-              title="Chế độ Bảng Danh Sách (Mặc định)"
+          {/* Sort By Filter (3 cols) */}
+          <div className="sm:col-span-3 relative">
+            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value as any)
+                setCurrentPage(1)
+              }}
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-8 pr-3 py-2.5 text-xs sm:text-sm text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all"
             >
-              <List className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={cn(
-                'p-1.5 rounded-xl transition-all',
-                viewMode === 'grid' ? 'bg-white text-[#0071E3] shadow-xs' : 'text-[#86868B] hover:text-[#1D1D1F]'
-              )}
-              title="Chế độ Lưới (Thẻ Dự Án)"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
+              <option value="newest">Mới nhất (Mặc định)</option>
+              <option value="oldest">Cũ nhất</option>
+              <option value="featured_first">⭐ Nổi bật lên đầu</option>
+              <option value="title_az">Tiêu đề (A-Z)</option>
+            </select>
           </div>
         </div>
       </div>
@@ -886,17 +912,17 @@ export function PostsTab({
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span
                                 onClick={() => openEditPostForm(post)}
-                                className="font-bold text-[#1D1D1F] hover:text-[#0071E3] cursor-pointer transition-colors line-clamp-1"
+                                className="break-words font-bold text-sm text-[#1D1D1F] hover:text-[#0071E3] cursor-pointer transition-colors leading-snug"
                               >
                                 {post.title}
                               </span>
                               {post.featured && (
-                                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
                                   <Star className="w-2.5 h-2.5 fill-amber-400" /> Nổi bật
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 text-[11px] text-[#86868B] mt-0.5">
+                            <div className="flex items-center gap-2 text-[11px] text-[#86868B] mt-0.5 flex-wrap">
                               <span className="font-mono text-[#0071E3]">/{post.slug}</span>
                               {post.images && post.images.length > 0 && (
                                 <span>• 📸 {post.images.length} ảnh</span>
@@ -916,10 +942,10 @@ export function PostsTab({
 
                       {/* Client & Location */}
                       <td className="py-3.5 px-4 text-xs">
-                        <div className="font-semibold text-[#1D1D1F]">{post.client_name || 'Khách hàng cá nhân'}</div>
+                        <div className="font-semibold text-[#1D1D1F] break-words">{post.client_name || 'Khách hàng cá nhân'}</div>
                         <div className="text-[11px] text-[#86868B] flex items-center gap-1 mt-0.5">
                           <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span className="truncate max-w-[180px]">{post.location || 'Huế'}</span>
+                          <span className="break-words">{post.location || 'Huế'}</span>
                         </div>
                       </td>
 
@@ -927,7 +953,7 @@ export function PostsTab({
                       <td className="py-3.5 px-4 whitespace-nowrap text-xs text-[#86868B]">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{post.completed_at || '—'}</span>
+                          <span>{formatDisplayDate(post.completed_at)}</span>
                         </div>
                       </td>
 
@@ -1070,7 +1096,7 @@ export function PostsTab({
 
                         <h4
                           onClick={() => openEditPostForm(post)}
-                          className="font-bold text-sm text-[#1D1D1F] hover:text-[#0071E3] transition-colors line-clamp-2 mt-1 cursor-pointer leading-snug"
+                          className="font-bold text-sm text-[#1D1D1F] hover:text-[#0071E3] transition-colors break-words mt-1 cursor-pointer leading-snug"
                         >
                           {post.title}
                         </h4>
@@ -1082,17 +1108,17 @@ export function PostsTab({
                       {post.client_name && (
                         <div className="flex items-center gap-1 text-[#1D1D1F] font-semibold text-[11.5px]">
                           <Building2 className="w-3.5 h-3.5 text-[#0071E3] shrink-0" />
-                          <span className="truncate">{post.client_name}</span>
+                          <span className="break-words">{post.client_name}</span>
                         </div>
                       )}
                       <div className="flex items-center justify-between text-[11px] gap-2 pt-0.5">
-                        <span className="truncate flex items-center gap-1">
+                        <span className="break-words flex items-center gap-1">
                           <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
                           {post.location || 'Huế'}
                         </span>
                         <span className="shrink-0 flex items-center gap-1">
                           <Calendar className="w-3 h-3 text-slate-400" />
-                          {post.completed_at || '—'}
+                          {formatDisplayDate(post.completed_at)}
                         </span>
                       </div>
                     </div>
@@ -1328,11 +1354,17 @@ export function PostsTab({
                     <label className="block text-xs font-bold text-[#1D1D1F] mb-1">Địa Điểm Tại Huế</label>
                     <input
                       type="text"
+                      list="hue-wards-post-options"
                       value={form.location}
                       onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))}
-                      placeholder="VD: 51 Lê Lợi, P. Phú Hội, TP. Huế"
-                      className="w-full bg-white border border-slate-200/80 rounded-2xl px-3 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:outline-none focus:border-[#0071E3] transition-all"
+                      placeholder="VD: Phường Vỹ Dạ, TP. Huế hoặc địa chỉ chi tiết..."
+                      className="w-full bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2 text-xs sm:text-sm text-[#1D1D1F] focus:outline-none focus:border-[#0071E3] focus:ring-4 focus:ring-blue-500/10 transition-all font-medium"
                     />
+                    <datalist id="hue-wards-post-options">
+                      {HUE_WARDS.map((ward) => (
+                        <option key={ward} value={`${ward}, TP. Huế`} />
+                      ))}
+                    </datalist>
                   </div>
 
                   <div>
