@@ -8,18 +8,24 @@ import ContactSection from '@/components/ContactSection'
 import Footer from '@/components/Footer'
 import FloatingContact from '@/components/FloatingContact'
 import { supabase } from '@/lib/supabase'
+import { SAMPLE_POSTS } from '@/lib/camera247-data'
 
 export const revalidate = 60
 
 async function getFeaturedPosts() {
-  const { data } = await supabase
-    .from('posts')
-    .select('*, category:categories(*)')
-    .eq('published', true)
-    .order('featured', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(6)
-  return data || []
+  try {
+    const { data } = await supabase
+      .from('posts')
+      .select('*, category:categories(*)')
+      .eq('published', true)
+      .order('featured', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(6)
+    if (data && data.length > 0) return data
+  } catch {
+    // fallback
+  }
+  return (SAMPLE_POSTS as unknown as any[]) || []
 }
 
 export default async function HomePage() {

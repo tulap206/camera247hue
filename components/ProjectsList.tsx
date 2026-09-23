@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase, type Post, type Category } from '@/lib/supabase'
-import { MapPin, Calendar, ArrowRight, Search, Camera } from 'lucide-react'
+import { SAMPLE_POSTS } from '@/lib/camera247-data'
+import { MapPin, Calendar, ArrowRight, Search, Camera, ZoomIn } from 'lucide-react'
+import ImageLightboxModal from '@/components/ImageLightboxModal'
 
 const PAGE_SIZE = 9
 
@@ -23,6 +25,17 @@ export default function ProjectsList({
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [lightboxState, setLightboxState] = useState<{
+    isOpen: boolean
+    images: string[]
+    title: string
+    initialIndex: number
+  }>({
+    isOpen: false,
+    images: [],
+    title: '',
+    initialIndex: 0,
+  })
 
   useEffect(() => {
     fetchPosts()
@@ -31,33 +44,82 @@ export default function ProjectsList({
 
   async function fetchPosts() {
     setLoading(true)
-    let query = supabase
-      .from('posts')
-      .select('*, category:categories(*)', { count: 'exact' })
-      .eq('published', true)
-      .order('created_at', { ascending: false })
+    let fetchedData: any[] = []
+    let fetchedCount = 0
 
-    if (activeCategory) {
-      const cat = categories.find((c) => c.slug === activeCategory)
-      if (cat) query = query.eq('category_id', cat.id)
+    try {
+      let query = supabase
+        .from('posts')
+        .select('*, category:categories(*)', { count: 'exact' })
+        .eq('published', true)
+        .order('created_at', { ascending: false })
+
+      if (activeCategory) {
+        const cat = categories.find((c) => c.slug === activeCategory)
+        if (cat) query = query.eq('category_id', cat.id)
+      }
+
+      if (search) {
+        query = query.ilike('title', `%${search}%`)
+      }
+
+      const from = (currentPage - 1) * PAGE_SIZE
+      query = query.range(from, from + PAGE_SIZE - 1)
+
+      const { data, count, error } = await query
+      if (!error && data && data.length > 0) {
+        fetchedData = data
+        fetchedCount = count || data.length
+      }
+    } catch {
+      // ignore
     }
 
-    if (search) {
-      query = query.ilike('title', `%${search}%`)
+    // Fallback to SAMPLE_POSTS if supabase returns empty or error
+    if (fetchedData.length === 0) {
+      let filtered = (SAMPLE_POSTS as unknown as Post[]).filter((p) => p.published)
+      if (activeCategory) {
+        const cat = categories.find((c) => c.slug === activeCategory)
+        if (cat) filtered = filtered.filter((p) => p.category_id === cat.id)
+      }
+      if (search) {
+        filtered = filtered.filter((p) =>
+          p.title.toLowerCase().includes(search.toLowerCase()) ||
+          p.excerpt?.toLowerCase().includes(search.toLowerCase())
+        )
+      }
+      fetchedData = filtered
+      fetchedCount = filtered.length
     }
 
-    const from = (currentPage - 1) * PAGE_SIZE
-    query = query.range(from, from + PAGE_SIZE - 1)
-
-    const { data, count } = await query
-    setPosts(data || [])
-    setTotal(count || 0)
+    setPosts(fetchedData)
+    setTotal(fetchedCount)
     setLoading(false)
   }
 
   const handleCategoryChange = (slug?: string) => {
     const url = slug ? `/cong-trinh?category=${slug}` : '/cong-trinh'
     router.push(url)
+  }
+
+  const handleOpenZoom = (e: React.MouseEvent, post: any) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const imgs: string[] = []
+    if (post.cover_image) imgs.push(post.cover_image)
+    if (Array.isArray(post.images)) {
+      post.images.forEach((im: string) => {
+        if (im && !imgs.includes(im)) imgs.push(im)
+      })
+    }
+    if (imgs.length > 0) {
+      setLightboxState({
+        isOpen: true,
+        images: imgs,
+        title: post.title,
+        initialIndex: 0,
+      })
+    }
   }
 
   const totalPages = Math.ceil(total / PAGE_SIZE)
@@ -84,7 +146,7 @@ export default function ProjectsList({
                 onClick={() => handleCategoryChange(undefined)}
                 className={`px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all shrink-0 ${
                   !activeCategory
-                    ? 'bg-brand-navy text-white'
+                    ? 'bg-brand-navy text-white shadow-xs'
                     : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
                 }`}
               >
@@ -96,7 +158,7 @@ export default function ProjectsList({
                   onClick={() => handleCategoryChange(cat.slug)}
                   className={`px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all shrink-0 ${
                     activeCategory === cat.slug
-                      ? 'bg-brand-navy text-white'
+                      ? 'bg-brand-navy text-white shadow-xs'
                       : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
                   }`}
                 >
@@ -107,8 +169,8 @@ export default function ProjectsList({
           </div>
         </div>
 
-        <div className="text-brand-muted text-sm mb-6">
-          {loading ? 'Đang tải...' : `${total} công trình${activeCategory ? ' trong mục này' : ''}`}
+        <div className="text-brand-muted text-sm mb-6 font-medium">
+          {loading ? 'Đang tải...' : `${total} công trình thi công${activeCategory ? ' trong mục này' : ''}`}
         </div>
 
         {loading ? (
@@ -123,61 +185,83 @@ export default function ProjectsList({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {posts.map((post) => (
-              <Link
+              <div
                 key={post.id}
-                href={`/cong-trinh/${post.slug}`}
-                className="group block bg-white rounded-[20px] overflow-hidden border border-brand-border hover:shadow-lift transition-all duration-300 ease-out"
+                className="group block bg-white rounded-[20px] overflow-hidden border border-brand-border hover:shadow-lift transition-all duration-300 ease-out flex flex-col justify-between"
               >
-                <div className="aspect-[16/10] bg-brand-soft relative overflow-hidden">
-                  {post.cover_image ? (
-                    <Image
-                      src={post.cover_image}
-                      alt={post.title}
-                      fill
-                      className="object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Camera className="w-10 h-10 text-brand-muted/40" />
+                <div>
+                  <div className="aspect-[16/10] bg-brand-soft relative overflow-hidden">
+                    {post.cover_image ? (
+                      <Image
+                        src={post.cover_image}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Camera className="w-10 h-10 text-brand-muted/40" />
+                      </div>
+                    )}
+                    {post.category && (
+                      <div className="absolute top-3 left-3 bg-white/95 text-brand-navy text-[11px] font-semibold px-2.5 py-1 rounded-md z-10 shadow-xs">
+                        {post.category.name}
+                      </div>
+                    )}
+                    {post.featured && (
+                      <div className="absolute top-3 right-3 bg-brand-yellow text-brand-navy text-[11px] font-semibold px-2.5 py-1 rounded-md z-10 shadow-xs">
+                        Nổi bật
+                      </div>
+                    )}
+
+                    {/* Quick Zoom Overlay */}
+                    <div
+                      onClick={(e) => handleOpenZoom(e, post)}
+                      className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-zoom-in z-10"
+                    >
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-brand-navy text-xs font-bold shadow-md">
+                        <ZoomIn className="w-3.5 h-3.5 text-brand-navy" />
+                        Phóng to ảnh
+                      </span>
                     </div>
-                  )}
-                  {post.category && (
-                    <div className="absolute top-3 left-3 bg-white/95 text-brand-navy text-[11px] font-semibold px-2.5 py-1 rounded-md">
-                      {post.category.name}
-                    </div>
-                  )}
-                  {post.featured && (
-                    <div className="absolute top-3 right-3 bg-brand-yellow text-brand-navy text-[11px] font-semibold px-2.5 py-1 rounded-md">
-                      Nổi bật
-                    </div>
-                  )}
+                  </div>
+
+                  <Link href={`/cong-trinh/${post.slug}`} className="block p-4 sm:p-5">
+                    <h3 className="font-heading font-bold text-brand-navy mb-2 line-clamp-2 group-hover:text-brand-yellow-dark transition-colors">
+                      {post.title}
+                    </h3>
+                    {post.excerpt && (
+                      <p className="text-brand-muted text-sm mb-3 line-clamp-2 leading-relaxed">{post.excerpt}</p>
+                    )}
+                  </Link>
                 </div>
 
-                <div className="p-4 sm:p-5">
-                  <h3 className="font-heading font-bold text-brand-navy mb-2 line-clamp-2 group-hover:text-[#16324A] transition-colors">
-                    {post.title}
-                  </h3>
-                  {post.excerpt && (
-                    <p className="text-brand-muted text-sm mb-3 line-clamp-2 leading-relaxed">{post.excerpt}</p>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-xs text-brand-muted flex-wrap">
+                <div className="p-4 sm:p-5 pt-0 mt-auto">
+                  <div className="flex items-center justify-between pt-3 border-t border-brand-border/60 text-xs text-brand-muted">
+                    <div className="flex items-center gap-3 flex-wrap">
                       {post.location && (
                         <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> {post.location}
+                          <MapPin className="w-3 h-3 text-brand-yellow-dark" /> {post.location}
                         </span>
                       )}
                       {post.completed_at && (
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
+                          <Calendar className="w-3 h-3 text-brand-navy" />
                           {new Date(post.completed_at).toLocaleDateString('vi-VN')}
                         </span>
                       )}
                     </div>
-                    <ArrowRight className="w-4 h-4 text-brand-navy opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Link
+                      href={`/cong-trinh/${post.slug}`}
+                      className="text-[11px] font-semibold text-brand-yellow-dark hover:underline flex items-center gap-1 shrink-0"
+                    >
+                      <span>Chi tiết</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
@@ -194,7 +278,7 @@ export default function ProjectsList({
                 }}
                 className={`w-10 h-10 rounded-xl text-sm font-semibold transition-all ${
                   page === currentPage
-                    ? 'bg-brand-navy text-white'
+                    ? 'bg-brand-navy text-white shadow-xs'
                     : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
                 }`}
               >
@@ -204,6 +288,15 @@ export default function ProjectsList({
           </div>
         )}
       </div>
+
+      {/* Lightbox Modal */}
+      <ImageLightboxModal
+        isOpen={lightboxState.isOpen}
+        images={lightboxState.images}
+        initialIndex={lightboxState.initialIndex}
+        title={lightboxState.title}
+        onClose={() => setLightboxState((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   )
 }

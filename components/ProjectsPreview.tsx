@@ -1,41 +1,76 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { type Post } from '@/lib/supabase'
-import { MapPin, ArrowRight, Camera, Sparkles } from 'lucide-react'
+import { MapPin, ArrowRight, Camera, Sparkles, ZoomIn } from 'lucide-react'
 import Reveal from '@/components/Reveal'
+import ImageLightboxModal from '@/components/ImageLightboxModal'
 
 const fallbackProjects = [
   {
     id: 'demo-1',
-    slug: 'lap-dat-camera-ai-biet-thu-vy-da',
-    title: 'Hệ thống 8 Camera AI 4K Full Color cho Biệt thự Vỹ Dạ',
-    excerpt: 'Thi công giấu dây âm tường 100%, tích hợp camera màu ban đêm 24/7 và hàng rào điện tử cảnh báo còi hú.',
-    cover_image: '/images/services/camera-cctv.jpg',
-    category: { name: 'Camera biệt thự' },
-    location: 'Vỹ Dạ, TP. Huế',
+    slug: 'lap-dat-32-camera-khach-san-huong-giang-hue',
+    title: 'Lắp Đặt Hệ Thống 32 Camera Giám Sát Khách Sạn Hương Giang Huế',
+    excerpt: 'Triển khai trọn gói 32 camera IP ColorVu có màu ban đêm, đầu ghi 32 kênh 4K và tủ mạng trung tâm cho Hương Giang Resort & Spa.',
+    cover_image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+    category: { name: 'Camera Quan Sát' },
+    location: '51 Lê Lợi, TP. Huế',
   },
   {
     id: 'demo-2',
-    slug: 'khoa-cua-thong-minh-faceid-nha-pho',
-    title: 'Khóa cửa thông minh FaceID 3D & Camera an ninh Nhà phố',
-    excerpt: 'Lắp đặt khóa thông minh mở khóa nhận diện khuôn mặt kết hợp hệ thống camera giám sát từ xa qua điện thoại.',
-    cover_image: '/images/services/smart-door-lock.jpg',
-    category: { name: 'Khóa cửa & An ninh' },
-    location: 'Phan Chu Trinh, TP. Huế',
+    slug: 'lap-dat-khoa-van-tay-faceid-biet-thu-an-cuu-city-hue',
+    title: 'Triển Khai Khóa Cửa Vân Tay Nhận Diện FaceID Biệt Thự An Cựu City',
+    excerpt: 'Lắp đặt khóa FaceID 3D tích hợp chuông cửa màn hình Kaadas K20 Pro Max cho cửa chính gỗ lim biệt thự.',
+    cover_image: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1200&q=80',
+    category: { name: 'Khóa Cửa Thông Minh' },
+    location: 'KĐT An Cựu City, TP. Huế',
   },
   {
     id: 'demo-3',
-    slug: 'he-thong-wifi-mesh-camera-cafe-nha-hang',
-    title: 'Hạ tầng mạng Wifi Mesh Roaming & Camera Chuỗi Nhà hàng',
-    excerpt: 'Phủ sóng Wifi 6 tốc độ cao chịu tải 150+ khách đồng thời và hệ thống camera quản lý quầy thu ngân sắc nét.',
-    cover_image: '/images/services/wifi-network.jpg',
-    category: { name: 'Mạng Wifi & Quản lý' },
-    location: 'Hùng Vương, TP. Huế',
+    slug: 'thi-cong-wifi-chiu-tai-cafe-the-time-hung-vuong-hue',
+    title: 'Thi Công Hệ Thống Mạng Wifi Mesh Chịu Tải Quán Cafe The Time Hùng Vương',
+    excerpt: 'Nâng cấp toàn diện mạng Wifi 6 chịu tải 200+ user với Router DrayTek cân bằng tải và 4 bộ phát Ruijie Mesh.',
+    cover_image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
+    category: { name: 'Mạng Wifi Chuyên Dụng' },
+    location: '18 Hùng Vương, TP. Huế',
   },
 ]
 
 export default function ProjectsPreview({ posts }: { posts: Post[] }) {
   const displayPosts = posts && posts.length > 0 ? posts : fallbackProjects
+  const [lightboxState, setLightboxState] = useState<{
+    isOpen: boolean
+    images: string[]
+    title: string
+    initialIndex: number
+  }>({
+    isOpen: false,
+    images: [],
+    title: '',
+    initialIndex: 0,
+  })
+
+  const handleOpenZoom = (e: React.MouseEvent, post: any) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const imgs: string[] = []
+    if (post.cover_image) imgs.push(post.cover_image)
+    if (Array.isArray(post.images)) {
+      post.images.forEach((im: string) => {
+        if (im && !imgs.includes(im)) imgs.push(im)
+      })
+    }
+    if (imgs.length > 0) {
+      setLightboxState({
+        isOpen: true,
+        images: imgs,
+        title: post.title,
+        initialIndex: 0,
+      })
+    }
+  }
 
   return (
     <section className="section-y bg-white border-b border-brand-border">
@@ -65,10 +100,7 @@ export default function ProjectsPreview({ posts }: { posts: Post[] }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {displayPosts.map((post, index) => (
             <Reveal key={post.id} delay={index * 0.05}>
-              <Link
-                href={`/cong-trinh/${post.slug}`}
-                className="group block rounded-2xl overflow-hidden bg-white border border-brand-border shadow-soft hover:border-brand-yellow hover:shadow-lift transition-all duration-300 ease-out h-full flex flex-col justify-between"
-              >
+              <div className="group block rounded-2xl overflow-hidden bg-white border border-brand-border shadow-soft hover:border-brand-yellow hover:shadow-lift transition-all duration-300 ease-out h-full flex flex-col justify-between">
                 <div>
                   <div className="aspect-[16/10] bg-brand-soft relative overflow-hidden">
                     {post.cover_image ? (
@@ -84,15 +116,38 @@ export default function ProjectsPreview({ posts }: { posts: Post[] }) {
                         <Camera className="w-10 h-10 text-brand-muted/40" />
                       </div>
                     )}
+
+                    {/* Category Badge */}
                     {post.category && (
-                      <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-brand-navy text-[11px] font-bold px-3 py-1 rounded-full border border-brand-border/60 shadow-sm">
+                      <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-brand-navy text-[11px] font-bold px-3 py-1 rounded-full border border-brand-border/60 shadow-sm z-10">
                         {post.category.name}
                       </div>
                     )}
+
+                    {/* Direct Quick Zoom Button on Hover */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleOpenZoom(e, post)}
+                      className="absolute top-3 right-3 p-2 rounded-xl bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 z-10 shadow-md"
+                      title="Phóng to ảnh công trình"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </button>
+
+                    {/* Dark gradient on bottom of image with zoom prompt */}
+                    <div
+                      onClick={(e) => handleOpenZoom(e, post)}
+                      className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-zoom-in"
+                    >
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-brand-navy text-xs font-bold shadow-md">
+                        <ZoomIn className="w-3.5 h-3.5 text-brand-navy" />
+                        Phóng to ảnh
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="p-5 sm:p-6">
-                    <h3 className="font-heading font-extrabold text-base sm:text-lg text-brand-navy mb-2 line-clamp-2 group-hover:text-brand-navy transition-colors">
+                  <Link href={`/cong-trinh/${post.slug}`} className="block p-5 sm:p-6">
+                    <h3 className="font-heading font-extrabold text-base sm:text-lg text-brand-navy mb-2 line-clamp-2 group-hover:text-brand-yellow-dark transition-colors">
                       {post.title}
                     </h3>
                     {post.excerpt && (
@@ -100,7 +155,7 @@ export default function ProjectsPreview({ posts }: { posts: Post[] }) {
                         {post.excerpt}
                       </p>
                     )}
-                  </div>
+                  </Link>
                 </div>
 
                 <div className="px-5 sm:px-6 pb-5 pt-0 mt-auto">
@@ -116,14 +171,29 @@ export default function ProjectsPreview({ posts }: { posts: Post[] }) {
                         <span>TP. Huế</span>
                       </div>
                     )}
-                    <span className="text-[11px] font-semibold text-brand-yellow-dark group-hover:underline">Chi tiết →</span>
+                    <Link
+                      href={`/cong-trinh/${post.slug}`}
+                      className="text-[11px] font-semibold text-brand-yellow-dark hover:underline flex items-center gap-1"
+                    >
+                      <span>Chi tiết</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
                   </div>
                 </div>
-              </Link>
+              </div>
             </Reveal>
           ))}
         </div>
       </div>
+
+      {/* Landing Page Image Lightbox */}
+      <ImageLightboxModal
+        isOpen={lightboxState.isOpen}
+        images={lightboxState.images}
+        initialIndex={lightboxState.initialIndex}
+        title={lightboxState.title}
+        onClose={() => setLightboxState((prev) => ({ ...prev, isOpen: false }))}
+      />
     </section>
   )
 }

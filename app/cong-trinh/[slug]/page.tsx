@@ -4,63 +4,97 @@ import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingContact from '@/components/FloatingContact'
-import { supabase } from '@/lib/supabase'
+import { supabase, type Post } from '@/lib/supabase'
+import { SAMPLE_POSTS } from '@/lib/camera247-data'
 import { sanitizeHtml } from '@/lib/sanitizeHtml'
 import { MapPin, Calendar, ChevronLeft, Building, Camera, Phone } from 'lucide-react'
+import ProjectHeroBanner from '@/components/ProjectHeroBanner'
+import ProjectImageGallery from '@/components/ProjectImageGallery'
 
 export const revalidate = 60
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const { data } = await supabase.from('posts').select('title, excerpt').eq('slug', params.slug).single()
-  if (!data) return {}
+  let postTitle = ''
+  let postExcerpt = ''
+  try {
+    const { data } = await supabase.from('posts').select('title, excerpt').eq('slug', params.slug).single()
+    if (data) {
+      postTitle = data.title
+      postExcerpt = data.excerpt
+    }
+  } catch {
+    // fallback
+  }
+
+  if (!postTitle) {
+    const fallback = SAMPLE_POSTS.find((p) => p.slug === params.slug)
+    if (fallback) {
+      postTitle = fallback.title
+      postExcerpt = fallback.excerpt
+    }
+  }
+
+  if (!postTitle) return {}
   return {
-    title: `${data.title} - Camera 247 Huế`,
-    description: data.excerpt,
+    title: `${postTitle} - Camera 247 Huế`,
+    description: postExcerpt,
   }
 }
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
-  const { data: post } = await supabase
-    .from('posts')
-    .select('*, category:categories(*)')
-    .eq('slug', params.slug)
-    .eq('published', true)
-    .single()
+  let post: any = null
+  try {
+    const { data } = await supabase
+      .from('posts')
+      .select('*, category:categories(*)')
+      .eq('slug', params.slug)
+      .eq('published', true)
+      .single()
+    post = data
+  } catch {
+    // ignore
+  }
+
+  if (!post) {
+    post = SAMPLE_POSTS.find((p) => p.slug === params.slug)
+  }
 
   if (!post) notFound()
 
-  const { data: related } = await supabase
-    .from('posts')
-    .select('id, title, slug, cover_image, location, category:categories(name)')
-    .eq('published', true)
-    .eq('category_id', post.category_id)
-    .neq('id', post.id)
-    .limit(3)
+  let related: any[] = []
+  try {
+    const { data } = await supabase
+      .from('posts')
+      .select('id, title, slug, cover_image, location, category:categories(name)')
+      .eq('published', true)
+      .eq('category_id', post.category_id)
+      .neq('id', post.id)
+      .limit(3)
+    if (data) related = data
+  } catch {
+    // ignore
+  }
+
+  if (related.length === 0) {
+    related = SAMPLE_POSTS.filter((p) => p.id !== post.id && p.category_id === post.category_id).slice(0, 3)
+    if (related.length === 0) {
+      related = SAMPLE_POSTS.filter((p) => p.id !== post.id).slice(0, 3)
+    }
+  }
+
+  const categoryName = post.category?.name || 'Công Trình Thực Tế'
 
   return (
     <main>
       <Navbar />
       <div className="nav-offset">
-        <div className="relative h-52 sm:h-96 bg-brand-navy overflow-hidden">
-          {post.cover_image ? (
-            <Image src={post.cover_image} alt={post.title} fill className="object-cover" />
-          ) : (
-            <div className="absolute inset-0 bg-brand-navy flex items-center justify-center">
-              <Building className="w-16 h-16 text-white/15" />
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/50 to-transparent" />
-          <div className="absolute bottom-6 left-0 right-0 px-4 sm:px-8 max-w-5xl mx-auto">
-            {post.category && (
-              <div className="inline-block bg-brand-yellow text-brand-navy text-xs font-bold px-3 py-1 rounded-md mb-3">
-                {post.category.name}
-              </div>
-            )}
-            <h1 className="font-heading text-xl sm:text-4xl font-extrabold text-white max-w-3xl tracking-tight leading-snug">
-              {post.title}
-            </h1>
-          </div>
-        </div>
+        {/* Interactive Hero Banner with Lightbox Zoom */}
+        <ProjectHeroBanner
+          coverImage={post.cover_image}
+          images={post.images}
+          title={post.title}
+          categoryName={categoryName}
+        />
 
         <div className="max-w-5xl mx-auto px-5 sm:px-8 py-8 sm:py-10 pb-24 sm:pb-10">
           <Link
@@ -93,30 +127,13 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 )}
               </div>
 
-              {post.content && (
-                <div className="prose" dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }} />
-              )}
-
-              {post.images && post.images.length > 0 && (
-                <div className="mt-8">
-                  <h3 className="font-heading text-lg font-bold text-brand-navy mb-4">Hình ảnh công trình</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {post.images.map((img: string, i: number) => (
-                      <div
-                        key={i}
-                        className="aspect-video relative rounded-xl overflow-hidden bg-brand-soft border border-brand-border"
-                      >
-                        <Image
-                          src={img}
-                          alt={`${post.title} - ảnh ${i + 1}`}
-                          fill
-                          className="object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Interactive Image Gallery & Article HTML Content with image zoom popup */}
+              <ProjectImageGallery
+                coverImage={post.cover_image}
+                images={post.images}
+                title={post.title}
+                contentHtml={post.content ? sanitizeHtml(post.content) : undefined}
+              />
             </div>
 
             <div className="space-y-6">
@@ -127,7 +144,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 </p>
                 <a href="tel:0796785151" className="btn-accent w-full !text-sm mb-2">
                   <Phone className="w-4 h-4" />
-                  0796 785 151 (Tước)
+                  0796 785 151 (Tước - Kỹ thuật)
                 </a>
                 <a
                   href="https://zalo.me/0796785151"
@@ -143,7 +160,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 <div>
                   <h4 className="font-heading font-bold text-brand-navy mb-3 text-sm">Công trình liên quan</h4>
                   <div className="space-y-3">
-                    {related.map((r: { id: string; title: string; slug: string; cover_image?: string; location?: string }) => (
+                    {related.map((r: any) => (
                       <Link
                         key={r.id}
                         href={`/cong-trinh/${r.slug}`}
