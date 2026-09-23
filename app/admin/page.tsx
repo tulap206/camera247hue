@@ -21,6 +21,8 @@ import {
   getStoredLogs,
   saveStoredLogs,
   addAuditLog,
+  SAMPLE_POSTS,
+  SAMPLE_CATEGORIES,
 } from '@/lib/camera247-data'
 
 export default function AdminPage() {
@@ -29,8 +31,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
 
   // Data States
-  const [posts, setPosts] = useState<Post[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const [posts, setPosts] = useState<Post[]>(SAMPLE_POSTS as unknown as Post[])
+  const [categories, setCategories] = useState<Category[]>(SAMPLE_CATEGORIES as unknown as Category[])
   const [contacts, setContacts] = useState<ContactMessage[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
   const [orders, setOrders] = useState<InstallationOrder[]>([])
@@ -79,8 +81,8 @@ export default function AdminPage() {
       const res = await fetch('/api/admin/data')
       if (res.ok) {
         const data = await res.json()
-        if (Array.isArray(data.posts)) setPosts(data.posts)
-        if (Array.isArray(data.categories)) setCategories(data.categories)
+        if (Array.isArray(data.posts) && data.posts.length > 0) setPosts(data.posts)
+        if (Array.isArray(data.categories) && data.categories.length > 0) setCategories(data.categories)
         if (Array.isArray(data.contacts)) setContacts(data.contacts)
       }
     } catch (e) {
