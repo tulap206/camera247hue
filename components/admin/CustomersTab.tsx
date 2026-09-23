@@ -626,28 +626,38 @@ export function CustomersTab({
                       {/* Direct Contact Hub */}
                       <td className="py-4 px-4">
                         <div className="space-y-1" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center gap-2">
-                            <a
-                              href={`tel:${cust.phone.replace(/\s+/g, '')}`}
-                              className="font-mono font-semibold text-[#1D1D1F] hover:text-[#0071E3] inline-flex items-center gap-1 transition-colors"
-                              title="Bấm để gọi điện"
-                            >
-                              <Phone className="w-3 h-3 text-[#0071E3]" />
-                              {cust.phone}
-                            </a>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {cust.phone ? (
+                              <>
+                                <a
+                                  href={`tel:${cust.phone.replace(/\s+/g, '')}`}
+                                  className="font-mono font-semibold text-[#1D1D1F] hover:text-[#0071E3] inline-flex items-center gap-1 transition-colors text-xs"
+                                  title="Bấm để gọi điện"
+                                >
+                                  <Phone className="w-3 h-3 text-[#0071E3]" />
+                                  {cust.phone}
+                                </a>
 
-                            {cust.zalo && (
-                              <a
-                                href={`https://zalo.me/${cust.zalo.replace(/\s+/g, '')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-blue-50 text-[#0071E3] border border-blue-200 text-[10.5px] font-semibold hover:bg-[#0071E3] hover:text-white transition-all shadow-2xs"
-                                title="Mở Zalo nhắn tin trực tiếp"
-                              >
-                                💬 Zalo
-                              </a>
+                                {cust.zalo && (
+                                  <a
+                                    href={`https://zalo.me/${cust.zalo.replace(/\s+/g, '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-blue-50 text-[#0071E3] border border-blue-200 text-[10.5px] font-semibold hover:bg-[#0071E3] hover:text-white transition-all shadow-2xs"
+                                    title="Mở Zalo nhắn tin trực tiếp"
+                                  >
+                                    💬 Zalo
+                                  </a>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-slate-400 italic text-[11px] inline-flex items-center gap-1">
+                                <Phone className="w-3 h-3 text-slate-300" />
+                                Chưa cập nhật SĐT
+                              </span>
                             )}
                           </div>
+
 
                           {cust.phone_secondary && (
                             <p className="text-[11px] text-[#86868B] font-mono">

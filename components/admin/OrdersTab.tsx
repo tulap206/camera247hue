@@ -686,26 +686,36 @@ export function OrdersTab({
                           <p className="font-bold text-[#1D1D1F] group-hover:text-[#0071E3] transition-colors line-clamp-1 text-sm">
                             {ord.customer_name}
                           </p>
-                          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                            <a
-                              href={`tel:${ord.customer_phone.replace(/\s+/g, '')}`}
-                              className="font-mono font-medium text-[#1D1D1F] hover:text-[#0071E3] inline-flex items-center gap-1 transition-colors text-xs"
-                              title="Gọi điện cho khách hàng"
-                            >
-                              <Phone className="w-3 h-3 text-[#0071E3]" />
-                              {ord.customer_phone}
-                            </a>
+                          <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
+                            {ord.customer_phone ? (
+                              <>
+                                <a
+                                  href={`tel:${ord.customer_phone.replace(/\s+/g, '')}`}
+                                  className="font-mono font-medium text-[#1D1D1F] hover:text-[#0071E3] inline-flex items-center gap-1 transition-colors text-xs"
+                                  title="Gọi điện cho khách hàng"
+                                >
+                                  <Phone className="w-3 h-3 text-[#0071E3]" />
+                                  {ord.customer_phone}
+                                </a>
 
-                            <a
-                              href={`https://zalo.me/${ord.customer_phone.replace(/\s+/g, '')}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-blue-50 text-[#0071E3] border border-blue-200 hover:bg-[#0071E3] hover:text-white transition-all shadow-2xs"
-                              title="Chat Zalo với khách"
-                            >
-                              Zalo
-                            </a>
+                                <a
+                                  href={`https://zalo.me/${ord.customer_phone.replace(/\s+/g, '')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-blue-50 text-[#0071E3] border border-blue-200 hover:bg-[#0071E3] hover:text-white transition-all shadow-2xs"
+                                  title="Chat Zalo với khách"
+                                >
+                                  Zalo
+                                </a>
+                              </>
+                            ) : (
+                              <span className="text-slate-400 italic text-[11px] inline-flex items-center gap-1">
+                                <Phone className="w-3 h-3 text-slate-300" />
+                                Chưa cập nhật SĐT
+                              </span>
+                            )}
                           </div>
+
                           <p className="text-[11.5px] text-[#86868B] line-clamp-1 mt-0.5">
                             📍 {ord.customer_address}
                           </p>

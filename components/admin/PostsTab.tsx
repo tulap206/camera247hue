@@ -1012,18 +1012,32 @@ export function PostsTab({
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Bar for Table View */}
+          <PaginationControl
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredPosts.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            itemLabel="công trình"
+            onPageChange={(page) => setCurrentPage(page)}
+            className="rounded-t-none border-x-0 border-b-0 border-t bg-slate-50/50"
+          />
         </div>
       )}
 
-      {/* Pagination Bar with Page Numbers */}
-      <PaginationControl
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalItems={filteredPosts.length}
-        itemsPerPage={ITEMS_PER_PAGE}
-        itemLabel="công trình"
-        onPageChange={(page) => setCurrentPage(page)}
-      />
+      {/* Pagination Bar for Grid View */}
+      {viewMode === 'grid' && (
+        <PaginationControl
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredPosts.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          itemLabel="công trình"
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
+
 
 
       {/* Post Form Sheet Modal (Apple Sheet Style) */}
