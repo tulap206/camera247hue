@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   ClipboardList,
   Search,
@@ -117,6 +117,13 @@ export function OrdersTab({
     setFormError('')
     setIsModalOpen(true)
   }
+
+  // Auto-open create modal if initial customer is provided from Customer Tab
+  useEffect(() => {
+    if (initialNewOrderCustomer) {
+      openCreateModal(initialNewOrderCustomer)
+    }
+  }, [initialNewOrderCustomer])
 
   const openEditModal = (order: InstallationOrder) => {
     setEditingOrder(order)

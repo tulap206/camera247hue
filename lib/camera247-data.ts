@@ -6,14 +6,37 @@ export interface Customer {
   id: string
   name: string
   phone: string
+  phone_secondary?: string
+  zalo?: string
+  email?: string
   address: string
+  district?: string // 'TP. Huế (Trung tâm)' | 'KCN Phú Bài - Hương Thủy' | 'TX. Hương Trà' | 'Huyện Phú Vang' | 'Huyện Phú Lộc' | 'Huyện Phong Điền' | 'Khu vực khác'
   type: 'individual' | 'business'
+  tier?: 'standard' | 'vip' | 'potential'
+  tax_code?: string
   idcard?: string
   notes?: string
   total_orders?: number
   total_spent?: number
   created_at: string
+  updated_at?: string
 }
+
+export const HUE_DISTRICTS = [
+  'TP. Huế (Trung tâm)',
+  'KCN Phú Bài - Hương Thủy',
+  'TX. Hương Trà',
+  'Huyện Phú Vang',
+  'Huyện Phú Lộc',
+  'Huyện Phong Điền - Quảng Điền',
+  'Khu vực khác (TT. Huế)',
+] as const
+
+export const CUSTOMER_TIERS = {
+  standard: { label: 'Tiêu chuẩn', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
+  potential: { label: 'Tiềm năng', badgeClass: 'bg-blue-50 text-blue-700 border-blue-200' },
+  vip: { label: 'VIP ⭐', badgeClass: 'bg-amber-50 text-amber-800 border-amber-300 font-bold' },
+} as const
 
 export interface InstallationOrder {
   id: string
@@ -160,9 +183,15 @@ export const SAMPLE_CUSTOMERS: Customer[] = [
     id: 'cust-01',
     name: 'Khách sạn Hương Giang Riverside',
     phone: '0234 382 1222',
+    phone_secondary: '0913 421 888 (Quản lý)',
+    zalo: '0913421888',
+    email: 'contact@huonggianghotel.com.vn',
     address: '51 Lê Lợi, P. Phú Hội, TP. Huế',
+    district: 'TP. Huế (Trung tâm)',
     type: 'business',
-    notes: 'Hệ thống 32 Camera Dahua AI + Wifi Aruba chịu tải cao cho 8 tầng',
+    tier: 'vip',
+    tax_code: '3300101890',
+    notes: 'Hệ thống 32 Camera Dahua AI + Wifi Aruba chịu tải cao cho 8 tầng. Cần bảo dưỡng định kỳ 6 tháng/lần.',
     total_orders: 3,
     total_spent: 68500000,
     created_at: '2025-11-15T08:30:00Z',
@@ -171,8 +200,11 @@ export const SAMPLE_CUSTOMERS: Customer[] = [
     id: 'cust-02',
     name: 'Anh Hoàng Đình Long (Biệt thự An Cựu City)',
     phone: '0914 552 889',
+    zalo: '0914552889',
     address: 'Khu đô thị An Cựu City, P. An Đông, TP. Huế',
+    district: 'TP. Huế (Trung tâm)',
     type: 'individual',
+    tier: 'vip',
     notes: 'Lắp khóa vân tay cửa đại sảnh + 6 camera 4K Full Color chống ngược sáng',
     total_orders: 2,
     total_spent: 24800000,
@@ -182,9 +214,13 @@ export const SAMPLE_CUSTOMERS: Customer[] = [
     id: 'cust-03',
     name: 'Công ty CP Xây Dựng & TM Cố Đô',
     phone: '0905 123 789',
+    email: 'ketoan@codo-construction.vn',
     address: '124 Hùng Vương, P. Phú Nhuận, TP. Huế',
+    district: 'TP. Huế (Trung tâm)',
     type: 'business',
-    notes: 'Máy chấm công khuôn mặt FaceID + Camera văn phòng',
+    tier: 'standard',
+    tax_code: '3301556214',
+    notes: 'Máy chấm công khuôn mặt FaceID + Camera văn phòng. Đã xuất hóa đơn điện tử.',
     total_orders: 1,
     total_spent: 14200000,
     created_at: '2026-02-05T14:20:00Z',
@@ -193,8 +229,11 @@ export const SAMPLE_CUSTOMERS: Customer[] = [
     id: 'cust-04',
     name: 'Chị Mai Lan (Nhà hàng Cơm Niêu Phố Cổ)',
     phone: '0988 776 543',
+    zalo: '0988776543',
     address: '38 Nguyễn Thái Học, P. Phú Hội, TP. Huế',
+    district: 'TP. Huế (Trung tâm)',
     type: 'business',
+    tier: 'standard',
     notes: 'Camera thu âm quầy thu ngân + Wifi bán hàng Pos',
     total_orders: 2,
     total_spent: 18900000,
@@ -204,8 +243,11 @@ export const SAMPLE_CUSTOMERS: Customer[] = [
     id: 'cust-05',
     name: 'Bác Trần Văn Thịnh (Nhà phố Tây Lộc)',
     phone: '0935 441 223',
+    zalo: '0935441223',
     address: '89 Thái Phiên, P. Tây Lộc, TP. Huế',
+    district: 'TP. Huế (Trung tâm)',
     type: 'individual',
+    tier: 'potential',
     notes: 'Combo 4 mắt camera gia đình + báo động hồng ngoại',
     total_orders: 1,
     total_spent: 6500000,
@@ -215,8 +257,14 @@ export const SAMPLE_CUSTOMERS: Customer[] = [
     id: 'cust-06',
     name: 'Trường Mầm Non Họa Mi Huế',
     phone: '0234 352 9988',
+    phone_secondary: '0905 889 912 (Hiệu trưởng)',
+    zalo: '0905889912',
+    email: 'mamnonhoamihue@gmail.com',
     address: '15 Nguyễn Trãi, P. Thuận Hòa, TP. Huế',
+    district: 'TP. Huế (Trung tâm)',
     type: 'business',
+    tier: 'vip',
+    tax_code: '3301429811',
     notes: 'Hệ thống 16 camera giám sát lớp học cho phụ huynh xem trực tuyến',
     total_orders: 2,
     total_spent: 32000000,
@@ -226,9 +274,13 @@ export const SAMPLE_CUSTOMERS: Customer[] = [
     id: 'cust-07',
     name: 'Anh Nguyễn Hữu Đạt (Kho xưởng Hương Thủy)',
     phone: '0903 512 888',
+    zalo: '0903512888',
     address: 'KCN Phú Bài, TX. Hương Thủy, TT. Huế',
+    district: 'KCN Phú Bài - Hương Thủy',
     type: 'business',
-    notes: 'Camera PTZ quay quét 360 + Báo trộm rào chắn beam quang điện',
+    tier: 'vip',
+    tax_code: '3301684520',
+    notes: 'Camera PTZ quay quét 360 + Báo trộm rào chắn beam quang điện 100m',
     total_orders: 1,
     total_spent: 28500000,
     created_at: '2026-03-12T16:00:00Z',
