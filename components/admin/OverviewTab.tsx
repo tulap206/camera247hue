@@ -191,23 +191,31 @@ export function OverviewTab({
     }))
   }, [orders])
 
-  // Upcoming installations (orders in progress or pending)
-  const upcomingOrders = useMemo(() => {
-    return orders
-      .filter((o) => o.status === 'in_progress' || o.status === 'pending' || o.status === 'survey')
-      .slice(0, 5)
+  // Top service calculated dynamically
+  const topService = useMemo(() => {
+    const sorted = [...serviceDistribution].sort((a, b) => b.count - a.count)
+    return sorted[0]
+  }, [serviceDistribution])
+
+  // Upcoming installations (orders in progress or pending, or recent warranty/completed if none upcoming)
+  const displayOrders = useMemo(() => {
+    const upcoming = orders.filter((o) => o.status === 'in_progress' || o.status === 'pending' || o.status === 'survey')
+    if (upcoming.length > 0) {
+      return { list: upcoming.slice(0, 5), isUpcoming: true }
+    }
+    return { list: orders.slice(0, 5), isUpcoming: false }
   }, [orders])
 
   return (
     <div className="space-y-6 pb-12">
       {/* Apple Greeting Hero Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200/80 p-6 sm:p-7 rounded-3xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] relative overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200/80 p-5 sm:p-7 rounded-3xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] relative overflow-hidden">
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-[#0071E3] text-xs font-semibold mb-2.5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-[#0071E3] text-xs font-semibold mb-2">
             <Shield className="w-3.5 h-3.5" />
             Trung Tâm Điều Hành Camera 247 Huế
           </div>
-          <h1 className="text-2xl sm:text-[28px] font-bold text-[#1D1D1F] tracking-tight leading-snug">
+          <h1 className="text-xl sm:text-[26px] lg:text-[28px] font-bold text-[#1D1D1F] tracking-tight leading-snug">
             Tổng Quan Quản Lý & Thi Công
           </h1>
           <p className="text-xs sm:text-[13.5px] text-[#86868B] mt-1 max-w-xl leading-relaxed">
@@ -215,48 +223,53 @@ export function OverviewTab({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 relative z-10 shrink-0">
-          <button
-            onClick={() => setIsPrintModalOpen(true)}
-            className="flex items-center gap-2 bg-white hover:bg-slate-50 text-[#1D1D1F] px-3.5 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm border border-slate-200/80 shadow-2xs transition-all active:scale-[0.98]"
-            title="In Báo Cáo A4"
-          >
-            <Printer className="w-4 h-4 text-[#0071E3]" /> In Báo Cáo A4
-          </button>
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 relative z-10 shrink-0 w-full sm:w-auto">
           <button
             onClick={onOpenNewOrder}
-            className="flex items-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_10px_rgba(0,113,227,0.28)] transition-all active:scale-[0.98]"
+            className="col-span-2 sm:col-span-1 flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_10px_rgba(0,113,227,0.28)] transition-all active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" /> Tạo Đơn Mới
           </button>
           <button
             onClick={onOpenNewCustomer}
-            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm border border-slate-200/80 transition-all active:scale-[0.98]"
+            className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-[#1D1D1F] px-3.5 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm border border-slate-200/80 transition-all active:scale-[0.98]"
           >
             <Users className="w-4 h-4 text-[#86868B]" /> Thêm Khách
+          </button>
+          <button
+            onClick={() => setIsPrintModalOpen(true)}
+            className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#1D1D1F] px-3.5 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm border border-slate-200/80 shadow-2xs transition-all active:scale-[0.98]"
+            title="In Báo Cáo A4"
+          >
+            <Printer className="w-4 h-4 text-[#0071E3]" /> In Báo Cáo A4
           </button>
         </div>
       </div>
 
-      {/* Apple KPI 4 Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Apple KPI 4 Cards Grid - Responsive 2x2 on Mobile, 4 Cols on Desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Revenue */}
-        <div className="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-blue-200 transition-all group">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-wider">
+        <div className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-blue-200 transition-all group flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[#86868B] uppercase tracking-wider truncate">
               Tổng Giá Trị Thi Công
             </span>
-            <div className="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <DollarSign className="w-5 h-5" />
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-[26px] font-bold text-[#1D1D1F] tracking-tight font-tabular">
+          <div className="mt-2 sm:mt-3">
+            <div className="text-base sm:text-2xl lg:text-[24px] font-bold text-[#1D1D1F] tracking-tight font-tabular truncate">
               {formatVND(stats.totalRevenue)}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-emerald-600 mt-1 font-semibold">
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>Đã hoàn thành bàn giao & bảo hành</span>
+            <div className="flex items-center gap-1 text-[10.5px] sm:text-xs text-slate-500 mt-1 font-medium truncate">
+              {stats.totalRevenue > 0 ? (
+                <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" /> Đã hoàn thành bàn giao
+                </span>
+              ) : (
+                <span>Chờ cập nhật từ đơn hàng</span>
+              )}
             </div>
           </div>
         </div>
@@ -264,22 +277,22 @@ export function OverviewTab({
         {/* In progress orders */}
         <div
           onClick={() => onNavigateTab('orders')}
-          className="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-wider">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[#86868B] uppercase tracking-wider truncate">
               Đang Thi Công
             </span>
-            <div className="w-9 h-9 rounded-2xl bg-blue-50 text-[#0071E3] border border-blue-100 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Activity className="w-5 h-5" />
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-blue-50 text-[#0071E3] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Activity className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-[26px] font-bold text-[#0071E3] tracking-tight font-tabular">
-              {stats.inProgressCount} <span className="text-sm font-normal text-[#86868B]">công trình</span>
+          <div className="mt-2 sm:mt-3">
+            <div className="text-base sm:text-2xl lg:text-[24px] font-bold text-[#0071E3] tracking-tight font-tabular">
+              {stats.inProgressCount} <span className="text-xs sm:text-sm font-normal text-[#86868B]">công trình</span>
             </div>
-            <div className="text-xs text-[#86868B] mt-1 font-medium">
-              + {stats.pendingCount} đơn chờ khảo sát thi công
+            <div className="text-[10.5px] sm:text-xs text-[#86868B] mt-1 font-medium truncate">
+              + {stats.pendingCount} đơn chờ khảo sát
             </div>
           </div>
         </div>
@@ -287,22 +300,22 @@ export function OverviewTab({
         {/* Customers */}
         <div
           onClick={() => onNavigateTab('customers')}
-          className="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-amber-300 transition-all cursor-pointer group"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-amber-300 transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-wider">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[#86868B] uppercase tracking-wider truncate">
               Hồ Sơ Khách Hàng
             </span>
-            <div className="w-9 h-9 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Users className="w-5 h-5" />
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-[26px] font-bold text-[#1D1D1F] tracking-tight font-tabular">
-              {stats.customerCount} <span className="text-sm font-normal text-[#86868B]">khách hàng</span>
+          <div className="mt-2 sm:mt-3">
+            <div className="text-base sm:text-2xl lg:text-[24px] font-bold text-[#1D1D1F] tracking-tight font-tabular">
+              {stats.customerCount} <span className="text-xs sm:text-sm font-normal text-[#86868B]">khách hàng</span>
             </div>
-            <div className="text-xs text-amber-600 mt-1 font-medium">
-              Khách sạn, gia đình & doanh nghiệp
+            <div className="text-[10.5px] sm:text-xs text-amber-600 mt-1 font-medium truncate">
+              Gia đình & doanh nghiệp
             </div>
           </div>
         </div>
@@ -310,57 +323,53 @@ export function OverviewTab({
         {/* Active Warranties */}
         <div
           onClick={() => onNavigateTab('orders')}
-          className="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer group"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-wider">
-              Hệ Thống Đang Bảo Hành
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[#86868B] uppercase tracking-wider truncate">
+              Đang Bảo Hành
             </span>
-            <div className="w-9 h-9 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <ShieldCheck className="w-5 h-5" />
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-[26px] font-bold text-purple-600 tracking-tight font-tabular">
-              {stats.warrantyCount} <span className="text-sm font-normal text-[#86868B]">hệ thống</span>
+          <div className="mt-2 sm:mt-3">
+            <div className="text-base sm:text-2xl lg:text-[24px] font-bold text-purple-600 tracking-tight font-tabular">
+              {stats.warrantyCount} <span className="text-xs sm:text-sm font-normal text-[#86868B]">hệ thống</span>
             </div>
-            <div className="text-xs text-[#86868B] mt-1 font-medium">
-              Bảo hành 12 - 24 tháng tận nơi tại Huế
+            <div className="text-[10.5px] sm:text-xs text-[#86868B] mt-1 font-medium truncate">
+              Bảo hành 12 - 24 tháng
             </div>
           </div>
         </div>
       </div>
 
       {/* Leads Action Center (Yêu Cầu Tư Vấn Mới Từ Landing Page) */}
-      <div className="bg-white border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-[0_2px_12px_rgba(245,197,24,0.08)] relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-700 flex items-center justify-center shrink-0">
-              <MessageSquare className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-[#1D1D1F]">
-                  Yêu Cầu Tư Vấn & Khảo Sát Từ Website
-                </h3>
-                {stats.unreadLeadsCount > 0 && (
-                  <span className="text-[11px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full animate-pulse">
-                    {stats.unreadLeadsCount} mới
-                  </span>
-                )}
+      {contacts.length > 0 ? (
+        <div className="bg-white border border-amber-200/90 rounded-3xl p-5 sm:p-7 shadow-[0_2px_12px_rgba(245,197,24,0.08)] relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-700 flex items-center justify-center shrink-0">
+                <MessageSquare className="w-5 h-5" />
               </div>
-              <p className="text-xs text-[#86868B] mt-0.5">
-                Khách hàng điền biểu mẫu tư vấn trực tiếp từ trang chủ
-              </p>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-[#1D1D1F]">
+                    Yêu Cầu Tư Vấn & Khảo Sát Từ Website
+                  </h3>
+                  {stats.unreadLeadsCount > 0 && (
+                    <span className="text-[11px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full animate-pulse">
+                      {stats.unreadLeadsCount} mới
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#86868B] mt-0.5">
+                  Khách hàng điền biểu mẫu tư vấn trực tiếp từ trang chủ
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {contacts.length === 0 ? (
-          <div className="py-8 text-center text-[#86868B] text-xs bg-slate-50/60 rounded-2xl border border-dashed border-slate-200">
-            Chưa có yêu cầu tư vấn mới nào từ trang chủ.
-          </div>
-        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
             {contacts.slice(0, 6).map((lead) => (
               <div
@@ -443,13 +452,32 @@ export function OverviewTab({
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100 text-[#0071E3] flex items-center justify-center shrink-0">
+              <MessageSquare className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-[#1D1D1F]">
+                Yêu Cầu Tư Vấn & Khảo Sát Từ Website
+              </h3>
+              <p className="text-[11px] sm:text-xs text-[#86868B] mt-0.5">
+                Chưa có yêu cầu mới nào từ form liên hệ trang chủ · Sẵn sàng tiếp nhận tự động.
+              </p>
+            </div>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 shrink-0">
+            <Check className="w-3 h-3" /> Đang hoạt động
+          </span>
+        </div>
+      )}
 
       {/* Apple Charts & Distribution Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* 12-Month Revenue Chart */}
-        <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+        <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
             <div>
               <h3 className="text-base font-bold text-[#1D1D1F] flex items-center gap-2">
@@ -460,13 +488,13 @@ export function OverviewTab({
                 Doanh số lắp đặt camera, khóa cửa và mạng wifi theo tháng
               </p>
             </div>
-            <div className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80 self-start">
-              +35% Tăng trưởng tháng 3
+            <div className="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 self-start">
+              {stats.totalRevenue > 0 ? `Tổng: ${formatVND(stats.totalRevenue)}` : 'Dữ liệu thời gian thực'}
             </div>
           </div>
 
           {/* Clean Apple Bar Chart */}
-          <div className="h-56 flex items-end gap-2 sm:gap-3.5 pt-6 pb-2 px-1 border-b border-slate-100">
+          <div className="h-52 sm:h-56 flex items-end gap-1 sm:gap-3 pt-6 pb-2 px-1 border-b border-slate-100">
             {monthlyData.map((item, idx) => (
               <div key={idx} className="flex-1 flex flex-col items-center h-full justify-end group relative">
                 {/* Tooltip */}
@@ -474,7 +502,7 @@ export function OverviewTab({
                   {item.name}: {formatVND(item.value)}
                 </div>
 
-                <div className="w-full bg-slate-100 rounded-t-xl relative flex items-end justify-center overflow-hidden h-full max-w-[34px]">
+                <div className="w-full bg-slate-100/70 rounded-t-xl relative flex items-end justify-center overflow-hidden h-full max-w-[34px]">
                   <div
                     style={{ height: `${item.value > 0 ? Math.max(item.percent, 8) : 0}%` }}
                     className={`w-full rounded-t-xl transition-all duration-500 ${
@@ -484,21 +512,23 @@ export function OverviewTab({
                     }`}
                   />
                 </div>
-                <span className="text-[11px] font-medium text-[#86868B] mt-2 group-hover:text-[#1D1D1F]">
+                <span className="text-[10px] sm:text-[11px] font-medium text-[#86868B] mt-2 group-hover:text-[#1D1D1F]">
                   {item.short}
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="flex items-center justify-between text-xs text-[#86868B] mt-4 pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs text-[#86868B] mt-4 pt-1">
             <span>Tổng quý 1/2026: <strong className="text-[#1D1D1F]">{formatVND(q1Revenue)}</strong></span>
-            <span className="text-[11px] text-[#0071E3] font-semibold">Camera 247 Huế · Hoàn thành chỉ tiêu Q1</span>
+            <span className="text-[11px] text-[#0071E3] font-semibold">
+              {stats.totalRevenue > 0 ? 'Camera 247 Huế · Hoàn thành bàn giao' : 'Camera 247 Huế · Cập nhật theo giá trị đơn hàng thực tế'}
+            </span>
           </div>
         </div>
 
         {/* Services Distribution */}
-        <div className="lg:col-span-4 bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
             <h3 className="text-base font-bold text-[#1D1D1F] flex items-center gap-2 mb-1">
               <Shield className="w-4 h-4 text-[#0071E3]" />
@@ -536,45 +566,50 @@ export function OverviewTab({
 
           <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
             <span className="text-[#86868B]">Dịch vụ chủ lực:</span>
-            <span className="font-bold text-[#0071E3]">Camera AI & Khóa vân tay</span>
+            <span className="font-bold text-[#0071E3]">
+              {topService && topService.count > 0 ? `${topService.name} (${topService.percent}%)` : 'Camera Quan Sát / AI'}
+            </span>
           </div>
         </div>
       </div>
 
       {/* Upcoming Orders & Audit Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Upcoming installation schedule */}
-        <div className="lg:col-span-7 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+        {/* Installation schedule / Recent projects */}
+        <div className="lg:col-span-7 bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-bold text-[#1D1D1F] flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-[#0071E3]" />
-                Lịch Khảo Sát & Thi Công Gần Nhất
+                {displayOrders.isUpcoming ? 'Lịch Khảo Sát & Thi Công Gần Nhất' : 'Công Trình Đang Quản Lý & Bảo Hành'}
               </h3>
               <p className="text-xs text-[#86868B] mt-0.5">
-                Các công trình đang triển khai và chuẩn bị thi công tại Huế
+                {displayOrders.isUpcoming
+                  ? 'Các công trình đang triển khai và chuẩn bị thi công tại Huế'
+                  : 'Hệ thống thiết bị an ninh đã bàn giao tại Thừa Thiên Huế'}
               </p>
             </div>
             <button
               onClick={() => onNavigateTab('orders')}
-              className="text-xs text-[#0071E3] hover:text-[#0077ED] font-semibold flex items-center gap-1"
+              className="text-xs text-[#0071E3] hover:text-[#0077ED] font-semibold flex items-center gap-1 shrink-0"
             >
               Xem tất cả <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <div className="space-y-3">
-            {upcomingOrders.length === 0 ? (
+            {displayOrders.list.length === 0 ? (
               <div className="py-8 text-center text-[#86868B] text-xs">
-                Không có đơn hàng nào đang chờ thi công.
+                Chưa có dữ liệu đơn hàng.
               </div>
             ) : (
-              upcomingOrders.map((order) => {
+              displayOrders.list.map((order) => {
+                const statusInfo = ORDER_STATUS_CONFIG[order.status] || { label: order.status, badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' }
                 return (
                   <div
                     key={order.id}
                     onClick={() => onNavigateTab('orders')}
-                    className="p-4 bg-slate-50/80 hover:bg-blue-50/40 border border-slate-200/60 hover:border-blue-200 rounded-2xl transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                    className="p-3.5 sm:p-4 bg-slate-50/80 hover:bg-blue-50/40 border border-slate-200/60 hover:border-blue-200 rounded-2xl transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 group"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -585,25 +620,25 @@ export function OverviewTab({
                           {order.customer_name}
                         </span>
                         <span
-                          className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border bg-white text-slate-700 border-slate-200 shadow-2xs`}
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${statusInfo.badgeClass}`}
                         >
-                          {order.status === 'in_progress' ? 'Đang thi công' : 'Chờ thi công'}
+                          {statusInfo.label}
                         </span>
                       </div>
                       <p className="text-[11.5px] text-[#86868B] truncate">
-                        📍 {order.customer_address}
+                        📍 {order.customer_address || 'TP. Huế'}
                       </p>
                       <p className="text-[11px] text-[#6E6E73] mt-0.5 truncate">
                         ⚙️ {order.equipment_list}
                       </p>
                     </div>
 
-                    <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200/60">
+                    <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200/60 flex sm:flex-col items-center sm:items-end justify-between">
                       <div className="font-bold text-xs text-[#1D1D1F] font-tabular">
-                        {formatVND(order.total_amount)}
+                        {order.total_amount > 0 ? formatVND(order.total_amount) : 'Chưa định giá'}
                       </div>
-                      <div className="text-[11px] text-[#86868B] mt-0.5">
-                        Thi công: {order.installation_date || 'Chưa định ngày'}
+                      <div className="text-[11px] text-[#86868B] sm:mt-0.5">
+                        {order.installation_date ? `Ngày: ${order.installation_date}` : 'Chưa định ngày'}
                       </div>
                     </div>
                   </div>
@@ -614,7 +649,7 @@ export function OverviewTab({
         </div>
 
         {/* Recent Audit & Activity Log */}
-        <div className="lg:col-span-5 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+        <div className="lg:col-span-5 bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-bold text-[#1D1D1F] flex items-center gap-2">
@@ -627,7 +662,7 @@ export function OverviewTab({
             </div>
             <button
               onClick={() => onNavigateTab('access-history')}
-              className="text-xs text-[#0071E3] hover:text-[#0077ED] font-semibold flex items-center gap-1"
+              className="text-xs text-[#0071E3] hover:text-[#0077ED] font-semibold flex items-center gap-1 shrink-0"
             >
               Xem đầy đủ <ChevronRight className="w-3.5 h-3.5" />
             </button>
@@ -660,7 +695,6 @@ export function OverviewTab({
           </div>
         </div>
       </div>
-
       {/* A4 Executive Report Print Modal */}
       {isPrintModalOpen && (
         <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">

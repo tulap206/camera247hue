@@ -179,8 +179,6 @@ export async function POST(request: Request) {
       if (/báo động|chống trộm/i.test(textToScan)) services.push('alarm')
       if (services.length === 0) services.push('camera')
 
-      const contractAmount = estimateOrderAmount(p.title, clientName, services)
-
       const custRecord = {
         name: safeText(clientName, 255),
         phone: phone ? safeText(phone, 50) : '',
@@ -195,7 +193,7 @@ export async function POST(request: Request) {
         idcard: null,
         notes: safeText(`Khách hàng từ bài viết công trình: ${p.title}`, 1000),
         total_orders: 1,
-        total_spent: contractAmount,
+        total_spent: 0,
         created_at: p.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
@@ -238,8 +236,8 @@ export async function POST(request: Request) {
         completion_date: completedDateStr,
         warranty_months: 24,
         warranty_until: warrantyUntilStr,
-        total_amount: contractAmount,
-        deposit_amount: Math.round(contractAmount * 0.3),
+        total_amount: 0,
+        deposit_amount: 0,
         status: 'warranty',
         technician: 'Phan Lê Tự Lập & Phạm Bá Tước',
         notes: safeText(`Công trình: ${p.title} (${p.slug})`, 1000),
