@@ -101,6 +101,9 @@ export default function AdminPage() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => fetchAllData(false))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => fetchAllData(false))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'contact_messages' }, () => fetchAllData(false))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, () => fetchAllData(false))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'installation_orders' }, () => fetchAllData(false))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'access_logs' }, () => fetchAllData(false))
       .subscribe()
 
     return () => {
@@ -117,6 +120,18 @@ export default function AdminPage() {
         if (Array.isArray(data.posts) && data.posts.length > 0) setPosts(data.posts)
         if (Array.isArray(data.categories) && data.categories.length > 0) setCategories(data.categories)
         if (Array.isArray(data.contacts)) setContacts(data.contacts)
+        if (Array.isArray(data.customers) && data.customers.length > 0) {
+          setCustomers(data.customers)
+          saveStoredCustomers(data.customers)
+        }
+        if (Array.isArray(data.orders) && data.orders.length > 0) {
+          setOrders(data.orders)
+          saveStoredOrders(data.orders)
+        }
+        if (Array.isArray(data.logs) && data.logs.length > 0) {
+          setLogs(data.logs)
+          saveStoredLogs(data.logs)
+        }
       }
     } catch (e) {
       console.error('Failed to fetch server data:', e)
@@ -261,7 +276,21 @@ export default function AdminPage() {
   }
 
   // ========== CUSTOMER HANDLERS ==========
-  const handleSaveCustomer = (customerData: Partial<Customer> & { id?: string }) => {
+  const handleSaveCustomer = async (customerData: Partial<Customer> & { id?: string }) => {
+    const isEditing = Boolean(customerData.id)
+    try {
+      const res = await fetch('/api/customers', {
+        method: isEditing ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customerData),
+      })
+      if (res.ok) {
+        fetchAllData(false)
+      }
+    } catch (e) {
+      console.error('Save customer error:', e)
+    }
+
     setCustomers((prev) => {
       let next: Customer[]
       if (customerData.id) {
@@ -313,7 +342,13 @@ export default function AdminPage() {
     setLogs(getStoredLogs())
   }
 
-  const handleDeleteCustomer = (id: string) => {
+  const handleDeleteCustomer = async (id: string) => {
+    try {
+      await fetch(`/api/customers?id=${id}`, { method: 'DELETE' })
+    } catch (e) {
+      console.error('Delete customer error:', e)
+    }
+
     setCustomers((prev) => {
       const target = prev.find((c) => c.id === id)
       const next = prev.filter((c) => c.id !== id)
@@ -333,7 +368,21 @@ export default function AdminPage() {
   }
 
   // ========== ORDER HANDLERS ==========
-  const handleSaveOrder = (orderData: Partial<InstallationOrder> & { id?: string }) => {
+  const handleSaveOrder = async (orderData: Partial<InstallationOrder> & { id?: string }) => {
+    const isEditing = Boolean(orderData.id)
+    try {
+      const res = await fetch('/api/orders', {
+        method: isEditing ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      })
+      if (res.ok) {
+        fetchAllData(false)
+      }
+    } catch (e) {
+      console.error('Save order error:', e)
+    }
+
     setOrders((prev) => {
       let next: InstallationOrder[]
       if (orderData.id) {
@@ -389,7 +438,13 @@ export default function AdminPage() {
     setLogs(getStoredLogs())
   }
 
-  const handleDeleteOrder = (id: string) => {
+  const handleDeleteOrder = async (id: string) => {
+    try {
+      await fetch(`/api/orders?id=${id}`, { method: 'DELETE' })
+    } catch (e) {
+      console.error('Delete order error:', e)
+    }
+
     setOrders((prev) => {
       const target = prev.find((o) => o.id === id)
       const next = prev.filter((o) => o.id !== id)

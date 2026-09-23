@@ -779,6 +779,17 @@ export function addAuditLog(
   }
   const updated = [newLog, ...current].slice(0, 200)
   saveStoredLogs(updated)
+
+  // Asynchronously send to Supabase logs API
+  try {
+    fetch('/api/logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newLog),
+    }).catch(() => {})
+  } catch {
+    // ignore
+  }
 }
 
 export function clearStoredLogs() {
