@@ -20,10 +20,11 @@ import {
   ChevronRight,
   Sparkles,
   Search,
+  CalendarCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export type AdminTab = 'overview' | 'customers' | 'orders' | 'posts' | 'access-history' | 'settings'
+export type AdminTab = 'overview' | 'tasks' | 'customers' | 'orders' | 'posts' | 'access-history' | 'settings'
 
 interface AdminSidebarProps {
   currentTab: AdminTab
@@ -33,6 +34,7 @@ interface AdminSidebarProps {
   activeUser?: 'admin' | 'admin1'
   activeDisplayName?: string
   counts?: {
+    tasks?: number
     customers: number
     orders: number
     inProgressOrders: number
@@ -43,6 +45,7 @@ interface AdminSidebarProps {
 
 const MENU_ITEMS = [
   { id: 'overview' as AdminTab, label: 'Tổng quan', icon: LayoutDashboard, badgeKey: null },
+  { id: 'tasks' as AdminTab, label: 'Nhắc việc', icon: CalendarCheck, badgeKey: 'tasks' },
   { id: 'customers' as AdminTab, label: 'Khách hàng', icon: Users, badgeKey: 'customers' },
   { id: 'orders' as AdminTab, label: 'Đơn hàng', icon: ClipboardList, badgeKey: 'orders' },
   { id: 'posts' as AdminTab, label: 'Bài viết', icon: FileText, badgeKey: 'posts' },

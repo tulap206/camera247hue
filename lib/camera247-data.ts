@@ -95,6 +95,96 @@ export interface InstallationOrder {
   updated_at?: string
 }
 
+export interface AdminTask {
+  id: string
+  title: string
+  date: string // YYYY-MM-DD
+  time?: string // HH:mm
+  type: 'installation' | 'warranty' | 'survey' | 'payment' | 'custom'
+  priority: 'urgent' | 'high' | 'normal'
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
+  assigned_to: 'admin' | 'admin1' | 'all'
+  assigned_name: string
+  customer_id?: string
+  customer_name?: string
+  customer_phone?: string
+  customer_address?: string
+  order_id?: string
+  order_code?: string
+  services?: string[]
+  notes?: string
+  is_auto_generated?: boolean
+  created_at: string
+  completed_at?: string
+}
+
+export const TASK_TYPE_CONFIG = {
+  installation: {
+    label: 'Thi công / Lắp đặt',
+    emoji: '📷',
+    badgeBg: 'bg-blue-50',
+    badgeText: 'text-[#0071E3]',
+    badgeBorder: 'border-blue-200',
+    dotColor: 'bg-[#0071E3]',
+  },
+  warranty: {
+    label: 'Bảo hành / Bảo trì',
+    emoji: '🛠️',
+    badgeBg: 'bg-purple-50',
+    badgeText: 'text-purple-700',
+    badgeBorder: 'border-purple-200',
+    dotColor: 'bg-purple-500',
+  },
+  survey: {
+    label: 'Khảo sát & Báo giá',
+    emoji: '📐',
+    badgeBg: 'bg-amber-50',
+    badgeText: 'text-amber-800',
+    badgeBorder: 'border-amber-200',
+    dotColor: 'bg-amber-500',
+  },
+  payment: {
+    label: 'Thu tiền / Quyết toán',
+    emoji: '💰',
+    badgeBg: 'bg-emerald-50',
+    badgeText: 'text-emerald-800',
+    badgeBorder: 'border-emerald-200',
+    dotColor: 'bg-emerald-500',
+  },
+  custom: {
+    label: 'Việc nội bộ & Đối tác',
+    emoji: '📌',
+    badgeBg: 'bg-slate-100',
+    badgeText: 'text-[#1D1D1F]',
+    badgeBorder: 'border-slate-200',
+    dotColor: 'bg-slate-500',
+  },
+} as const
+
+export const TASK_PRIORITY_CONFIG = {
+  urgent: {
+    label: 'Khẩn cấp',
+    badgeBg: 'bg-rose-50',
+    badgeText: 'text-rose-700',
+    badgeBorder: 'border-rose-200',
+    dotColor: 'bg-rose-500',
+  },
+  high: {
+    label: 'Quan trọng',
+    badgeBg: 'bg-amber-50',
+    badgeText: 'text-amber-700',
+    badgeBorder: 'border-amber-200',
+    dotColor: 'bg-amber-500',
+  },
+  normal: {
+    label: 'Tiêu chuẩn',
+    badgeBg: 'bg-slate-100',
+    badgeText: 'text-slate-700',
+    badgeBorder: 'border-slate-200',
+    dotColor: 'bg-slate-400',
+  },
+} as const
+
 export interface AccessLog {
   id: string
   username: string
@@ -662,6 +752,166 @@ export function saveStoredCloudBackups(backups: CloudBackup[]) {
   } catch (e) {
     console.error('Error saving stored cloud backups', e)
   }
+}
+
+const LOCAL_STORAGE_KEY_TASKS = 'c247_admin_tasks_v1'
+
+export const SAMPLE_TASKS: AdminTask[] = []
+
+export function getStoredTasks(): AdminTask[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY_TASKS)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch (e) {
+    console.error('Error loading stored tasks', e)
+  }
+  return []
+}
+
+export function saveStoredTasks(tasks: AdminTask[]) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY_TASKS, JSON.stringify(tasks))
+  } catch (e) {
+    console.error('Error saving stored tasks', e)
+  }
+}
+
+/**
+ * Standardize date format to YYYY-MM-DD
+ */
+export function normalizeDateStr(dateStr?: string): string {
+  if (!dateStr) return new Date().toISOString().split('T')[0]
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr)) {
+    const [d, m, y] = dateStr.split('/')
+    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`
+  }
+  return new Date().toISOString().split('T')[0]
+}
+
+/**
+ * Auto-generate linked tasks from Orders and merge with custom tasks
+ */
+export function buildUnifiedTaskList(orders: InstallationOrder[], customTasks: AdminTask[]): AdminTask[] {
+  const orderTasks: AdminTask[] = []
+
+  orders.forEach((order) => {
+    const baseDate = normalizeDateStr(order.installation_date || order.created_at)
+
+    // 1. Survey task for survey orders
+    if (order.status === 'survey') {
+      orderTasks.push({
+        id: `auto-survey-${order.id}`,
+        title: `Khảo sát & Lên phương án: ${order.customer_name}`,
+        date: baseDate,
+        time: '08:30',
+        type: 'survey',
+        priority: 'high',
+        status: 'pending',
+        assigned_to: (order.technician?.toLowerCase().includes('tước') ? 'admin1' : 'admin'),
+        assigned_name: order.technician || 'Quản trị viên (Lập)',
+        customer_id: order.customer_id,
+        customer_name: order.customer_name,
+        customer_phone: order.customer_phone,
+        customer_address: order.customer_address,
+        order_id: order.id,
+        order_code: order.order_code,
+        services: order.services,
+        notes: `Khảo sát thực địa và tư vấn phương án kỹ thuật cho khách hàng. Thiết bị dự kiến: ${order.equipment_list || 'Hệ thống camera/khóa'}`,
+        is_auto_generated: true,
+        created_at: order.created_at || new Date().toISOString(),
+      })
+    }
+
+    // 2. Installation task for pending / in_progress orders
+    if (order.status === 'pending' || order.status === 'in_progress') {
+      orderTasks.push({
+        id: `auto-inst-${order.id}`,
+        title: `Thi công lắp đặt: ${order.customer_name} (${order.order_code})`,
+        date: baseDate,
+        time: '09:00',
+        type: 'installation',
+        priority: order.status === 'in_progress' ? 'urgent' : 'high',
+        status: order.status === 'in_progress' ? 'in_progress' : 'pending',
+        assigned_to: (order.technician?.toLowerCase().includes('tước') ? 'admin1' : 'admin'),
+        assigned_name: order.technician || 'Quản trị viên (Lập)',
+        customer_id: order.customer_id,
+        customer_name: order.customer_name,
+        customer_phone: order.customer_phone,
+        customer_address: order.customer_address,
+        order_id: order.id,
+        order_code: order.order_code,
+        services: order.services,
+        notes: `Thi công hệ thống thiết bị an ninh: ${order.equipment_list || 'Camera & phụ kiện'}. Địa chỉ: ${order.customer_address}`,
+        is_auto_generated: true,
+        created_at: order.created_at || new Date().toISOString(),
+      })
+    }
+
+    // 3. Warranty task for warranty orders
+    if (order.status === 'warranty') {
+      orderTasks.push({
+        id: `auto-warr-${order.id}`,
+        title: `Bảo hành / Kiểm tra kỹ thuật: ${order.customer_name}`,
+        date: baseDate,
+        time: '14:00',
+        type: 'warranty',
+        priority: 'urgent',
+        status: 'in_progress',
+        assigned_to: (order.technician?.toLowerCase().includes('tước') ? 'admin1' : 'admin'),
+        assigned_name: order.technician || 'Quản trị viên (Lập)',
+        customer_id: order.customer_id,
+        customer_name: order.customer_name,
+        customer_phone: order.customer_phone,
+        customer_address: order.customer_address,
+        order_id: order.id,
+        order_code: order.order_code,
+        services: order.services,
+        notes: `Kiểm tra bảo hành thiết bị định kỳ hoặc theo yêu cầu khách hàng. Thời hạn bảo hành đến: ${order.warranty_until || '24 tháng'}`,
+        is_auto_generated: true,
+        created_at: order.created_at || new Date().toISOString(),
+      })
+    }
+
+    // 4. Payment collection task if completed but pending balance
+    if (order.status === 'completed' && order.total_amount > 0 && order.deposit_amount < order.total_amount) {
+      orderTasks.push({
+        id: `auto-pay-${order.id}`,
+        title: `Thu hồi công nợ: ${order.customer_name} (Còn ${(order.total_amount - order.deposit_amount).toLocaleString('vi-VN')}đ)`,
+        date: normalizeDateStr(order.completion_date || order.installation_date || order.created_at),
+        time: '16:00',
+        type: 'payment',
+        priority: 'normal',
+        status: 'pending',
+        assigned_to: 'admin',
+        assigned_name: 'Quản trị viên (Lập)',
+        customer_id: order.customer_id,
+        customer_name: order.customer_name,
+        customer_phone: order.customer_phone,
+        customer_address: order.customer_address,
+        order_id: order.id,
+        order_code: order.order_code,
+        services: order.services,
+        notes: `Thu hồi khoản tiền còn lại sau khi bàn giao nghiệm thu công trình. Tổng: ${order.total_amount.toLocaleString('vi-VN')}đ, Đã cọc: ${order.deposit_amount.toLocaleString('vi-VN')}đ.`,
+        is_auto_generated: true,
+        created_at: order.created_at || new Date().toISOString(),
+      })
+    }
+  })
+
+  // Combine custom tasks (preserving custom edits) and sort by date desc
+  const allMap = new Map<string, AdminTask>()
+  orderTasks.forEach((t) => allMap.set(t.id, t))
+  customTasks.forEach((t) => allMap.set(t.id, t))
+
+  return Array.from(allMap.values()).sort((a, b) => {
+    return new Date(`${b.date}T${b.time || '00:00'}`).getTime() - new Date(`${a.date}T${a.time || '00:00'}`).getTime()
+  })
 }
 
 

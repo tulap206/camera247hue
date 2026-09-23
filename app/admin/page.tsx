@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase, type Post, type Category, type ContactMessage } from '@/lib/supabase'
 import { AdminSidebar, type AdminTab } from '@/components/admin/AdminSidebar'
 import { OverviewTab } from '@/components/admin/OverviewTab'
+import { TasksTab } from '@/components/admin/TasksTab'
 import { CustomersTab } from '@/components/admin/CustomersTab'
 import { OrdersTab } from '@/components/admin/OrdersTab'
 import { PostsTab } from '@/components/admin/PostsTab'
@@ -15,12 +16,16 @@ import {
   type Customer,
   type InstallationOrder,
   type AccessLog,
+  type AdminTask,
   getStoredCustomers,
   saveStoredCustomers,
   getStoredOrders,
   saveStoredOrders,
   getStoredLogs,
   saveStoredLogs,
+  getStoredTasks,
+  saveStoredTasks,
+  buildUnifiedTaskList,
   addAuditLog,
   clearStoredLogs,
   resetAllToDefaultSamples,
@@ -28,7 +33,7 @@ import {
   SAMPLE_CATEGORIES,
 } from '@/lib/camera247-data'
 
-const VALID_TABS: AdminTab[] = ['overview', 'customers', 'orders', 'posts', 'access-history', 'settings']
+const VALID_TABS: AdminTab[] = ['overview', 'tasks', 'customers', 'orders', 'posts', 'access-history', 'settings']
 
 export default function AdminPage() {
   const router = useRouter()
@@ -81,6 +86,12 @@ export default function AdminPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [orders, setOrders] = useState<InstallationOrder[]>([])
   const [logs, setLogs] = useState<AccessLog[]>([])
+  const [customTasks, setCustomTasks] = useState<AdminTask[]>([])
+
+  // Unified task list automatically synchronizing tasks from orders with custom tasks
+  const unifiedTasks = useMemo(() => {
+    return buildUnifiedTaskList(orders, customTasks)
+  }, [orders, customTasks])
 
   // State to pass prefilled customer / lead to order or customer form
   const [prefilledCustomerForOrder, setPrefilledCustomerForOrder] = useState<Customer | null>(null)
@@ -125,6 +136,7 @@ export default function AdminPage() {
     setCustomers(getStoredCustomers())
     setOrders(getStoredOrders())
     setLogs(getStoredLogs())
+    setCustomTasks(getStoredTasks())
 
     // 3. Fetch from server/supabase
     fetchAllData()
@@ -307,6 +319,90 @@ export default function AdminPage() {
     // 3. Set prefill customer and switch to orders tab
     setPrefilledCustomerForOrder(cust)
     handleTabChange('orders')
+  }
+
+  // ========== TASKS & CALENDAR HANDLERS ==========
+  const handleSaveTask = (task: AdminTask) => {
+    setCustomTasks((prev) => {
+      const idx = prev.findIndex((t) => t.id === task.id)
+      let next: AdminTask[]
+      if (idx >= 0) {
+        next = prev.map((t) => (t.id === task.id ? task : t))
+      } else {
+        next = [task, ...prev]
+      }
+      saveStoredTasks(next)
+      return next
+    })
+
+    addAuditLog(
+      currentUser,
+      currentDisplayName,
+      'Cập nhật',
+      'Nhắc việc & Lịch điều hành',
+      `Lưu công việc: ${task.title} (Ngày: ${task.date})`
+    )
+    setLogs(getStoredLogs())
+  }
+
+  const handleToggleTaskStatus = (taskId: string, newStatus?: AdminTask['status']) => {
+    const existing = unifiedTasks.find((t) => t.id === taskId)
+    if (!existing) return
+
+    const targetStatus: AdminTask['status'] =
+      newStatus || (existing.status === 'completed' ? 'pending' : 'completed')
+
+    const updatedTask: AdminTask = {
+      ...existing,
+      status: targetStatus,
+    }
+
+    setCustomTasks((prev) => {
+      const idx = prev.findIndex((t) => t.id === taskId)
+      let next: AdminTask[]
+      if (idx >= 0) {
+        next = prev.map((t) => (t.id === taskId ? updatedTask : t))
+      } else {
+        next = [updatedTask, ...prev]
+      }
+      saveStoredTasks(next)
+      return next
+    })
+
+    addAuditLog(
+      currentUser,
+      currentDisplayName,
+      'Cập nhật trạng thái',
+      'Nhắc việc & Lịch điều hành',
+      `Đánh dấu công việc "${existing.title}" là ${
+        targetStatus === 'completed'
+          ? 'Đã hoàn thành'
+          : targetStatus === 'in_progress'
+          ? 'Đang thực hiện'
+          : 'Chờ xử lý'
+      }`
+    )
+    setLogs(getStoredLogs())
+  }
+
+  const handleDeleteTask = (taskId: string) => {
+    const target = unifiedTasks.find((t) => t.id === taskId)
+    setCustomTasks((prev) => {
+      const next = prev.filter((t) => t.id !== taskId)
+      saveStoredTasks(next)
+      return next
+    })
+
+    if (target) {
+      addAuditLog(
+        currentUser,
+        currentDisplayName,
+        'Xóa',
+        'Nhắc việc & Lịch điều hành',
+        `Xóa công việc: ${target.title}`
+      )
+      setLogs(getStoredLogs())
+    }
   }
 
   // ========== CUSTOMER HANDLERS ==========
@@ -670,6 +766,10 @@ export default function AdminPage() {
   }
 
   // Badge counts
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
+  const todayPendingTasksCount = unifiedTasks.filter(
+    (t) => t.date === todayStr && t.status !== 'completed'
+  ).length
   const inProgressOrdersCount = orders.filter((o) => o.status === 'in_progress').length
   const unreadContactsCount = contacts.filter((c) => !c.read).length
 
@@ -684,6 +784,7 @@ export default function AdminPage() {
         activeUser={currentUser}
         activeDisplayName={currentDisplayName}
         counts={{
+          tasks: todayPendingTasksCount,
           customers: customers.length,
           orders: orders.length,
           inProgressOrders: inProgressOrdersCount,
@@ -713,6 +814,25 @@ export default function AdminPage() {
               onDeleteContact={handleDeleteContact}
               onConvertContactToCustomer={handleConvertContactToCustomer}
               onConvertContactToOrder={handleConvertContactToOrder}
+            />
+          )}
+
+          {currentTab === 'tasks' && (
+            <TasksTab
+              tasks={unifiedTasks}
+              orders={orders}
+              customers={customers}
+              onSaveTask={handleSaveTask}
+              onToggleTaskStatus={handleToggleTaskStatus}
+              onDeleteTask={handleDeleteTask}
+              onNavigateToOrder={(orderId) => {
+                handleTabChange('orders')
+              }}
+              onNavigateToCustomer={(customerId) => {
+                handleTabChange('customers')
+              }}
+              activeUser={currentUser}
+              activeDisplayName={currentDisplayName}
             />
           )}
 
