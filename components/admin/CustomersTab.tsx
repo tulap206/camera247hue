@@ -40,6 +40,7 @@ import { formatVND, formatDateVN } from '@/lib/formatters'
 import type { Customer, InstallationOrder } from '@/lib/camera247-data'
 import { HUE_DISTRICTS, CUSTOMER_TIERS, ORDER_STATUS_CONFIG } from '@/lib/camera247-data'
 import { cn } from '@/lib/utils'
+import PaginationControl from './PaginationControl'
 
 interface CustomersTabProps {
   customers: Customer[]
@@ -735,30 +736,17 @@ export function CustomersTab({
           </table>
         </div>
 
-        {/* Apple Pagination Bar */}
-        {totalPages > 1 && (
-          <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs text-[#86868B]">
-            <span>
-              Trang {currentPage} / {totalPages} ({filteredCustomers.length} khách hàng)
-            </span>
-            <div className="flex gap-2">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="px-3.5 py-1.5 bg-white hover:bg-slate-100 disabled:opacity-40 rounded-xl text-[#1D1D1F] font-medium border border-slate-200 shadow-2xs transition-all"
-              >
-                Trước
-              </button>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="px-3.5 py-1.5 bg-white hover:bg-slate-100 disabled:opacity-40 rounded-xl text-[#1D1D1F] font-medium border border-slate-200 shadow-2xs transition-all"
-              >
-                Sau
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Pagination Bar with Page Numbers */}
+        <PaginationControl
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredCustomers.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          itemLabel="khách hàng"
+          onPageChange={(page) => setCurrentPage(page)}
+          className="rounded-t-none border-x-0 border-b-0 border-t bg-slate-50/50"
+        />
+
       </div>
 
       {/* Customer 360° Dossier Sheet Modal */}

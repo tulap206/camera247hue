@@ -33,6 +33,7 @@ import {
 import type { Post, Category } from '@/lib/supabase'
 import { POST_TEMPLATES } from '@/lib/camera247-data'
 import { cn } from '@/lib/utils'
+import PaginationControl from './PaginationControl'
 
 interface PostsTabProps {
   posts: Post[]
@@ -1014,30 +1015,16 @@ export function PostsTab({
         </div>
       )}
 
-      {/* Apple Pagination Bar */}
-      {totalPages > 1 && (
-        <div className="p-4 bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between text-xs text-[#86868B]">
-          <span>
-            Trang {currentPage} / {totalPages} ({filteredPosts.length} công trình)
-          </span>
-          <div className="flex gap-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 rounded-2xl text-[#1D1D1F] font-semibold border border-slate-200 shadow-2xs transition-all"
-            >
-              Trước
-            </button>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 rounded-2xl text-[#1D1D1F] font-semibold border border-slate-200 shadow-2xs transition-all"
-            >
-              Sau
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Pagination Bar with Page Numbers */}
+      <PaginationControl
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredPosts.length}
+        itemsPerPage={ITEMS_PER_PAGE}
+        itemLabel="công trình"
+        onPageChange={(page) => setCurrentPage(page)}
+      />
+
 
       {/* Post Form Sheet Modal (Apple Sheet Style) */}
       {editingPost !== undefined && (

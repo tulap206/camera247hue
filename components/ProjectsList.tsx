@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase, type Post, type Category } from '@/lib/supabase'
 import { SAMPLE_POSTS } from '@/lib/camera247-data'
-import { MapPin, Calendar, ArrowRight, Search, Camera, ZoomIn } from 'lucide-react'
+import { MapPin, Calendar, ArrowRight, Search, Camera, ZoomIn, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import ImageLightboxModal from '@/components/ImageLightboxModal'
 
 const PAGE_SIZE = 9
@@ -267,26 +267,83 @@ export default function ProjectsList({
         )}
 
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-10">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 pt-6 border-t border-brand-border/60">
+            <span className="text-xs text-brand-muted font-medium">
+              Hiển thị <strong className="text-brand-navy">{(currentPage - 1) * PAGE_SIZE + 1} - {Math.min(currentPage * PAGE_SIZE, total)}</strong> trong tổng số <strong className="text-brand-navy">{total}</strong> công trình • Trang {currentPage} / {totalPages}
+            </span>
+
+            <div className="flex items-center gap-1.5 flex-wrap justify-center">
+              {/* Previous button */}
               <button
-                key={page}
+                disabled={currentPage === 1}
                 onClick={() => {
                   const url = new URL(window.location.href)
-                  url.searchParams.set('page', String(page))
+                  url.searchParams.set('page', String(Math.max(1, currentPage - 1)))
                   router.push(url.pathname + url.search)
                 }}
-                className={`w-10 h-10 rounded-xl text-sm font-semibold transition-all ${
-                  page === currentPage
-                    ? 'bg-brand-navy text-white shadow-xs'
-                    : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy'
-                }`}
+                className="px-3 py-2 bg-white hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none rounded-xl text-brand-navy text-xs font-semibold border border-brand-border shadow-2xs transition-all flex items-center gap-1"
+                title="Trang trước"
               >
-                {page}
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Trước</span>
               </button>
-            ))}
+
+              {/* Number buttons */}
+              {(() => {
+                const getPageList = (): (number | string)[] => {
+                  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1)
+                  if (currentPage <= 4) return [1, 2, 3, 4, 5, '...', totalPages]
+                  if (currentPage >= totalPages - 3) return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages]
+                  return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages]
+                }
+                return getPageList().map((p, idx) => {
+                  if (p === '...') {
+                    return (
+                      <span key={`p-dots-${idx}`} className="w-9 h-9 flex items-center justify-center text-slate-400 font-bold select-none text-xs">
+                        •••
+                      </span>
+                    )
+                  }
+                  const pageNum = p as number
+                  const isActive = pageNum === currentPage
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => {
+                        const url = new URL(window.location.href)
+                        url.searchParams.set('page', String(pageNum))
+                        router.push(url.pathname + url.search)
+                      }}
+                      className={`min-w-9 h-9 px-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center ${
+                        isActive
+                          ? 'bg-brand-navy text-white shadow-xs'
+                          : 'bg-white text-brand-muted border border-brand-border hover:text-brand-navy hover:bg-slate-50'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  )
+                })
+              })()}
+
+              {/* Next button */}
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => {
+                  const url = new URL(window.location.href)
+                  url.searchParams.set('page', String(Math.min(totalPages, currentPage + 1)))
+                  router.push(url.pathname + url.search)
+                }}
+                className="px-3 py-2 bg-white hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none rounded-xl text-brand-navy text-xs font-semibold border border-brand-border shadow-2xs transition-all flex items-center gap-1"
+                title="Trang sau"
+              >
+                <span>Sau</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         )}
+
       </div>
 
       {/* Lightbox Modal */}
