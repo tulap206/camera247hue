@@ -10,6 +10,7 @@ import { OrdersTab } from '@/components/admin/OrdersTab'
 import { PostsTab } from '@/components/admin/PostsTab'
 import { AccessHistoryTab } from '@/components/admin/AccessHistoryTab'
 import { SettingsBackupTab } from '@/components/admin/SettingsBackupTab'
+import { SpotlightModal } from '@/components/admin/SpotlightModal'
 import {
   type Customer,
   type InstallationOrder,
@@ -32,6 +33,13 @@ export default function AdminPage() {
   const [currentTab, setCurrentTab] = useState<AdminTab>('overview')
   const [loading, setLoading] = useState(true)
 
+  // Dynamic Auth State
+  const [currentUser, setCurrentUser] = useState<'admin' | 'admin1'>('admin')
+  const [currentDisplayName, setCurrentDisplayName] = useState<string>('Quản trị viên (Lập)')
+
+  // Global Spotlight State
+  const [isSpotlightOpen, setIsSpotlightOpen] = useState(false)
+
   // Data States
   const [posts, setPosts] = useState<Post[]>(SAMPLE_POSTS as unknown as Post[])
   const [categories, setCategories] = useState<Category[]>(SAMPLE_CATEGORIES as unknown as Category[])
@@ -40,16 +48,39 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<InstallationOrder[]>([])
   const [logs, setLogs] = useState<AccessLog[]>([])
 
-  // State to pass customer to order form
+  // State to pass prefilled customer / lead to order or customer form
   const [prefilledCustomerForOrder, setPrefilledCustomerForOrder] = useState<Customer | null>(null)
+
+  // Listen for ⌘K and Ctrl+K globally
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setIsSpotlightOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // Initial load & authentication check
   useEffect(() => {
-    // 1. Verify session
+    // 1. Verify session & extract active identity
     fetch('/api/auth', { credentials: 'same-origin' })
       .then((res) => {
         if (!res.ok) {
           router.replace('/login')
+          return null
+        }
+        return res.json()
+      })
+      .then((data) => {
+        if (data && data.user) {
+          setCurrentUser(data.user)
+          setCurrentDisplayName(
+            data.displayName ||
+              (data.user === 'admin1' ? 'Quản trị viên (Tước)' : 'Quản trị viên (Lập)')
+          )
         }
       })
       .catch(() => {
@@ -96,12 +127,137 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     try {
-      addAuditLog('admin', 'Quản trị viên (Lập)', 'Đăng xuất', 'Hệ thống & Đăng nhập', 'Đăng xuất khỏi bảng điều khiển quản trị')
+      addAuditLog(currentUser, currentDisplayName, 'Đăng xuất', 'Hệ thống & Đăng nhập', 'Đăng xuất khỏi bảng điều khiển quản trị')
       await fetch('/api/auth', { method: 'DELETE', credentials: 'same-origin' })
     } catch {
       // ignore
     }
     router.replace('/login')
+  }
+
+  // ========== LEADS / CONTACT INQUIRIES HANDLERS ==========
+  const handleToggleReadContact = async (id: string, read: boolean) => {
+    try {
+      setContacts((prev) => prev.map((c) => (c.id === id ? { ...c, read } : c)))
+      await fetch('/api/contacts', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, read }),
+      })
+      addAuditLog(
+        currentUser,
+        currentDisplayName,
+        'Cập nhật',
+        'Yêu cầu tư vấn',
+        `Đánh dấu tin nhắn tư vấn là ${read ? 'Đã đọc' : 'Chưa đọc'}`
+      )
+      setLogs(getStoredLogs())
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleDeleteContact = async (id: string) => {
+    try {
+      const target = contacts.find((c) => c.id === id)
+      setContacts((prev) => prev.filter((c) => c.id !== id))
+      await fetch(`/api/contacts?id=${id}`, { method: 'DELETE' })
+      if (target) {
+        addAuditLog(
+          currentUser,
+          currentDisplayName,
+          'Xóa',
+          'Yêu cầu tư vấn',
+          `Xóa tin nhắn yêu cầu tư vấn của ${target.name} (${target.phone})`
+        )
+        setLogs(getStoredLogs())
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleConvertContactToCustomer = (contact: ContactMessage) => {
+    const existing = customers.find((c) => c.phone === contact.phone)
+    if (existing) {
+      setCurrentTab('customers')
+      return
+    }
+
+    const newCust: Customer = {
+      id: `cust-${Date.now()}`,
+      name: contact.name,
+      phone: contact.phone,
+      phone_secondary: '',
+      zalo: contact.phone,
+      email: contact.email || '',
+      address: 'TP. Huế (Theo yêu cầu website)',
+      district: 'TP. Huế (Trung tâm)',
+      type: 'individual',
+      tier: 'potential',
+      tax_code: '',
+      idcard: '',
+      notes: `Yêu cầu dịch vụ: ${contact.service || 'Camera'}. Ghi chú: ${contact.message || ''}`,
+      total_orders: 0,
+      total_spent: 0,
+      created_at: new Date().toISOString(),
+    }
+
+    setCustomers((prev) => {
+      const next = [newCust, ...prev]
+      saveStoredCustomers(next)
+      return next
+    })
+
+    // Mark as read
+    handleToggleReadContact(contact.id, true)
+
+    addAuditLog(
+      currentUser,
+      currentDisplayName,
+      'Thêm mới',
+      'Khách hàng',
+      `Tạo khách hàng tiềm năng từ yêu cầu website: ${newCust.name} (${newCust.phone})`
+    )
+    setLogs(getStoredLogs())
+    setCurrentTab('customers')
+  }
+
+  const handleConvertContactToOrder = (contact: ContactMessage) => {
+    // 1. Find or create customer
+    let cust = customers.find((c) => c.phone === contact.phone)
+    if (!cust) {
+      cust = {
+        id: `cust-${Date.now()}`,
+        name: contact.name,
+        phone: contact.phone,
+        phone_secondary: '',
+        zalo: contact.phone,
+        email: contact.email || '',
+        address: 'TP. Huế (Chờ khảo sát)',
+        district: 'TP. Huế (Trung tâm)',
+        type: 'individual',
+        tier: 'potential',
+        tax_code: '',
+        idcard: '',
+        notes: `Tạo từ web: ${contact.message || ''}`,
+        total_orders: 0,
+        total_spent: 0,
+        created_at: new Date().toISOString(),
+      }
+      setCustomers((prev) => {
+        const next = [cust!, ...prev]
+        saveStoredCustomers(next)
+        return next
+      })
+    }
+
+    // 2. Mark lead as read
+    handleToggleReadContact(contact.id, true)
+
+    // 3. Set prefill customer and switch to orders tab
+    setPrefilledCustomerForOrder(cust)
+    setCurrentTab('orders')
   }
 
   // ========== CUSTOMER HANDLERS ==========
@@ -116,8 +272,8 @@ export default function AdminPage() {
             : c
         )
         addAuditLog(
-          'admin',
-          'Quản trị viên (Lập)',
+          currentUser,
+          currentDisplayName,
           'Chỉnh sửa',
           'Khách hàng',
           `Cập nhật thông tin khách hàng: ${customerData.name} (${customerData.phone})`
@@ -144,8 +300,8 @@ export default function AdminPage() {
         }
         next = [newCust, ...prev]
         addAuditLog(
-          'admin',
-          'Quản trị viên (Lập)',
+          currentUser,
+          currentDisplayName,
           'Thêm mới',
           'Khách hàng',
           `Thêm khách hàng mới: ${newCust.name} (${newCust.phone}) tại ${newCust.address}`
@@ -163,8 +319,8 @@ export default function AdminPage() {
       const next = prev.filter((c) => c.id !== id)
       if (target) {
         addAuditLog(
-          'admin',
-          'Quản trị viên (Lập)',
+          currentUser,
+          currentDisplayName,
           'Xóa',
           'Khách hàng',
           `Xóa hồ sơ khách hàng: ${target.name} (${target.phone})`
@@ -188,8 +344,8 @@ export default function AdminPage() {
             : o
         )
         addAuditLog(
-          'admin',
-          'Quản trị viên (Lập)',
+          currentUser,
+          currentDisplayName,
           'Cập nhật',
           'Đơn hàng',
           `Cập nhật đơn thi công ${orderData.order_code || orderData.id} (${orderData.customer_name}) → Trạng thái: ${orderData.status}`
@@ -214,14 +370,14 @@ export default function AdminPage() {
           total_amount: orderData.total_amount || 0,
           deposit_amount: orderData.deposit_amount || 0,
           status: orderData.status || 'in_progress',
-          technician: orderData.technician || 'Lập & Tước',
+          technician: orderData.technician || (currentUser === 'admin1' ? 'Tước & Lập' : 'Lập & Tước'),
           notes: orderData.notes || '',
           created_at: new Date().toISOString(),
         }
         next = [newOrder, ...prev]
         addAuditLog(
-          'admin',
-          'Quản trị viên (Lập)',
+          currentUser,
+          currentDisplayName,
           'Thêm mới',
           'Đơn hàng',
           `Tạo đơn hàng thi công mới #${newOrder.order_code} cho khách ${newOrder.customer_name} - Trị giá: ${newOrder.total_amount}đ`
@@ -239,8 +395,8 @@ export default function AdminPage() {
       const next = prev.filter((o) => o.id !== id)
       if (target) {
         addAuditLog(
-          'admin',
-          'Quản trị viên (Lập)',
+          currentUser,
+          currentDisplayName,
           'Xóa',
           'Đơn hàng',
           `Xóa đơn hàng #${target.order_code} (${target.customer_name})`
@@ -264,8 +420,8 @@ export default function AdminPage() {
       if (res.ok) {
         fetchAllData(false)
         addAuditLog(
-          'admin',
-          'Quản trị viên (Lập)',
+          currentUser,
+          currentDisplayName,
           isEditing ? 'Chỉnh sửa' : 'Thêm mới',
           'Bài viết',
           `${isEditing ? 'Cập nhật' : 'Xuất bản'} bài viết công trình: ${postData.title}`
@@ -286,8 +442,8 @@ export default function AdminPage() {
       if (res.ok) {
         fetchAllData(false)
         addAuditLog(
-          'admin',
-          'Quản trị viên (Lập)',
+          currentUser,
+          currentDisplayName,
           'Xóa',
           'Bài viết',
           `Xóa bài viết công trình: ${post?.title || id}`
@@ -310,8 +466,8 @@ export default function AdminPage() {
       if (res.ok) {
         fetchAllData(false)
         addAuditLog(
-          'admin',
-          'Quản trị viên (Lập)',
+          currentUser,
+          currentDisplayName,
           'Chỉnh sửa',
           'Bài viết',
           `${nextPub ? 'Hiển thị' : 'Ẩn'} bài viết: ${post.title}`
@@ -333,7 +489,13 @@ export default function AdminPage() {
       if (res.ok) {
         const newCat = await res.json()
         fetchAllData(false)
-        addAuditLog('admin', 'Quản trị viên (Lập)', 'Thêm mới', 'Bài viết', `Tạo danh mục công trình mới: ${name}`)
+        addAuditLog(
+          currentUser,
+          currentDisplayName,
+          'Thêm mới',
+          'Bài viết',
+          `Tạo danh mục công trình mới: ${name}`
+        )
         setLogs(getStoredLogs())
         return newCat
       }
@@ -352,7 +514,13 @@ export default function AdminPage() {
       })
       if (res.ok) {
         fetchAllData(false)
-        addAuditLog('admin', 'Quản trị viên (Lập)', 'Chỉnh sửa', 'Bài viết', `Đổi tên danh mục công trình thành: ${name}`)
+        addAuditLog(
+          currentUser,
+          currentDisplayName,
+          'Chỉnh sửa',
+          'Bài viết',
+          `Đổi tên danh mục công trình thành: ${name}`
+        )
         setLogs(getStoredLogs())
         return true
       }
@@ -367,7 +535,13 @@ export default function AdminPage() {
       const res = await fetch(`/api/categories?id=${id}`, { method: 'DELETE' })
       if (res.ok) {
         fetchAllData(false)
-        addAuditLog('admin', 'Quản trị viên (Lập)', 'Xóa', 'Bài viết', `Xóa danh mục công trình`)
+        addAuditLog(
+          currentUser,
+          currentDisplayName,
+          'Xóa',
+          'Bài viết',
+          `Xóa danh mục công trình`
+        )
         setLogs(getStoredLogs())
         return true
       }
@@ -397,7 +571,13 @@ export default function AdminPage() {
       setLogs(importedData.logs)
       saveStoredLogs(importedData.logs)
     }
-    addAuditLog('admin', 'Quản trị viên (Lập)', 'Khôi phục', 'Cài đặt & Sao lưu', 'Khôi phục dữ liệu toàn hệ thống từ tệp JSON sao lưu')
+    addAuditLog(
+      currentUser,
+      currentDisplayName,
+      'Khôi phục',
+      'Cài đặt & Sao lưu',
+      'Khôi phục dữ liệu toàn hệ thống từ tệp JSON sao lưu'
+    )
   }
 
   // Badge counts
@@ -411,6 +591,9 @@ export default function AdminPage() {
         currentTab={currentTab}
         onTabChange={setCurrentTab}
         onLogout={handleLogout}
+        onOpenSpotlight={() => setIsSpotlightOpen(true)}
+        activeUser={currentUser}
+        activeDisplayName={currentDisplayName}
         counts={{
           customers: customers.length,
           orders: orders.length,
@@ -429,6 +612,7 @@ export default function AdminPage() {
               customers={customers}
               posts={posts}
               logs={logs}
+              contacts={contacts}
               onNavigateTab={setCurrentTab}
               onOpenNewOrder={() => {
                 setPrefilledCustomerForOrder(null)
@@ -436,6 +620,10 @@ export default function AdminPage() {
               }}
               onOpenNewCustomer={() => setCurrentTab('customers')}
               onOpenNewPost={() => setCurrentTab('posts')}
+              onToggleReadContact={handleToggleReadContact}
+              onDeleteContact={handleDeleteContact}
+              onConvertContactToCustomer={handleConvertContactToCustomer}
+              onConvertContactToOrder={handleConvertContactToOrder}
             />
           )}
 
@@ -508,6 +696,29 @@ export default function AdminPage() {
           )}
         </main>
       </div>
+
+      {/* Global Spotlight Search Modal */}
+      <SpotlightModal
+        isOpen={isSpotlightOpen}
+        onClose={() => setIsSpotlightOpen(false)}
+        customers={customers}
+        orders={orders}
+        posts={posts}
+        contacts={contacts}
+        onNavigateTab={setCurrentTab}
+        onSelectCustomer={(cust) => {
+          setCurrentTab('customers')
+        }}
+        onSelectOrder={(ord) => {
+          setCurrentTab('orders')
+        }}
+        onSelectPost={(post) => {
+          setCurrentTab('posts')
+        }}
+        onSelectContact={(contact) => {
+          setCurrentTab('overview')
+        }}
+      />
     </div>
   )
 }

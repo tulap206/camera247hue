@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   DollarSign,
   ClipboardList,
@@ -24,22 +24,35 @@ import {
   Fingerprint,
   ChevronRight,
   Sparkles,
+  Printer,
+  MessageSquare,
+  Phone,
+  Check,
+  Trash2,
+  ExternalLink,
+  X,
+  Send,
 } from 'lucide-react'
 import { formatVND, formatNumber } from '@/lib/formatters'
 import type { Customer, InstallationOrder, AccessLog } from '@/lib/camera247-data'
 import { CAMERA247_SERVICES, ORDER_STATUS_CONFIG } from '@/lib/camera247-data'
 import type { AdminTab } from './AdminSidebar'
-import type { Post } from '@/lib/supabase'
+import type { Post, ContactMessage } from '@/lib/supabase'
 
 interface OverviewTabProps {
   orders: InstallationOrder[]
   customers: Customer[]
   posts: Post[]
   logs: AccessLog[]
+  contacts?: ContactMessage[]
   onNavigateTab: (tab: AdminTab) => void
   onOpenNewOrder: () => void
   onOpenNewCustomer: () => void
   onOpenNewPost: () => void
+  onToggleReadContact?: (id: string, read: boolean) => void
+  onDeleteContact?: (id: string) => void
+  onConvertContactToCustomer?: (contact: ContactMessage) => void
+  onConvertContactToOrder?: (contact: ContactMessage) => void
 }
 
 export function OverviewTab({
@@ -47,11 +60,19 @@ export function OverviewTab({
   customers,
   posts,
   logs,
+  contacts = [],
   onNavigateTab,
   onOpenNewOrder,
   onOpenNewCustomer,
   onOpenNewPost,
+  onToggleReadContact,
+  onDeleteContact,
+  onConvertContactToCustomer,
+  onConvertContactToOrder,
 }: OverviewTabProps) {
+  const [selectedLead, setSelectedLead] = useState<ContactMessage | null>(null)
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false)
+
   // Compute Key Performance Indicators
   const stats = useMemo(() => {
     const completedOrders = orders.filter((o) => o.status === 'completed' || o.status === 'warranty')
@@ -61,6 +82,7 @@ export function OverviewTab({
 
     const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0)
     const totalDeposited = orders.reduce((sum, o) => sum + (o.deposit_amount || 0), 0)
+    const unreadLeadsCount = contacts.filter((c) => !c.read).length
 
     return {
       totalRevenue,
@@ -71,8 +93,9 @@ export function OverviewTab({
       warrantyCount: warrantyOrders.length,
       customerCount: customers.length,
       postCount: posts.length,
+      unreadLeadsCount,
     }
-  }, [orders, customers, posts])
+  }, [orders, customers, posts, contacts])
 
   // 12-Month Revenue Breakdown (Apple Screen Time / Health style)
   const monthlyData = useMemo(() => {
@@ -157,6 +180,13 @@ export function OverviewTab({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 relative z-10 shrink-0">
+          <button
+            onClick={() => setIsPrintModalOpen(true)}
+            className="flex items-center gap-2 bg-white hover:bg-slate-50 text-[#1D1D1F] px-3.5 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm border border-slate-200/80 shadow-2xs transition-all active:scale-[0.98]"
+            title="In Báo Cáo A4"
+          >
+            <Printer className="w-4 h-4 text-[#0071E3]" /> In Báo Cáo A4
+          </button>
           <button
             onClick={onOpenNewOrder}
             className="flex items-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-[0_2px_10px_rgba(0,113,227,0.28)] transition-all active:scale-[0.98]"
@@ -263,6 +293,121 @@ export function OverviewTab({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Leads Action Center (Yêu Cầu Tư Vấn Mới Từ Landing Page) */}
+      <div className="bg-white border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-[0_2px_12px_rgba(245,197,24,0.08)] relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-700 flex items-center justify-center shrink-0">
+              <MessageSquare className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-[#1D1D1F]">
+                  Yêu Cầu Tư Vấn & Khảo Sát Từ Website
+                </h3>
+                {stats.unreadLeadsCount > 0 && (
+                  <span className="text-[11px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full animate-pulse">
+                    {stats.unreadLeadsCount} mới
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#86868B] mt-0.5">
+                Khách hàng điền biểu mẫu tư vấn trực tiếp từ trang chủ
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {contacts.length === 0 ? (
+          <div className="py-8 text-center text-[#86868B] text-xs bg-slate-50/60 rounded-2xl border border-dashed border-slate-200">
+            Chưa có yêu cầu tư vấn mới nào từ trang chủ.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {contacts.slice(0, 6).map((lead) => (
+              <div
+                key={lead.id}
+                className={`p-4 rounded-2xl border transition-all flex flex-col justify-between ${
+                  !lead.read
+                    ? 'bg-amber-50/70 border-amber-200 shadow-2xs'
+                    : 'bg-slate-50/60 border-slate-200/80 hover:bg-white hover:border-slate-300'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-bold text-[#1D1D1F] truncate">
+                      {lead.name}
+                    </span>
+                    <span className="text-[10px] text-[#86868B] font-mono shrink-0">
+                      {new Date(lead.created_at).toLocaleDateString('vi-VN')}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-2">
+                    <a
+                      href={`tel:${lead.phone}`}
+                      className="text-xs font-mono font-bold text-[#0071E3] hover:underline flex items-center gap-1"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      {lead.phone}
+                    </a>
+                    <span className="text-[10px] font-medium bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-700">
+                      {lead.service || 'Khảo sát camera'}
+                    </span>
+                  </div>
+
+                  {lead.message && (
+                    <p className="text-xs text-[#6E6E73] line-clamp-2 bg-white/80 p-2 rounded-xl border border-slate-200/60 mb-3">
+                      &quot;{lead.message}&quot;
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between gap-1 flex-wrap">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => onConvertContactToOrder && onConvertContactToOrder(lead)}
+                      className="text-[11px] font-bold text-[#0071E3] hover:bg-blue-100/60 px-2 py-1 rounded-lg transition-colors flex items-center gap-1"
+                      title="Tạo đơn thi công ngay"
+                    >
+                      <Plus className="w-3 h-3" /> Tạo Đơn
+                    </button>
+                    <button
+                      onClick={() => onConvertContactToCustomer && onConvertContactToCustomer(lead)}
+                      className="text-[11px] font-bold text-emerald-700 hover:bg-emerald-100/60 px-2 py-1 rounded-lg transition-colors flex items-center gap-1"
+                      title="Lưu vào danh bạ khách hàng"
+                    >
+                      <Users className="w-3 h-3" /> Lưu Khách
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    {onToggleReadContact && (
+                      <button
+                        onClick={() => onToggleReadContact(lead.id, !lead.read)}
+                        className="text-[10.5px] font-medium text-slate-500 hover:text-slate-800 p-1 rounded hover:bg-white"
+                        title={lead.read ? 'Đánh dấu chưa đọc' : 'Đánh dấu đã đọc'}
+                      >
+                        <Check className={`w-3.5 h-3.5 ${lead.read ? 'text-emerald-600' : 'text-slate-400'}`} />
+                      </button>
+                    )}
+                    {onDeleteContact && (
+                      <button
+                        onClick={() => onDeleteContact(lead.id)}
+                        className="text-[10.5px] font-medium text-slate-400 hover:text-rose-600 p-1 rounded hover:bg-rose-50"
+                        title="Xóa tin nhắn"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Apple Charts & Distribution Section */}
@@ -476,6 +621,159 @@ export function OverviewTab({
           </div>
         </div>
       </div>
+
+      {/* A4 Executive Report Print Modal */}
+      {isPrintModalOpen && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-4xl max-h-[92vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            {/* Modal action bar */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50 print:hidden">
+              <div className="flex items-center gap-2">
+                <Printer className="w-5 h-5 text-[#0071E3]" />
+                <h3 className="font-bold text-sm text-[#1D1D1F]">
+                  Xem Trước Bản In Báo Cáo Hoạt Động (A4)
+                </h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="bg-[#0071E3] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:bg-blue-600 transition-colors flex items-center gap-1.5"
+                >
+                  <Printer className="w-4 h-4" /> In Báo Cáo
+                </button>
+                <button
+                  onClick={() => setIsPrintModalOpen(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* A4 Printable Sheet Content */}
+            <div className="flex-1 overflow-y-auto p-8 sm:p-12 text-black bg-white font-sans">
+              {/* Company Header */}
+              <div className="flex items-start justify-between border-b-2 border-slate-900 pb-4 mb-6">
+                <div>
+                  <h2 className="font-black text-lg tracking-tight uppercase">
+                    CÔNG TY TNHH CÔNG NGHỆ AN NINH HUẾ
+                  </h2>
+                  <p className="text-xs text-slate-700 font-semibold mt-0.5">
+                    Thương hiệu: Camera 247 Huế · MST: 3301677400
+                  </p>
+                  <p className="text-xs text-slate-600">
+                    Trụ sở: 40 Tùng Thiện Vương, Phường Vỹ Dạ, TP. Huế
+                  </p>
+                  <p className="text-xs text-slate-600">
+                    Hotline Kỹ thuật: 0796 785 151 (Tước) · 0967 611 112 (Lập)
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs font-mono font-bold text-slate-500">
+                    MÃ BÁO CÁO: BC-2026-Q1
+                  </div>
+                  <div className="text-xs text-slate-600 mt-1">
+                    Ngày xuất: {new Date().toLocaleDateString('vi-VN')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Title */}
+              <div className="text-center my-6">
+                <h1 className="text-xl font-black uppercase tracking-wide">
+                  BÁO CÁO TỔNG KẾT HOẠT ĐỘNG THI CÔNG & KINH DOANH
+                </h1>
+                <p className="text-xs text-slate-600 mt-1">
+                  Kỳ báo cáo: Quý 1 Năm 2026 · TP. Huế
+                </p>
+              </div>
+
+              {/* KPI Summary Grid */}
+              <div className="grid grid-cols-4 gap-3 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                <div>
+                  <div className="text-[11px] text-slate-500 font-semibold uppercase">Tổng Doanh Số</div>
+                  <div className="text-base font-black text-slate-900 mt-0.5 font-mono">
+                    {formatVND(stats.totalRevenue)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-500 font-semibold uppercase">Khách Hàng</div>
+                  <div className="text-base font-black text-slate-900 mt-0.5 font-mono">
+                    {stats.customerCount}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-500 font-semibold uppercase">Đang Thi Công</div>
+                  <div className="text-base font-black text-slate-900 mt-0.5 font-mono">
+                    {stats.inProgressCount} đơn
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-500 font-semibold uppercase">Đang Bảo Hành</div>
+                  <div className="text-base font-black text-slate-900 mt-0.5 font-mono">
+                    {stats.warrantyCount} đơn
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 1: Top upcoming projects */}
+              <div className="mb-6">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 mb-2 border-b pb-1">
+                  1. Danh Sách Công Trình Đang Triển Khai & Khảo Sát
+                </h4>
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100 text-slate-800">
+                      <th className="border border-slate-300 p-2 text-left">Mã Đơn</th>
+                      <th className="border border-slate-300 p-2 text-left">Khách Hàng</th>
+                      <th className="border border-slate-300 p-2 text-left">Địa Chỉ</th>
+                      <th className="border border-slate-300 p-2 text-left">Hạng Mục Thiết Bị</th>
+                      <th className="border border-slate-300 p-2 text-right">Trị Giá</th>
+                      <th className="border border-slate-300 p-2 text-center">Trạng Thái</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.slice(0, 5).map((o) => (
+                      <tr key={o.id}>
+                        <td className="border border-slate-300 p-2 font-mono font-bold">{o.order_code}</td>
+                        <td className="border border-slate-300 p-2 font-semibold">{o.customer_name}</td>
+                        <td className="border border-slate-300 p-2">{o.customer_address}</td>
+                        <td className="border border-slate-300 p-2">{o.equipment_list}</td>
+                        <td className="border border-slate-300 p-2 text-right font-mono font-semibold">
+                          {formatVND(o.total_amount)}
+                        </td>
+                        <td className="border border-slate-300 p-2 text-center">
+                          {o.status === 'completed'
+                            ? 'Hoàn thành'
+                            : o.status === 'in_progress'
+                            ? 'Đang thi công'
+                            : 'Chờ khảo sát'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Signatures */}
+              <div className="grid grid-cols-2 gap-8 mt-12 pt-6 border-t border-slate-300 text-center">
+                <div>
+                  <div className="text-xs font-bold uppercase">QUẢN TRỊ VIÊN HỆ THỐNG</div>
+                  <div className="text-[11px] text-slate-500 italic mt-0.5">(Ký & ghi rõ họ tên)</div>
+                  <div className="h-16" />
+                  <div className="text-xs font-bold">Phan Lê Tự Lập</div>
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase">KỸ THUẬT TRƯỞNG</div>
+                  <div className="text-[11px] text-slate-500 italic mt-0.5">(Ký & ghi rõ họ tên)</div>
+                  <div className="h-16" />
+                  <div className="text-xs font-bold">Nguyễn Viết Tước</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

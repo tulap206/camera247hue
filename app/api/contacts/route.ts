@@ -75,3 +75,26 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Lỗi máy chủ.' }, { status: 500 })
   }
 }
+
+export async function DELETE(request: Request) {
+  const denied = requireAdmin()
+  if (denied) return denied
+
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    if (!id) {
+      return NextResponse.json({ error: 'ID là bắt buộc.' }, { status: 400 })
+    }
+
+    const db = supabaseAdmin()
+    const { error } = await db.from('contact_messages').delete().eq('id', id)
+    if (error) {
+      return NextResponse.json({ error: 'Không xóa được tin nhắn.' }, { status: 400 })
+    }
+
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: 'Lỗi máy chủ.' }, { status: 500 })
+  }
+}

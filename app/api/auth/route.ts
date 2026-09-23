@@ -3,6 +3,7 @@ import {
   SESSION_COOKIE,
   createSessionToken,
   isAdminSession,
+  getSessionUsername,
   passwordMatches,
   sessionCookieOptions,
   ADMIN_USERS,
@@ -13,7 +14,13 @@ export async function GET() {
   if (!isAdminSession()) {
     return NextResponse.json({ ok: false }, { status: 401 })
   }
-  return NextResponse.json({ ok: true })
+  const user = getSessionUsername()
+  return NextResponse.json({
+    ok: true,
+    user,
+    displayName: user === 'admin1' ? 'Quản trị viên (Tước)' : 'Quản trị viên (Lập)',
+    hotline: user === 'admin1' ? '0796 785 151' : '0967 611 112',
+  })
 }
 
 export async function POST(request: Request) {

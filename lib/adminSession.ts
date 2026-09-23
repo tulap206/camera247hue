@@ -107,6 +107,16 @@ export function isAdminSession() {
   return verifySessionToken(cookies().get(SESSION_COOKIE)?.value)
 }
 
+export function getSessionUsername(): 'admin' | 'admin1' {
+  const token = cookies().get(SESSION_COOKIE)?.value
+  if (!token) return 'admin'
+  const parts = token.split('.')
+  if (parts.length === 4 && (parts[2] === 'admin1' || parts[2] === 'admin')) {
+    return parts[2] as 'admin' | 'admin1'
+  }
+  return 'admin'
+}
+
 export function unauthorized() {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 }

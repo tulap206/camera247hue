@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Shield,
@@ -19,6 +19,7 @@ import {
   ExternalLink,
   ChevronRight,
   Sparkles,
+  Search,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -28,6 +29,9 @@ interface AdminSidebarProps {
   currentTab: AdminTab
   onTabChange: (tab: AdminTab) => void
   onLogout: () => void
+  onOpenSpotlight?: () => void
+  activeUser?: 'admin' | 'admin1'
+  activeDisplayName?: string
   counts?: {
     customers: number
     orders: number
@@ -50,13 +54,20 @@ export function AdminSidebar({
   currentTab,
   onTabChange,
   onLogout,
-  counts = { customers: 0, orders: 0, inProgressOrders: 0, posts: 0 },
+  onOpenSpotlight,
+  activeUser = 'admin',
+  activeDisplayName = 'Quản trị viên (Lập)',
+  counts = { customers: 0, orders: 0, inProgressOrders: 0, posts: 0, unreadContacts: 0 },
 }: AdminSidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [adminUser, setAdminUser] = useState<'admin' | 'admin1'>('admin')
+  const [adminUser, setAdminUser] = useState<'admin' | 'admin1'>(activeUser)
   const [avatarUrl, setAvatarUrl] = useState<string>('')
   const avatarInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setAdminUser(activeUser)
+  }, [activeUser])
 
   // Password change state
   const [oldPassword, setOldPassword] = useState('')
@@ -158,7 +169,27 @@ export function AdminSidebar({
 
       {/* macOS Style Navigation Menu */}
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
-        <div className="px-3 pt-2 pb-1.5 text-[11px] font-semibold text-[#86868B] tracking-wider uppercase select-none">
+        {/* Spotlight Search Quick Trigger */}
+        <button
+          type="button"
+          onClick={() => {
+            if (onOpenSpotlight) onOpenSpotlight()
+            setMobileOpen(false)
+          }}
+          className="w-full mb-3 flex items-center justify-between h-9 px-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:border-[#0071E3]/50 hover:bg-blue-50/30 text-left text-slate-500 hover:text-slate-900 transition-all group"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#0071E3]" />
+            <span className="text-xs text-slate-500 group-hover:text-slate-800 font-medium truncate">
+              Tìm nhanh...
+            </span>
+          </div>
+          <kbd className="text-[10px] font-mono font-semibold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200/80 shadow-2xs">
+            ⌘K
+          </kbd>
+        </button>
+
+        <div className="px-3 pt-1 pb-1.5 text-[11px] font-semibold text-[#86868B] tracking-wider uppercase select-none">
           Phân Hệ Quản Trị
         </div>
 
@@ -235,15 +266,15 @@ export function AdminSidebar({
             {avatarUrl ? (
               <img src={avatarUrl} alt="Admin" className="w-full h-full object-cover" />
             ) : (
-              <span>247</span>
+              <span>{adminUser === 'admin1' ? 'TƯỚC' : 'LẬP'}</span>
             )}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold text-[#1D1D1F] truncate group-hover:text-[#0071E3] transition-colors">
-              Ban Quản Trị C247
+              {activeDisplayName}
             </p>
             <p className="text-[10.5px] text-[#86868B] truncate">
-              Lập (0967) · Tước (0796)
+              {adminUser === 'admin1' ? 'Hotline: 0796 785 151' : 'Hotline: 0967 611 112'}
             </p>
           </div>
           <Settings className="w-3.5 h-3.5 text-[#86868B] group-hover:text-[#0071E3] transition-transform group-hover:rotate-45 shrink-0" />
@@ -316,12 +347,21 @@ export function AdminSidebar({
         <div className="flex items-center gap-2">
           <button
             type="button"
+            onClick={onOpenSpotlight}
+            className="p-2 rounded-xl hover:bg-slate-100 text-slate-700 transition-colors"
+            title="Tìm kiếm nhanh (⌘K)"
+            aria-label="Tìm kiếm"
+          >
+            <Search className="w-5 h-5 text-slate-600" />
+          </button>
+          <button
+            type="button"
             onClick={() => setIsProfileOpen(true)}
-            className="p-1.5 rounded-full hover:bg-slate-100"
+            className="p-1 rounded-full hover:bg-slate-100"
             title="Tài khoản"
           >
-            <div className="w-7 h-7 rounded-full bg-[#0071E3] flex items-center justify-center text-xs font-bold text-white shadow-xs">
-              247
+            <div className="w-8 h-8 rounded-full bg-[#0071E3] flex items-center justify-center text-[11px] font-bold text-white shadow-xs">
+              {adminUser === 'admin1' ? 'TƯỚC' : 'LẬP'}
             </div>
           </button>
         </div>
